@@ -17,10 +17,10 @@
 *   [x] **Auth Guards:** Protect private routes (Watchlist/Watched) using Vue Router.
 
 ## Milestone 3: TMDB Integration & Discovery
-*   [ ] **API Utility:** Create a wrapper for fetching data from TMDB (handling base URLs and headers).
-*   [ ] **Home Page:** Display "Trending Now" movies and shows.
-*   [ ] **Search:** Implement a search bar that queries TMDB and displays results.
-*   [ ] **Details Page:** Create dynamic route `/title/:id` to show full metadata (Cast, Plot, etc.).
+*   [x] **API Utility:** Create a wrapper for fetching data from TMDB (handling base URLs and headers).
+*   [x] **Home Page:** Display "Trending Now" movies and shows.
+*   [x] **Search:** Implement a search bar that queries TMDB and displays results.
+*   [x] **Details Page:** Create dynamic route `/title/:id` to show full metadata (Cast, Plot, etc.).
 
 ## Milestone 4: The Lists (Watchlist & Watched)
 *   [ ] **Schema:** Define `watchlist` and `watched` tables in Convex.

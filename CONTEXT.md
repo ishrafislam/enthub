@@ -6,7 +6,7 @@
 
 ## Current Status
 *   Project directory initialized: `E:\Projects\enthub`
-*   **Milestone 2 Completed:** Authentication fully implemented and verified.
+*   **Milestone 3 Completed:** TMDB Integration (Home, Search, Details) is live.
 *   Servers are running.
 
 ## Active Configuration

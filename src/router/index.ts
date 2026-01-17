@@ -1,6 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Home from '../views/Home.vue';
 import Login from '../views/Login.vue';
+import Search from '../views/Search.vue';
+import Details from '../views/Details.vue';
 import { authStore } from '../store/auth';
 
 const router = createRouter({
@@ -15,11 +17,20 @@ const router = createRouter({
       path: '/login',
       name: 'Login',
       component: Login
+    },
+    {
+      path: '/search',
+      name: 'Search',
+      component: Search
+    },
+    {
+      path: '/details/:type/:id',
+      name: 'Details',
+      component: Details
     }
   ]
 });
 
-// Guard (Optional for now, but good to have)
 router.beforeEach((to, from, next) => {
   if (to.name === 'Login' && authStore.isAuthenticated()) {
     next({ name: 'Home' });
