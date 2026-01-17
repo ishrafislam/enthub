@@ -6,8 +6,8 @@
 
 ## Current Status
 *   Project directory initialized: `E:\Projects\enthub`
-*   Planning documents created.
-*   Repository is currently empty (awaiting scaffold).
+*   **Milestone 1 Completed:** Project scaffolded, Tailwind v4 configured, Convex schema defined.
+*   Awaiting API Keys for TMDB and Resend.
 
 ## Active Configuration
 *   **Frontend:** Vue 3, Vite, Tailwind

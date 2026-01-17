@@ -1,11 +1,11 @@
 # MVP Development Plan
 
 ## Milestone 1: Initialization & Infrastructure
-*   [ ] **Project Scaffold:** Initialize Vue + Vite project.
-*   [ ] **Tailwind Setup:** Configure Tailwind CSS and PostCSS.
-*   [ ] **Convex Setup:** Initialize Convex in the project.
-*   [ ] **Environment:** Set up `.env` files for TMDB and Resend keys.
-*   [ ] **Basic Layout:** Create the App Layout (Navbar, Main Content Area).
+*   [x] **Project Scaffold:** Initialize Vue + Vite project.
+*   [x] **Tailwind Setup:** Configure Tailwind CSS and PostCSS.
+*   [x] **Convex Setup:** Initialize Convex in the project.
+*   [x] **Environment:** Set up `.env` files for TMDB and Resend keys.
+*   [x] **Basic Layout:** Create the App Layout (Navbar, Main Content Area).
 
 ## Milestone 2: Authentication (The Gatekeeper)
 *   [ ] **Schema:** Define the `users` schema in Convex.
