@@ -6,7 +6,8 @@
 
 ## Current Status
 *   Project directory initialized: `E:\Projects\enthub`
-*   **Milestone 2 Completed:** Authentication fully implemented and verified.
+*   **Milestone 4 Completed:** Watchlist and Watched list logic fully implemented with real-time Convex reactivity.
+*   Media type display bug in Details fixed.
 *   Servers are running.
 
 ## Active Configuration
