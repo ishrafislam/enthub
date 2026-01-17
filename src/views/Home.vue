@@ -33,9 +33,9 @@ const handleSearch = () => {
 </script>
 
 <template>
-  <div class="space-y-12 pb-12">
-    <!-- Hero / Search Section -->
-    <div class="relative rounded-3xl overflow-hidden shadow-2xl h-[500px] flex items-center justify-center">
+  <div class="pb-12">
+    <!-- Hero / Search Section (Full Width) -->
+    <div class="relative h-[500px] md:h-[600px] flex items-center justify-center overflow-hidden mb-12">
       <!-- Dynamic Background -->
       <div class="absolute inset-0">
         <img :src="heroBackdrop" class="w-full h-full object-cover" alt="Hero Background" />
@@ -43,10 +43,10 @@ const handleSearch = () => {
       </div>
 
       <div class="relative z-10 text-center px-4 max-w-4xl mx-auto w-full">
-        <h1 class="text-5xl md:text-6xl font-extrabold text-white mb-6 tracking-tight drop-shadow-lg">
+        <h1 class="text-5xl md:text-7xl font-extrabold text-white mb-6 tracking-tight drop-shadow-lg">
           Explore the <span class="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-500">Universe</span> of Cinema.
         </h1>
-        <p class="text-gray-200 text-xl mb-10 font-light drop-shadow-md">
+        <p class="text-gray-200 text-xl md:text-2xl mb-10 font-light drop-shadow-md">
           Discover millions of movies, TV shows, and people. Track what you watch.
         </p>
         
@@ -58,7 +58,7 @@ const handleSearch = () => {
             v-model="searchQuery"
             type="text" 
             placeholder="Search for movies, TV shows..." 
-            class="block w-full pl-14 pr-32 py-4 rounded-full bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm text-gray-900 dark:text-white placeholder-gray-500 border-2 border-transparent focus:border-teal-500 focus:ring-0 shadow-xl transition-all text-lg"
+            class="block w-full pl-14 pr-32 py-5 rounded-full bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm text-gray-900 dark:text-white placeholder-gray-500 border-2 border-transparent focus:border-teal-500 focus:ring-0 shadow-2xl transition-all text-lg"
           />
           <button 
             type="submit"
@@ -70,62 +70,63 @@ const handleSearch = () => {
       </div>
     </div>
 
-    <!-- Trending Section -->
-    <section>
-      <div class="flex items-center justify-between mb-8">
-        <h2 class="text-3xl font-bold text-gray-900 dark:text-white border-l-4 border-teal-500 pl-4">
-          Trending Today
-        </h2>
-        <!-- Future: Add Toggle for Day/Week -->
-      </div>
-      
-      <div v-if="loading" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-        <div v-for="n in 10" :key="n" class="animate-pulse bg-gray-200 dark:bg-gray-800 h-[360px] rounded-2xl"></div>
-      </div>
+    <!-- Trending Section (Contained) -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+      <section>
+        <div class="flex items-center justify-between mb-8">
+          <h2 class="text-3xl font-bold text-gray-900 dark:text-white border-l-4 border-teal-500 pl-4">
+            Trending Today
+          </h2>
+        </div>
+        
+        <div v-if="loading" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+          <div v-for="n in 10" :key="n" class="animate-pulse bg-gray-200 dark:bg-gray-800 h-[360px] rounded-2xl"></div>
+        </div>
 
-      <div v-else class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-        <router-link 
-          v-for="item in trending" 
-          :key="item.id"
-          :to="`/details/${item.media_type}/${item.id}`"
-          class="group relative flex flex-col bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 overflow-hidden ring-1 ring-black/5 dark:ring-white/10"
-        >
-          <div class="aspect-[2/3] overflow-hidden relative">
-            <img 
-              :src="tmdb.getImageUrl(item.poster_path)" 
-              :alt="item.title || item.name"
-              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-              loading="lazy"
-            />
-            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-               <div class="absolute bottom-4 left-4 right-4 text-white">
-                 <p class="font-bold text-sm line-clamp-2">{{ item.overview }}</p>
-               </div>
-            </div>
-          </div>
-          
-          <div class="p-4 flex-1 flex flex-col justify-between">
-            <div>
-              <h3 class="font-bold text-gray-900 dark:text-white truncate text-base mb-1" :title="item.title || item.name">
-                {{ item.title || item.name }}
-              </h3>
-              <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">
-                {{ new Date(item.release_date || item.first_air_date || '').getFullYear() || 'Unknown Year' }}
-              </p>
+        <div v-else class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+          <router-link 
+            v-for="item in trending" 
+            :key="item.id"
+            :to="`/details/${item.media_type}/${item.id}`"
+            class="group relative flex flex-col bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 overflow-hidden ring-1 ring-black/5 dark:ring-white/10"
+          >
+            <div class="aspect-[2/3] overflow-hidden relative">
+              <img 
+                :src="tmdb.getImageUrl(item.poster_path)" 
+                :alt="item.title || item.name"
+                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                loading="lazy"
+              />
+              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                 <div class="absolute bottom-4 left-4 right-4 text-white">
+                   <p class="font-bold text-sm line-clamp-2">{{ item.overview }}</p>
+                 </div>
+              </div>
             </div>
             
-            <div class="mt-3 flex items-center justify-between">
-               <div class="flex items-center bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-md">
-                 <span class="text-amber-500 text-sm mr-1">★</span>
-                 <span class="text-xs font-bold text-gray-700 dark:text-gray-200">{{ item.vote_average?.toFixed(1) }}</span>
-               </div>
-               <span class="text-xs uppercase tracking-wider text-gray-400 border border-gray-200 dark:border-gray-700 px-1.5 py-0.5 rounded">
-                 {{ item.media_type }}
-               </span>
+            <div class="p-4 flex-1 flex flex-col justify-between">
+              <div>
+                <h3 class="font-bold text-gray-900 dark:text-white truncate text-base mb-1" :title="item.title || item.name">
+                  {{ item.title || item.name }}
+                </h3>
+                <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">
+                  {{ new Date(item.release_date || item.first_air_date || '').getFullYear() || 'Unknown Year' }}
+                </p>
+              </div>
+              
+              <div class="mt-3 flex items-center justify-between">
+                 <div class="flex items-center bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-md">
+                   <span class="text-amber-500 text-sm mr-1">★</span>
+                   <span class="text-xs font-bold text-gray-700 dark:text-gray-200">{{ item.vote_average?.toFixed(1) }}</span>
+                 </div>
+                 <span class="text-xs uppercase tracking-wider text-gray-400 border border-gray-200 dark:border-gray-700 px-1.5 py-0.5 rounded">
+                   {{ item.media_type }}
+                 </span>
+              </div>
             </div>
-          </div>
-        </router-link>
-      </div>
-    </section>
+          </router-link>
+        </div>
+      </section>
+    </div>
   </div>
 </template>

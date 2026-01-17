@@ -23,12 +23,12 @@
 *   [x] **Details Page:** Create dynamic route `/title/:id` to show full metadata (Cast, Plot, etc.).
 
 ## Milestone 4: The Lists (Watchlist & Watched)
-*   [ ] **Schema:** Define `watchlist` and `watched` tables in Convex.
-*   [ ] **Backend Logic:**
+*   [x] **Schema:** Define `watchlist` and `watched` tables in Convex.
+*   [x] **Backend Logic:**
     *   Mutation: `addToWatchlist`
     *   Mutation: `removeFromWatchlist`
     *   Mutation: `markAsWatched` (Transactional: Remove from Watchlist -> Add to Watched).
-*   [ ] **Frontend UI:**
+*   [x] **Frontend UI:**
     *   Add "Bookmark" button on Movie Details cards.
     *   Create `/watchlist` page to grid view of saved items.
     *   Create `/watched` page for history.

@@ -6,7 +6,8 @@
 
 ## Current Status
 *   Project directory initialized: `E:\Projects\enthub`
-*   **Milestone 3 Completed:** TMDB Integration (Home, Search, Details) is live.
+*   **Milestone 4 Completed:** Watchlist and Watched list logic fully implemented with real-time Convex reactivity.
+*   Media type display bug in Details fixed.
 *   Servers are running.
 
 ## Active Configuration
