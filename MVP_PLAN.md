@@ -8,13 +8,13 @@
 *   [x] **Basic Layout:** Create the App Layout (Navbar, Main Content Area).
 
 ## Milestone 2: Authentication (The Gatekeeper)
-*   [ ] **Schema:** Define the `users` schema in Convex.
-*   [ ] **Backend Logic:** Create Convex actions/mutations to:
+*   [x] **Schema:** Define the `users` schema in Convex.
+*   [x] **Backend Logic:** Create Convex actions/mutations to:
     *   Generate OTP/Magic Code.
     *   Send email via Resend API.
     *   Verify code and create session.
-*   [ ] **Frontend UI:** Create Login page (Email input -> OTP input).
-*   [ ] **Auth Guards:** Protect private routes (Watchlist/Watched) using Vue Router.
+*   [x] **Frontend UI:** Create Login page (Email input -> OTP input).
+*   [x] **Auth Guards:** Protect private routes (Watchlist/Watched) using Vue Router.
 
 ## Milestone 3: TMDB Integration & Discovery
 *   [ ] **API Utility:** Create a wrapper for fetching data from TMDB (handling base URLs and headers).

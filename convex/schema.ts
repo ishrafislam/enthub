@@ -4,9 +4,16 @@ import { v } from "convex/values";
 export default defineSchema({
   users: defineTable({
     email: v.string(),
-    tokenIdentifier: v.string(),
-  }).index("by_email", ["email"])
-    .index("by_token", ["tokenIdentifier"]),
+    // We will use this to store the session/token if needed, 
+    // or just rely on the ID for this simple MVP.
+    name: v.optional(v.string()), 
+  }).index("by_email", ["email"]),
+
+  authCodes: defineTable({
+    email: v.string(),
+    code: v.string(),
+    expiresAt: v.number(),
+  }).index("by_email", ["email"]),
 
   watchlist: defineTable({
     userId: v.id("users"),
@@ -16,7 +23,7 @@ export default defineSchema({
     posterPath: v.optional(v.string()),
     addedAt: v.number(),
   }).index("by_user", ["userId"])
-    .index("by_user_media", ["userId", "tmdbId"]), // Compound index for quick check
+    .index("by_user_media", ["userId", "tmdbId"]),
 
   watched: defineTable({
     userId: v.id("users"),

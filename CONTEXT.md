@@ -6,8 +6,8 @@
 
 ## Current Status
 *   Project directory initialized: `E:\Projects\enthub`
-*   **Milestone 1 Completed:** Project scaffolded, Tailwind v4 configured, Convex schema defined.
-*   Awaiting API Keys for TMDB and Resend.
+*   **Milestone 2 Completed:** Authentication fully implemented and verified.
+*   Servers are running.
 
 ## Active Configuration
 *   **Frontend:** Vue 3, Vite, Tailwind
