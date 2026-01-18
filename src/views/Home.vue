@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue';
 import { tmdb } from '../services/tmdb';
 import type { MediaItem } from '../types/tmdb';
 import { useRouter } from 'vue-router';
+import Skeleton from '../components/Skeleton.vue';
 
 const trending = ref<MediaItem[]>([]);
 const loading = ref(true);
@@ -80,7 +81,14 @@ const handleSearch = () => {
         </div>
         
         <div v-if="loading" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-          <div v-for="n in 10" :key="n" class="animate-pulse bg-gray-200 dark:bg-gray-800 h-[360px] rounded-2xl"></div>
+          <div v-for="n in 10" :key="n" class="space-y-3">
+            <Skeleton className="aspect-[2/3] w-full rounded-2xl" />
+            <Skeleton className="h-4 w-3/4" />
+            <div class="flex justify-between">
+              <Skeleton className="h-3 w-1/4" />
+              <Skeleton className="h-3 w-1/4" />
+            </div>
+          </div>
         </div>
 
         <div v-else class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">

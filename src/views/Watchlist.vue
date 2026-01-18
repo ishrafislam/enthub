@@ -4,6 +4,7 @@ import { useConvexQuery } from '../composables/useConvex';
 import { api } from '../../convex/_generated/api';
 import { authStore } from '../store/auth';
 import { tmdb } from '../services/tmdb';
+import Skeleton from '../components/Skeleton.vue';
 
 const { data: watchlist, loading } = useConvexQuery(
   api.lists.getWatchlist,
@@ -20,8 +21,11 @@ const { data: watchlist, loading } = useConvexQuery(
       </span>
     </div>
 
-    <div v-if="loading" class="flex justify-center py-20">
-      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-500"></div>
+    <div v-if="loading" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
+      <div v-for="n in 6" :key="n" class="space-y-3">
+        <Skeleton className="aspect-[2/3] w-full rounded-2xl" />
+        <Skeleton className="h-4 w-3/4" />
+      </div>
     </div>
 
     <div v-else-if="!watchlist || watchlist.length === 0" class="text-center py-20">
