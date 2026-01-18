@@ -5,11 +5,19 @@
 **Goal:** IMDB Replacement with Auth, Watchlist, and Watched history.
 
 ## Current Status
+<<<<<<< Updated upstream
 *   **Milestone 1 Completed:** Infrastructure, Tailwind v4, Convex scaffold.
 *   **Milestone 2 Completed:** Passwordless Auth (Resend + Convex) fully functional.
 *   **Milestone 3 Completed:** TMDB Integration (Discovery, Search, Details).
 *   **Milestone 4 Completed:** List management (Watchlist/Watched) with real-time reactivity.
 *   **UI/UX Overhaul:** Implemented Theme Toggler (System/Light/Dark) and fully responsive layouts.
+=======
+*   **MVP COMPLETE:** All milestones (1-5) delivered.
+*   **Infrastructure:** Vue 3, Vite, Tailwind v4, Convex.
+*   **Features:** Passwordless Auth, Real-time Watchlist/Watched lists, TMDB search/details.
+*   **Polish:** Implemented Skeleton screens, page transitions, and responsive "Modern" design.
+*   **Deployment:** `DEPLOYMENT.md` created with instructions for Convex and Render.
+>>>>>>> Stashed changes
 
 ## Active Configuration
 *   **Frontend:** Vue 3 + Vite + Tailwind CSS v4.
