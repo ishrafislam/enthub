@@ -28,6 +28,11 @@
     *   (Optional for MVP) Add a personal rating when marking as watched.
     *   View history of watched items.
 
+### D. UI/UX
+*   **Theme Management:** Toggle between System, Light, and Dark modes.
+*   **Responsive Design:** Fully adaptive layout for Mobile, Tablet, and Desktop.
+*   **Performance:** Lightweight video previews (thumbnails) instead of heavy iframes.
+
 ## 3. Technical Stack
 
 ### Frontend
