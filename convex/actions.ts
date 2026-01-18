@@ -40,6 +40,5 @@ export const sendAuthEmail = action({
       console.error("Action sendAuthEmail failed:", err);
       throw new Error(err instanceof Error ? err.message : "Internal server error during email dispatch");
     }
-    }
   },
 });
