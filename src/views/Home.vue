@@ -40,14 +40,14 @@ const handleSearch = () => {
       <!-- Dynamic Background -->
       <div class="absolute inset-0">
         <img :src="heroBackdrop" class="w-full h-full object-cover" alt="Hero Background" />
-        <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/60 to-transparent dark:from-black dark:via-black/70"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-gray-50 via-gray-50/60 to-transparent dark:from-black dark:via-black/70"></div>
       </div>
 
       <div class="relative z-10 text-center px-4 max-w-4xl mx-auto w-full">
-        <h1 class="text-5xl md:text-7xl font-extrabold text-white mb-6 tracking-tight drop-shadow-lg">
-          Explore the <span class="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-500">Universe</span> of Cinema.
+        <h1 class="text-5xl md:text-7xl font-extrabold text-gray-900 dark:text-white mb-6 tracking-tight drop-shadow-sm">
+          Explore the <span class="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-blue-600 dark:from-teal-400 dark:to-blue-500">Universe</span> of Cinema.
         </h1>
-        <p class="text-gray-200 text-xl md:text-2xl mb-10 font-light drop-shadow-md">
+        <p class="text-gray-700 dark:text-gray-200 text-xl md:text-2xl mb-10 font-medium drop-shadow-sm">
           Discover millions of movies, TV shows, and people. Track what you watch.
         </p>
         
@@ -59,7 +59,7 @@ const handleSearch = () => {
             v-model="searchQuery"
             type="text" 
             placeholder="Search for movies, TV shows..." 
-            class="block w-full pl-14 pr-32 py-5 rounded-full bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm text-gray-900 dark:text-white placeholder-gray-500 border-2 border-transparent focus:border-teal-500 focus:ring-0 shadow-2xl transition-all text-lg"
+            class="block w-full pl-14 pr-32 py-5 rounded-full bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 border border-gray-200 dark:border-transparent focus:border-teal-500 focus:ring-0 shadow-2xl transition-all text-lg"
           />
           <button 
             type="submit"
