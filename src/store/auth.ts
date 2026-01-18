@@ -1,4 +1,4 @@
-import { reactive, watch } from 'vue';
+import { reactive } from 'vue';
 
 const STATE_KEY = 'enthub_user_id';
 

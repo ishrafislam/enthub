@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { tmdb } from '../services/tmdb';
-import type { MediaItem } from '../types/tmdb';
+import type { MediaItem, MovieItem, TVItem } from '../types/tmdb';
 import { useRouter } from 'vue-router';
 import Skeleton from '../components/Skeleton.vue';
 
@@ -16,8 +16,9 @@ onMounted(async () => {
   try {
     const data = await tmdb.getTrending();
     trending.value = data.results;
-    if (data.results.length > 0 && data.results[0].backdrop_path) {
-        heroBackdrop.value = tmdb.getImageUrl(data.results[0].backdrop_path, 'original');
+    const firstWithBackdrop = data.results.find(item => item.media_type !== 'person' && item.backdrop_path);
+    if (firstWithBackdrop && firstWithBackdrop.media_type !== 'person' && firstWithBackdrop.backdrop_path) {
+        heroBackdrop.value = tmdb.getImageUrl(firstWithBackdrop.backdrop_path, 'original');
     }
   } catch (error) {
     console.error('Failed to load trending:', error);
@@ -30,6 +31,22 @@ const handleSearch = () => {
   if (searchQuery.value.trim()) {
     router.push({ path: '/search', query: { q: searchQuery.value } });
   }
+};
+
+const getTitle = (item: MediaItem) => {
+  if (item.media_type === 'person') return item.name;
+  return item.media_type === 'movie' ? (item as MovieItem).title : (item as TVItem).name;
+};
+
+const getDate = (item: MediaItem) => {
+  if (item.media_type === 'person') return '';
+  const dateStr = item.media_type === 'movie' ? (item as MovieItem).release_date : (item as TVItem).first_air_date;
+  return dateStr ? new Date(dateStr).getFullYear() : 'Unknown Year';
+};
+
+const getPoster = (item: MediaItem) => {
+  if (item.media_type === 'person') return item.profile_path;
+  return item.poster_path;
 };
 </script>
 
@@ -95,17 +112,17 @@ const handleSearch = () => {
           <router-link 
             v-for="item in trending" 
             :key="item.id"
-            :to="`/details/${item.media_type}/${item.id}`"
+            :to="item.media_type === 'person' ? '#' : `/details/${item.media_type}/${item.id}`"
             class="group relative flex flex-col bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 overflow-hidden ring-1 ring-black/5 dark:ring-white/10"
           >
             <div class="aspect-[2/3] overflow-hidden relative">
               <img 
-                :src="tmdb.getImageUrl(item.poster_path)" 
-                :alt="item.title || item.name"
+                :src="tmdb.getImageUrl(getPoster(item))" 
+                :alt="getTitle(item)"
                 class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 loading="lazy"
               />
-              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <div v-if="item.media_type !== 'person'" class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                  <div class="absolute bottom-4 left-4 right-4 text-white">
                    <p class="font-bold text-sm line-clamp-2">{{ item.overview }}</p>
                  </div>
@@ -114,15 +131,15 @@ const handleSearch = () => {
             
             <div class="p-4 flex-1 flex flex-col justify-between">
               <div>
-                <h3 class="font-bold text-gray-900 dark:text-white truncate text-base mb-1" :title="item.title || item.name">
-                  {{ item.title || item.name }}
+                <h3 class="font-bold text-gray-900 dark:text-white truncate text-base mb-1" :title="getTitle(item)">
+                  {{ getTitle(item) }}
                 </h3>
                 <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">
-                  {{ new Date(item.release_date || item.first_air_date || '').getFullYear() || 'Unknown Year' }}
+                  {{ getDate(item) }}
                 </p>
               </div>
               
-              <div class="mt-3 flex items-center justify-between">
+              <div v-if="item.media_type !== 'person'" class="mt-3 flex items-center justify-between">
                  <div class="flex items-center bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-md">
                    <span class="text-amber-500 text-sm mr-1">★</span>
                    <span class="text-xs font-bold text-gray-700 dark:text-gray-200">{{ item.vote_average?.toFixed(1) }}</span>

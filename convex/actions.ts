@@ -5,10 +5,8 @@ import { Resend } from "resend";
 
 export const sendAuthEmail = action({
   args: { email: v.string(), code: v.string() },
-  handler: async (ctx, args) => {
-    // If we are in dev and don't have a key, just log it.
-    // However, the user provided a key (or placeholders).
-    // We'll try to use it if present.
+  handler: async (_ctx, args) => {
+    // In Convex actions, environment variables are accessed via process.env
     const resendKey = process.env.RESEND_API_KEY;
 
     if (!resendKey || resendKey.includes("replace_me")) {

@@ -43,7 +43,7 @@ const router = createRouter({
       meta: { requiresAuth: true }
     }
   ],
-  scrollBehavior(to, from, savedPosition) {
+  scrollBehavior(_to, _from, savedPosition) {
     if (savedPosition) {
       return savedPosition;
     } else {
@@ -52,7 +52,7 @@ const router = createRouter({
   }
 });
 
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, _from, next) => {
   const isAuthenticated = authStore.isAuthenticated();
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
 
