@@ -3,6 +3,7 @@ import { ref, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { tmdb } from '../services/tmdb';
 import type { MediaItem } from '../types/tmdb';
+import Skeleton from '../components/Skeleton.vue';
 
 const route = useRoute();
 const results = ref<MediaItem[]>([]);
@@ -36,8 +37,11 @@ watch(() => route.query.q, search);
       Search Results for <span class="text-teal-500">"{{ query }}"</span>
     </h2>
 
-    <div v-if="loading" class="text-center py-20">
-      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-500 mx-auto"></div>
+    <div v-if="loading" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+      <div v-for="n in 10" :key="n" class="space-y-3">
+        <Skeleton className="aspect-[2/3] w-full rounded-2xl" />
+        <Skeleton className="h-4 w-3/4" />
+      </div>
     </div>
 
     <div v-else-if="results.length === 0" class="text-center py-20">
