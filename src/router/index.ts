@@ -40,7 +40,14 @@ const router = createRouter({
       name: 'Watched',
       component: Watched
     }
-  ]
+  ],
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition;
+    } else {
+      return { top: 0 };
+    }
+  }
 });
 
 router.beforeEach((to, from, next) => {

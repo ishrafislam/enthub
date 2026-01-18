@@ -6,6 +6,7 @@ import type { MediaDetails, CrewMember } from "../types/tmdb";
 import { useConvexQuery, useConvexMutation } from "../composables/useConvex";
 import { api } from "../../convex/_generated/api";
 import { authStore } from "../store/auth";
+import Skeleton from "../components/Skeleton.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -133,14 +134,33 @@ const displayedVideos = computed(() => {
 </script>
 
 <template>
-  <div v-if="loading" class="flex justify-center items-center h-[70vh]">
-    <div class="relative w-20 h-20">
-      <div
-        class="absolute inset-0 border-4 border-gray-200 dark:border-gray-800 rounded-full"
-      ></div>
-      <div
-        class="absolute inset-0 border-4 border-teal-500 rounded-full border-t-transparent animate-spin"
-      ></div>
+  <div v-if="loading" class="animate-in fade-in duration-500">
+    <!-- Hero Skeleton -->
+    <div class="h-[600px] lg:h-[850px] bg-gray-100 dark:bg-gray-900/50 relative">
+      <div class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 h-full flex items-end pb-12 gap-10">
+        <Skeleton className="hidden md:block w-80 h-[480px] rounded-2xl transform translate-y-32 z-30" />
+        <div class="flex-1 space-y-6 pb-16">
+          <Skeleton className="h-12 w-2/3" />
+          <Skeleton className="h-6 w-1/3" />
+          <div class="flex gap-4">
+            <Skeleton className="h-12 w-32 rounded-full" />
+            <Skeleton className="h-12 w-32 rounded-full" />
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Content Skeleton -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-48 grid grid-cols-1 lg:grid-cols-4 gap-12">
+      <div class="lg:col-span-1 space-y-4">
+        <Skeleton className="h-64 w-full rounded-2xl" />
+      </div>
+      <div class="lg:col-span-3 space-y-8">
+        <Skeleton className="h-8 w-1/4" />
+        <Skeleton className="h-32 w-full" />
+        <div class="flex gap-6">
+          <Skeleton v-for="i in 5" :key="i" className="w-24 h-24 rounded-full flex-shrink-0" />
+        </div>
+      </div>
     </div>
   </div>
 

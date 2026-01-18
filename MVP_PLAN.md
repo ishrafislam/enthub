@@ -34,6 +34,6 @@
     *   Create `/watched` page for history.
 
 ## Milestone 5: Polish & Deployment
-*   [ ] **UI Polish:** Better loading skeletons, error states (e.g., "Movie not found").
-*   [ ] **Responsiveness:** Ensure mobile view looks good.
+*   [x] **UI Polish:** Better loading skeletons, error states (e.g., "Movie not found").
+*   [x] **Responsiveness:** Ensure mobile view looks good.
 *   [ ] **Deployment:** Deploy frontend (Vercel/Netlify) and backend (Convex Production).
