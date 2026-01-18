@@ -14,6 +14,7 @@ interface BaseMediaItem {
   overview: string;
   vote_average: number;
   genre_ids: number[];
+  media_type: 'movie' | 'tv' | 'person';
 }
 
 export interface MovieItem extends BaseMediaItem {
@@ -52,12 +53,19 @@ export interface Video {
   official: boolean;
 }
 
-export interface MediaDetails extends BaseMediaItem {
+export interface MediaDetails {
+  id: number;
+  poster_path: string | null;
+  backdrop_path: string | null;
+  overview: string;
+  vote_average: number;
+  genre_ids: number[];
   media_type?: 'movie' | 'tv';
   title?: string;
   name?: string;
   release_date?: string;
   first_air_date?: string;
+  original_language?: string;
   genres: { id: number; name: string }[];
   runtime?: number; // Movies
   episode_run_time?: number[]; // TV
@@ -80,6 +88,7 @@ export interface CastMember {
   name: string;
   character: string;
   profile_path: string | null;
+  popularity?: number;
 }
 
 export interface CrewMember {
@@ -87,4 +96,5 @@ export interface CrewMember {
   name: string;
   job: string;
   department: string;
+  profile_path: string | null;
 }

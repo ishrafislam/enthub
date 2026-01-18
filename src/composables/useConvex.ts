@@ -1,4 +1,4 @@
-import { ref, onMounted, onUnmounted, watch, unref, isRef } from 'vue';
+import { ref, onMounted, onUnmounted, watch, unref } from 'vue';
 import { ConvexHttpClient, ConvexClient } from "convex/browser";
 
 const client = new ConvexClient(import.meta.env.VITE_CONVEX_URL);

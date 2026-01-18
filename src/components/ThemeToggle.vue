@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useTheme } from '../composables/useTheme';
-import { Sun, Moon, Monitor } from 'lucide-vue-next'; // Assuming we will install lucide-vue-next or use SVGs
 
 const { theme } = useTheme();
 </script>

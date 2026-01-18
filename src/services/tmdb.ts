@@ -14,7 +14,10 @@ const headers = {
 
 async function fetchTMDB<T>(endpoint: string, params: Record<string, string> = {}): Promise<T> {
   const url = new URL(`${BASE_URL}${endpoint}`);
-  Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
+  Object.keys(params).forEach(key => {
+    const val = params[key];
+    if (val !== undefined) url.searchParams.append(key, val);
+  });
 
   try {
     const response = await fetch(url.toString(), { headers });

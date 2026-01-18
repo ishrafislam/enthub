@@ -2,7 +2,7 @@
 import { ref, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { tmdb } from '../services/tmdb';
-import type { MediaItem } from '../types/tmdb';
+import type { MediaItem, MovieItem, TVItem } from '../types/tmdb';
 import Skeleton from '../components/Skeleton.vue';
 
 const route = useRoute();
@@ -29,6 +29,16 @@ const search = async () => {
 
 onMounted(search);
 watch(() => route.query.q, search);
+
+const getTitle = (item: MediaItem) => {
+  if (item.media_type === 'person') return item.name;
+  return item.media_type === 'movie' ? (item as MovieItem).title : (item as TVItem).name;
+};
+
+const getPoster = (item: MediaItem) => {
+  if (item.media_type === 'person') return item.profile_path;
+  return item.poster_path;
+};
 </script>
 
 <template>
@@ -55,13 +65,13 @@ watch(() => route.query.q, search);
       <router-link 
         v-for="item in results" 
         :key="item.id"
-        :to="`/details/${item.media_type}/${item.id}`"
+        :to="item.media_type === 'person' ? '#' : `/details/${item.media_type}/${item.id}`"
         class="group relative flex flex-col bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-200 overflow-hidden"
       >
         <div class="aspect-[2/3] overflow-hidden bg-gray-200 dark:bg-gray-700">
            <img 
-            v-if="item.poster_path"
-            :src="tmdb.getImageUrl(item.poster_path)" 
+            v-if="getPoster(item)"
+            :src="tmdb.getImageUrl(getPoster(item))" 
             class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
           />
           <div v-else class="w-full h-full flex items-center justify-center text-gray-400">
@@ -69,7 +79,7 @@ watch(() => route.query.q, search);
           </div>
         </div>
         <div class="p-4 flex-1">
-          <h3 class="font-bold text-gray-900 dark:text-white truncate text-sm mb-1">{{ item.title || item.name }}</h3>
+          <h3 class="font-bold text-gray-900 dark:text-white truncate text-sm mb-1">{{ getTitle(item) }}</h3>
           <p class="text-xs text-gray-500 dark:text-gray-400 capitalize">{{ item.media_type }}</p>
         </div>
       </router-link>
