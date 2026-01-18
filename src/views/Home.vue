@@ -53,7 +53,7 @@ const getPoster = (item: MediaItem) => {
 <template>
   <div class="pb-12">
     <!-- Hero / Search Section (Full Width) -->
-    <div class="relative h-[500px] md:h-[600px] flex items-center justify-center overflow-hidden mb-12">
+    <div class="relative h-[400px] md:h-[600px] flex items-center justify-center overflow-hidden mb-8 md:mb-12">
       <!-- Dynamic Background -->
       <div class="absolute inset-0">
         <img :src="heroBackdrop" class="w-full h-full object-cover" alt="Hero Background" />
@@ -61,26 +61,26 @@ const getPoster = (item: MediaItem) => {
       </div>
 
       <div class="relative z-10 text-center px-4 max-w-4xl mx-auto w-full">
-        <h1 class="text-5xl md:text-7xl font-extrabold text-gray-900 dark:text-white mb-6 tracking-tight drop-shadow-sm">
+        <h1 class="text-3xl md:text-7xl font-extrabold text-gray-900 dark:text-white mb-4 md:mb-6 tracking-tight drop-shadow-sm">
           Explore the <span class="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-blue-600 dark:from-teal-400 dark:to-blue-500">Universe</span> of Cinema.
         </h1>
-        <p class="text-gray-700 dark:text-gray-200 text-xl md:text-2xl mb-10 font-medium drop-shadow-sm">
+        <p class="text-gray-700 dark:text-gray-200 text-base md:text-2xl mb-8 md:mb-10 font-medium drop-shadow-sm">
           Discover millions of movies, TV shows, and people. Track what you watch.
         </p>
         
         <form @submit.prevent="handleSearch" class="relative max-w-2xl mx-auto group">
-          <div class="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
-            <svg class="h-6 w-6 text-gray-400 group-focus-within:text-teal-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+          <div class="absolute inset-y-0 left-0 pl-4 md:pl-6 flex items-center pointer-events-none">
+            <svg class="h-5 w-5 md:h-6 md:w-6 text-gray-400 group-focus-within:text-teal-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
           </div>
           <input 
             v-model="searchQuery"
             type="text" 
             placeholder="Search for movies, TV shows..." 
-            class="block w-full pl-14 pr-32 py-5 rounded-full bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 border border-gray-200 dark:border-transparent focus:border-teal-500 focus:ring-0 shadow-2xl transition-all text-lg"
+            class="block w-full pl-10 md:pl-14 pr-24 md:pr-32 py-3 md:py-5 rounded-full bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 border border-gray-200 dark:border-transparent focus:border-teal-500 focus:ring-0 shadow-xl md:shadow-2xl transition-all text-sm md:text-lg"
           />
           <button 
             type="submit"
-            class="absolute right-2 top-2 bottom-2 bg-gradient-to-r from-teal-500 to-blue-600 text-white px-8 rounded-full font-bold hover:shadow-lg hover:scale-105 active:scale-95 transition duration-200"
+            class="absolute right-1.5 md:right-2 top-1.5 md:top-2 bottom-1.5 md:bottom-2 bg-gradient-to-r from-teal-500 to-blue-600 text-white px-4 md:px-8 rounded-full font-bold hover:shadow-lg hover:scale-105 active:scale-95 transition duration-200 text-sm md:text-base"
           >
             Search
           </button>
