@@ -45,10 +45,19 @@ export const toggleWatchlist = mutation({
       await ctx.db.delete(existing._id);
       return { added: false };
     } else {
-      // Also check if it's in watched, maybe remove from there? 
-      // User requirement: "mark things as watched that will remove the items from watchlist and add to watched list"
-      // Usually, if you add to watchlist, you might want to remove it from watched? 
-      // For now let's just add to watchlist.
+      // 1. Remove from watched if present (re-watching)
+      const inWatched = await ctx.db
+        .query("watched")
+        .withIndex("by_user_media", (q) =>
+          q.eq("userId", args.userId).eq("tmdbId", args.tmdbId)
+        )
+        .first();
+
+      if (inWatched) {
+        await ctx.db.delete(inWatched._id);
+      }
+
+      // 2. Add to watchlist
       await ctx.db.insert("watchlist", {
         userId: args.userId,
         tmdbId: args.tmdbId,
