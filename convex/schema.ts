@@ -12,8 +12,10 @@ export default defineSchema({
   authCodes: defineTable({
     email: v.string(),
     code: v.string(),
-    expiresAt: v.number(),
-  }).index("by_email", ["email"]),
+    attempts: v.number(),
+    expiresAt: v.number(), // Unix epoch in milliseconds
+  }).index("by_email", ["email"])
+    .index("by_email_code", ["email", "code"]),
 
   watchlist: defineTable({
     userId: v.id("users"),

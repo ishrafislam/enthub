@@ -1,9 +1,15 @@
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch, onMounted, onUnmounted } from 'vue';
 
 type Theme = 'light' | 'dark' | 'system';
 
 export function useTheme() {
-  const theme = ref<Theme>(localStorage.getItem('theme') as Theme || 'system');
+  const getStoredTheme = (): Theme => {
+    const stored = localStorage.getItem('theme');
+    if (stored === 'light' || stored === 'dark' || stored === 'system') return stored;
+    return 'system';
+  };
+
+  const theme = ref<Theme>(getStoredTheme());
 
   const applyTheme = () => {
     const isDark = 
@@ -22,12 +28,19 @@ export function useTheme() {
     applyTheme();
   });
 
+  let mediaQuery: MediaQueryList;
+  const handleSystemChange = () => {
+    if (theme.value === 'system') applyTheme();
+  };
+
   onMounted(() => {
     applyTheme();
-    // Listen for system changes if in system mode
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-      if (theme.value === 'system') applyTheme();
-    });
+    mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    mediaQuery.addEventListener('change', handleSystemChange);
+  });
+
+  onUnmounted(() => {
+    mediaQuery?.removeEventListener('change', handleSystemChange);
   });
 
   return { theme, applyTheme };

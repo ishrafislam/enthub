@@ -5,18 +5,35 @@ export interface TMDBResponse<T> {
   total_results: number;
 }
 
-export interface MediaItem {
+export type MediaItem = MovieItem | TVItem | PersonItem;
+
+interface BaseMediaItem {
   id: number;
-  title?: string; // Movies
-  name?: string;  // TV Shows
   poster_path: string | null;
   backdrop_path: string | null;
   overview: string;
-  media_type: 'movie' | 'tv' | 'person';
   vote_average: number;
-  release_date?: string;
-  first_air_date?: string;
   genre_ids: number[];
+}
+
+export interface MovieItem extends BaseMediaItem {
+  media_type: 'movie';
+  title: string;
+  release_date: string;
+}
+
+export interface TVItem extends BaseMediaItem {
+  media_type: 'tv';
+  name: string;
+  first_air_date: string;
+}
+
+export interface PersonItem {
+  media_type: 'person';
+  id: number;
+  name: string;
+  profile_path: string | null;
+  known_for_department?: string;
 }
 
 export interface ProductionCompany {
@@ -35,7 +52,12 @@ export interface Video {
   official: boolean;
 }
 
-export interface MediaDetails extends MediaItem {
+export interface MediaDetails extends BaseMediaItem {
+  media_type?: 'movie' | 'tv';
+  title?: string;
+  name?: string;
+  release_date?: string;
+  first_air_date?: string;
   genres: { id: number; name: string }[];
   runtime?: number; // Movies
   episode_run_time?: number[]; // TV

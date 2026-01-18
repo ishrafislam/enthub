@@ -3,6 +3,12 @@ import "./style.css";
 import App from "./App.vue";
 import router from "./router";
 
-createApp(App)
-  .use(router)
-  .mount("#app");
+const app = createApp(App);
+app.use(router);
+
+const root = document.getElementById("app");
+if (root) {
+  app.mount(root);
+} else {
+  console.error("Critical Error: #app container not found in DOM.");
+}

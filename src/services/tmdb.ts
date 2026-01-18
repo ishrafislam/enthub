@@ -3,6 +3,10 @@ import type { TMDBResponse, MediaItem, MediaDetails } from '../types/tmdb';
 const BASE_URL = 'https://api.themoviedb.org/3';
 const TOKEN = import.meta.env.VITE_TMDB_READ_TOKEN;
 
+if (!TOKEN) {
+  console.warn("VITE_TMDB_READ_TOKEN is not defined. TMDB requests will fail.");
+}
+
 const headers = {
   accept: 'application/json',
   Authorization: `Bearer ${TOKEN}`,
@@ -12,13 +16,19 @@ async function fetchTMDB<T>(endpoint: string, params: Record<string, string> = {
   const url = new URL(`${BASE_URL}${endpoint}`);
   Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
 
-  const response = await fetch(url.toString(), { headers });
+  try {
+    const response = await fetch(url.toString(), { headers });
 
-  if (!response.ok) {
-    throw new Error(`TMDB Error: ${response.statusText}`);
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(`TMDB API Error: ${response.status} ${response.statusText} - ${errorData.status_message || 'Unknown error'}`);
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error(`fetchTMDB failed at ${endpoint}:`, error);
+    throw error;
   }
-
-  return response.json();
 }
 
 export const tmdb = {

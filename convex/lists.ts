@@ -34,39 +34,45 @@ export const toggleWatchlist = mutation({
     posterPath: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const existing = await ctx.db
-      .query("watchlist")
-      .withIndex("by_user_media", (q) =>
-        q.eq("userId", args.userId).eq("tmdbId", args.tmdbId)
-      )
-      .first();
-
-    if (existing) {
-      await ctx.db.delete(existing._id);
-      return { added: false };
-    } else {
-      // 1. Remove from watched if present (re-watching)
-      const inWatched = await ctx.db
-        .query("watched")
+    // Convex mutations are transactional, so this complex logic is atomic.
+    try {
+      const existing = await ctx.db
+        .query("watchlist")
         .withIndex("by_user_media", (q) =>
           q.eq("userId", args.userId).eq("tmdbId", args.tmdbId)
         )
         .first();
 
-      if (inWatched) {
-        await ctx.db.delete(inWatched._id);
-      }
+      if (existing) {
+        await ctx.db.delete(existing._id);
+        return { added: false };
+      } else {
+        // 1. Remove from watched if present (re-watching)
+        const inWatched = await ctx.db
+          .query("watched")
+          .withIndex("by_user_media", (q) =>
+            q.eq("userId", args.userId).eq("tmdbId", args.tmdbId)
+          )
+          .first();
 
-      // 2. Add to watchlist
-      await ctx.db.insert("watchlist", {
-        userId: args.userId,
-        tmdbId: args.tmdbId,
-        mediaType: args.mediaType,
-        title: args.title,
-        posterPath: args.posterPath,
-        addedAt: Date.now(),
-      });
-      return { added: true };
+        if (inWatched) {
+          await ctx.db.delete(inWatched._id);
+        }
+
+        // 2. Add to watchlist
+        await ctx.db.insert("watchlist", {
+          userId: args.userId,
+          tmdbId: args.tmdbId,
+          mediaType: args.mediaType,
+          title: args.title,
+          posterPath: args.posterPath,
+          addedAt: Date.now(),
+        });
+        return { added: true };
+      }
+    } catch (error) {
+      console.error("Mutation toggleWatchlist failed:", error);
+      throw new Error("Failed to update watchlist");
     }
   },
 });
@@ -80,35 +86,40 @@ export const markAsWatched = mutation({
     posterPath: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    // 1. Remove from watchlist if present
-    const inWatchlist = await ctx.db
-      .query("watchlist")
-      .withIndex("by_user_media", (q) =>
-        q.eq("userId", args.userId).eq("tmdbId", args.tmdbId)
-      )
-      .first();
+    try {
+      // 1. Remove from watchlist if present
+      const inWatchlist = await ctx.db
+        .query("watchlist")
+        .withIndex("by_user_media", (q) =>
+          q.eq("userId", args.userId).eq("tmdbId", args.tmdbId)
+        )
+        .first();
 
-    if (inWatchlist) {
-      await ctx.db.delete(inWatchlist._id);
-    }
+      if (inWatchlist) {
+        await ctx.db.delete(inWatchlist._id);
+      }
 
-    // 2. Add to watched if not already there
-    const inWatched = await ctx.db
-      .query("watched")
-      .withIndex("by_user_media", (q) =>
-        q.eq("userId", args.userId).eq("tmdbId", args.tmdbId)
-      )
-      .first();
+      // 2. Add to watched if not already there
+      const inWatched = await ctx.db
+        .query("watched")
+        .withIndex("by_user_media", (q) =>
+          q.eq("userId", args.userId).eq("tmdbId", args.tmdbId)
+        )
+        .first();
 
-    if (!inWatched) {
-      await ctx.db.insert("watched", {
-        userId: args.userId,
-        tmdbId: args.tmdbId,
-        mediaType: args.mediaType,
-        title: args.title,
-        posterPath: args.posterPath,
-        watchedAt: Date.now(),
-      });
+      if (!inWatched) {
+        await ctx.db.insert("watched", {
+          userId: args.userId,
+          tmdbId: args.tmdbId,
+          mediaType: args.mediaType,
+          title: args.title,
+          posterPath: args.posterPath,
+          watchedAt: Date.now(),
+        });
+      }
+    } catch (error) {
+      console.error("Mutation markAsWatched failed:", error);
+      throw new Error("Failed to mark as watched");
     }
   },
 });

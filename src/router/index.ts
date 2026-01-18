@@ -33,12 +33,14 @@ const router = createRouter({
     {
       path: '/watchlist',
       name: 'Watchlist',
-      component: Watchlist
+      component: Watchlist,
+      meta: { requiresAuth: true }
     },
     {
       path: '/watched',
       name: 'Watched',
-      component: Watched
+      component: Watched,
+      meta: { requiresAuth: true }
     }
   ],
   scrollBehavior(to, from, savedPosition) {
@@ -51,13 +53,12 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  const publicPages = ['Home', 'Login', 'Search', 'Details'];
-  const authRequired = !publicPages.includes(to.name as string);
   const isAuthenticated = authStore.isAuthenticated();
+  const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
 
   if (to.name === 'Login' && isAuthenticated) {
     next({ name: 'Home' });
-  } else if (authRequired && !isAuthenticated) {
+  } else if (requiresAuth && !isAuthenticated) {
     next({ name: 'Login' });
   } else {
     next();
