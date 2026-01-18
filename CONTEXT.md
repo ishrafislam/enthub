@@ -5,23 +5,26 @@
 **Goal:** IMDB Replacement with Auth, Watchlist, and Watched history.
 
 ## Current Status
-*   Project directory initialized: `E:\Projects\enthub`
-*   **Milestone 4 Completed:** Watchlist and Watched list logic fully implemented with real-time Convex reactivity.
-*   Media type display bug in Details fixed.
-*   Servers are running.
+*   **Milestone 1 Completed:** Infrastructure, Tailwind v4, Convex scaffold.
+*   **Milestone 2 Completed:** Passwordless Auth (Resend + Convex) fully functional.
+*   **Milestone 3 Completed:** TMDB Integration (Discovery, Search, Details).
+*   **Milestone 4 Completed:** List management (Watchlist/Watched) with real-time reactivity.
+*   **UI/UX Overhaul:** Implemented Theme Toggler (System/Light/Dark) and fully responsive layouts.
 
 ## Active Configuration
-*   **Frontend:** Vue 3, Vite, Tailwind
-*   **Backend:** Convex
-*   **Auth:** Custom (Resend + Convex)
+*   **Frontend:** Vue 3 + Vite + Tailwind CSS v4.
+*   **Backend:** Convex (Schema defined in `convex/schema.ts`).
+*   **Auth:** Custom email OTP flow using Resend.
+*   **API:** TMDB v3 API.
 
-## Next Immediate Steps
-1.  Run `npm create vite@latest` to scaffold the app.
-2.  Install Tailwind CSS.
-3.  Initialize Convex.
+## Next Immediate Steps (Milestone 5)
+1.  **Skeleton Screens:** Add loading skeletons for Home, Search, and Details pages.
+2.  **Responsiveness Check:** Final pass on mobile views for the new Details layout.
+3.  **Error Handling:** Improve "Not Found" or "Empty List" UI components.
+4.  **Deployment Prep:** Final build checks (`npm run build`).
 
-## Required Secrets (To be obtained from user)
-*   `VITE_CONVEX_URL`
-*   `CONVEX_DEPLOYMENT`
-*   `RESEND_API_KEY`
-*   `TMDB_API_KEY` (The Read Access Token is preferred)
+## Configured Secrets
+*   `VITE_CONVEX_URL`: [PROVIDED]
+*   `CONVEX_DEPLOYMENT`: [PROVIDED]
+*   `RESEND_API_KEY`: [PROVIDED]
+*   `VITE_TMDB_READ_TOKEN`: [PROVIDED]
