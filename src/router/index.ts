@@ -3,6 +3,7 @@ import Home from '../views/Home.vue';
 import Login from '../views/Login.vue';
 import Search from '../views/Search.vue';
 import Details from '../views/Details.vue';
+import Collection from '../views/Collection.vue';
 import Watchlist from '../views/Watchlist.vue';
 import Watched from '../views/Watched.vue';
 import { authStore } from '../store/auth';
@@ -29,6 +30,11 @@ const router = createRouter({
       path: '/details/:type/:id',
       name: 'Details',
       component: Details
+    },
+    {
+      path: '/collection/:id',
+      name: 'Collection',
+      component: Collection
     },
     {
       path: '/watchlist',
