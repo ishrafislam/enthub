@@ -1,4 +1,4 @@
-import type { TMDBResponse, MediaItem, MediaDetails } from '../types/tmdb';
+import type { TMDBResponse, MediaItem, MediaDetails, TMDBCollection } from '../types/tmdb';
 
 const BASE_URL = 'https://api.themoviedb.org/3';
 const TOKEN = import.meta.env.VITE_TMDB_READ_TOKEN;
@@ -43,7 +43,10 @@ export const tmdb = {
 
   getDetails: (type: 'movie' | 'tv', id: number) =>
     fetchTMDB<MediaDetails>(`/${type}/${id}`, { append_to_response: 'credits,videos' }),
-    
-  getImageUrl: (path: string | null, size: 'w500' | 'original' = 'w500') => 
+
+  getCollection: (collectionId: number) =>
+    fetchTMDB<TMDBCollection>(`/collection/${collectionId}`),
+
+  getImageUrl: (path: string | null, size: 'w500' | 'original' = 'w500') =>
     path ? `https://image.tmdb.org/t/p/${size}${path}` : '/placeholder-poster.png', // We'll need a placeholder
 };
