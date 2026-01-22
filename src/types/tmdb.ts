@@ -74,6 +74,7 @@ export interface MediaDetails {
   budget?: number;
   revenue?: number;
   production_companies?: ProductionCompany[];
+  belongs_to_collection?: BelongsToCollection | null; // Movie collections
   credits: {
     cast: CastMember[];
     crew: CrewMember[];
@@ -97,4 +98,34 @@ export interface CrewMember {
   job: string;
   department: string;
   profile_path: string | null;
+}
+
+// Collection types
+export interface BelongsToCollection {
+  id: number;
+  name: string;
+  poster_path: string | null;
+  backdrop_path: string | null;
+}
+
+export interface TMDBCollectionPart {
+  id: number;
+  title: string;
+  overview: string;
+  release_date: string;
+  poster_path: string | null;
+  backdrop_path: string | null;
+  vote_average: number;
+  vote_count: number;
+  genre_ids: number[];
+  popularity: number;
+}
+
+export interface TMDBCollection {
+  id: number;
+  name: string;
+  overview: string;
+  poster_path: string | null;
+  backdrop_path: string | null;
+  parts: TMDBCollectionPart[];
 }
