@@ -4,6 +4,7 @@ import Login from '../views/Login.vue';
 import Search from '../views/Search.vue';
 import Details from '../views/Details.vue';
 import Collection from '../views/Collection.vue';
+import Person from '../views/Person.vue';
 import Watchlist from '../views/Watchlist.vue';
 import Watched from '../views/Watched.vue';
 import { authStore } from '../store/auth';
@@ -35,6 +36,11 @@ const router = createRouter({
       path: '/collection/:id',
       name: 'Collection',
       component: Collection
+    },
+    {
+      path: '/person/:id',
+      name: 'Person',
+      component: Person
     },
     {
       path: '/watchlist',

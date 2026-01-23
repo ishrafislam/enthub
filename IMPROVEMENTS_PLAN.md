@@ -1,9 +1,9 @@
 # EntHub Improvements Plan
 
-**Document Version:** 1.1
+**Document Version:** 1.2
 **Created:** January 22, 2026
 **Last Updated:** January 23, 2026
-**Project Version:** 0.1.0 (MVP Complete)
+**Project Version:** 0.2.0 (MVP Complete)
 **Status:** Production Ready with Enhancement Opportunities
 
 ---
@@ -236,7 +236,150 @@ interface TMDBCollectionPart {
 
 ---
 
-#### 1.3 Advanced Search & Filtering
+#### 1.3 Person Details Page ✅ IMPLEMENTED
+**Description:** Display person details (actors, directors, crew) from TMDB and show their filmography
+
+**Status:** Completed (January 2026)
+
+**Background:**
+TMDB provides detailed person information including biography, birthday, place of birth, and combined credits (movies and TV shows they've worked on). This allows users to click on cast/crew members from movie/TV details pages and explore their filmography.
+
+**TMDB API Reference:**
+- **Person Details:** `GET /person/{person_id}` - https://developer.themoviedb.org/reference/person-details
+- **Combined Credits:** `GET /person/{person_id}/combined_credits` - https://developer.themoviedb.org/reference/person-combined-credits
+
+**Response Schema:**
+```typescript
+interface PersonDetails {
+  id: number;
+  name: string;
+  biography: string;
+  birthday: string | null;
+  deathday: string | null;
+  gender: number; // 0: Not specified, 1: Female, 2: Male, 3: Non-binary
+  known_for_department: string;
+  profile_path: string | null;
+  popularity: number;
+  place_of_birth: string | null;
+  also_known_as: string[];
+  homepage: string | null;
+  imdb_id: string | null;
+}
+
+interface PersonCombinedCredits {
+  id: number;
+  cast: PersonCastCredit[];
+  crew: PersonCrewCredit[];
+}
+
+interface PersonCastCredit {
+  id: number;
+  title?: string;        // For movies
+  name?: string;         // For TV shows
+  media_type: 'movie' | 'tv';
+  character: string;
+  release_date?: string; // For movies
+  first_air_date?: string; // For TV shows
+  poster_path: string | null;
+  vote_average: number;
+  popularity: number;
+}
+
+interface PersonCrewCredit {
+  id: number;
+  title?: string;
+  name?: string;
+  media_type: 'movie' | 'tv';
+  job: string;
+  department: string;
+  release_date?: string;
+  first_air_date?: string;
+  poster_path: string | null;
+  vote_average: number;
+  popularity: number;
+}
+```
+
+**Implementation:**
+
+- **TMDB Service Extension:**
+  ```typescript
+  // src/services/tmdb.ts
+  export const getPersonDetails = (personId: number) =>
+    fetchTMDB<PersonDetails>(`/person/${personId}`, {
+      append_to_response: 'combined_credits'
+    });
+  ```
+
+- **UI Components:**
+  1. **Person Page (`/person/:id`):**
+     - Hero section with profile image and basic info
+     - Biography with expandable "Read More"
+     - Personal details sidebar (birthday, place of birth, known for)
+     - Filmography section with Acting and Crew tabs
+     - Sort by release date (newest first) or popularity
+     - Click on any title to navigate to movie/TV details
+
+  2. **Clickable Cast/Crew in Details Page:**
+     - Wrap cast/crew cards with router-link to `/person/:id`
+     - Add hover effect to indicate clickability
+
+- **Router Configuration:**
+  ```typescript
+  {
+    path: '/person/:id',
+    name: 'Person',
+    component: () => import('../views/Person.vue'),
+    meta: { title: 'Person' }
+  }
+  ```
+
+- **Files to Create/Modify:**
+  - `src/types/tmdb.ts` - Add person-related types
+  - `src/services/tmdb.ts` - Add getPersonDetails function
+  - `src/views/Person.vue` - New person details page
+  - `src/views/Details.vue` - Make cast/crew clickable
+  - `src/router/index.ts` - Add person route
+
+**UI Mockup (Person Page):**
+```
+┌─────────────────────────────────────────────────┐
+│ [Profile Image]   Robert Downey Jr.             │
+│                   Known for: Acting             │
+│                   Born: April 4, 1965           │
+│                   Birthplace: Manhattan, NYC    │
+├─────────────────────────────────────────────────┤
+│ Biography                                       │
+│ Robert John Downey Jr. is an American actor...  │
+│ [Read More]                                     │
+├─────────────────────────────────────────────────┤
+│ Known For                                       │
+│ ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐               │
+│ │Iron │ │Avng │ │Shrlk│ │Oppn │               │
+│ │Man  │ │ EG  │ │Holms│ │heimr│               │
+│ └─────┘ └─────┘ └─────┘ └─────┘               │
+├─────────────────────────────────────────────────┤
+│ Filmography                                     │
+│ [Acting ▼] [Crew]     Sort: [Newest First ▼]   │
+│ ─────────────────────────────────────────────── │
+│ 2023  Oppenheimer          Lewis Strauss       │
+│ 2019  Avengers: Endgame    Tony Stark / Iron..│
+│ 2018  Avengers: Infinity   Tony Stark / Iron..│
+│ ...                                             │
+└─────────────────────────────────────────────────┘
+```
+
+**Benefits:**
+- Deep exploration of cast/crew filmography
+- Discover more content from favorite actors/directors
+- Natural navigation flow from movie → person → more movies
+- No database required (data from TMDB)
+
+**Estimated Effort:** Medium (5 files to create/modify)
+
+---
+
+#### 1.4 Advanced Search & Filtering
 **Description:** Enhanced search with filters (genre, year, rating, etc.)
 
 **Implementation:**
@@ -266,7 +409,7 @@ interface TMDBCollectionPart {
 
 ---
 
-#### 1.4 Recommendations Engine
+#### 1.5 Recommendations Engine
 **Description:** Personalized recommendations based on watch history
 
 **Implementation:**
@@ -1828,6 +1971,7 @@ npx typedoc --out docs/api convex/
 
 | Task | Priority | Effort | Dependencies |
 |------|----------|--------|--------------|
+| ~~Person Details Page~~ | ~~P1~~ | ~~Medium~~ | ✅ Done |
 | Ratings & Reviews | P1 | Medium | None |
 | Advanced Filtering | P1 | Med-High | None |
 | User Profiles | P2 | Medium | None |
@@ -1911,6 +2055,7 @@ npx typedoc --out docs/api convex/
 
 ### High Impact, Medium Effort
 1. ✅ ~~TMDB Collection Integration~~ (Completed)
+2. ✅ ~~Person Details Page~~ (Completed)
 
 ### Low Impact, Low Effort (Fill Gaps)
 1. ⚡ CSP Headers
@@ -1962,6 +2107,7 @@ npx typedoc --out docs/api convex/
 
 | Feature | Completion Date | Files Modified/Created |
 |---------|-----------------|------------------------|
+| Person Details Page | January 2026 | `src/types/tmdb.ts`, `src/services/tmdb.ts`, `src/views/Person.vue`, `src/views/Details.vue`, `src/views/Search.vue`, `src/router/index.ts` |
 | TMDB Collection Integration | January 2026 | `src/types/tmdb.ts`, `src/services/tmdb.ts`, `src/views/Details.vue`, `src/views/Collection.vue`, `src/router/index.ts` |
 
 ---

@@ -119,8 +119,7 @@ const trailer = computed(
     ),
 );
 
-// Assuming a grid of roughly 6 items per row on large screens, 2 rows = 12 items.
-// We can adjust this number based on design preference.
+// Grid has 8 columns on xl screens, so show 16 items (2 full rows)
 const sortedCast = computed(() => {
   if (!media.value?.credits.cast) return [];
   return [...media.value.credits.cast].sort(
@@ -130,7 +129,7 @@ const sortedCast = computed(() => {
 
 const displayedCast = computed(() => {
   if (showAllCast.value) return sortedCast.value;
-  return sortedCast.value.slice(0, 12);
+  return sortedCast.value.slice(0, 16);
 });
 
 const displayedVideos = computed(() => {
@@ -532,10 +531,11 @@ const displayedVideos = computed(() => {
               class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8"
             >
               <!-- Directors -->
-              <div
+              <router-link
                 v-for="director in directors"
                 :key="director.id"
-                class="text-center group"
+                :to="`/person/${director.id}`"
+                class="text-center group cursor-pointer"
               >
                 <div
                   class="w-24 h-24 mx-auto mb-3 rounded-full overflow-hidden border-2 border-transparent group-hover:border-teal-500 transition duration-300 shadow-md bg-gray-200 dark:bg-gray-800"
@@ -564,19 +564,20 @@ const displayedVideos = computed(() => {
                     </svg>
                   </div>
                 </div>
-                <h4 class="font-bold text-gray-900 dark:text-white text-sm">
+                <h4 class="font-bold text-gray-900 dark:text-white text-sm group-hover:text-teal-500 transition-colors">
                   {{ director.name }}
                 </h4>
                 <p class="text-xs text-teal-500 font-semibold uppercase">
                   Director
                 </p>
-              </div>
+              </router-link>
 
               <!-- Writers -->
-              <div
+              <router-link
                 v-for="writer in writers.slice(0, 5)"
                 :key="writer.id"
-                class="text-center group"
+                :to="`/person/${writer.id}`"
+                class="text-center group cursor-pointer"
               >
                 <div
                   class="w-24 h-24 mx-auto mb-3 rounded-full overflow-hidden border-2 border-transparent group-hover:border-teal-500 transition duration-300 shadow-md bg-gray-200 dark:bg-gray-800"
@@ -605,19 +606,20 @@ const displayedVideos = computed(() => {
                     </svg>
                   </div>
                 </div>
-                <h4 class="font-bold text-gray-900 dark:text-white text-sm">
+                <h4 class="font-bold text-gray-900 dark:text-white text-sm group-hover:text-teal-500 transition-colors">
                   {{ writer.name }}
                 </h4>
                 <p class="text-xs text-blue-500 font-semibold uppercase">
                   Writer
                 </p>
-              </div>
+              </router-link>
 
               <!-- Producers -->
-              <div
+              <router-link
                 v-for="producer in producers.slice(0, 5)"
                 :key="producer.id"
-                class="text-center group"
+                :to="`/person/${producer.id}`"
+                class="text-center group cursor-pointer"
               >
                 <div
                   class="w-24 h-24 mx-auto mb-3 rounded-full overflow-hidden border-2 border-transparent group-hover:border-teal-500 transition duration-300 shadow-md bg-gray-200 dark:bg-gray-800"
@@ -646,13 +648,13 @@ const displayedVideos = computed(() => {
                     </svg>
                   </div>
                 </div>
-                <h4 class="font-bold text-gray-900 dark:text-white text-sm">
+                <h4 class="font-bold text-gray-900 dark:text-white text-sm group-hover:text-teal-500 transition-colors">
                   {{ producer.name }}
                 </h4>
                 <p class="text-xs text-gray-500 font-semibold uppercase">
                   {{ producer.job }}
                 </p>
-              </div>
+              </router-link>
             </div>
           </section>
         </div>
@@ -671,13 +673,18 @@ const displayedVideos = computed(() => {
         <div
           class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-6"
         >
-          <div v-for="person in displayedCast" :key="person.id" class="group">
+          <router-link
+            v-for="castMember in displayedCast"
+            :key="castMember.id"
+            :to="`/person/${castMember.id}`"
+            class="group cursor-pointer"
+          >
             <div
               class="aspect-[2/3] rounded-xl overflow-hidden mb-3 bg-gray-200 dark:bg-gray-800 shadow-md border border-gray-200 dark:border-gray-700 transition-all duration-300 group-hover:border-teal-500 group-hover:-translate-y-1"
             >
               <img
-                v-if="person.profile_path"
-                :src="tmdb.getImageUrl(person.profile_path)"
+                v-if="castMember.profile_path"
+                :src="tmdb.getImageUrl(castMember.profile_path)"
                 class="w-full h-full object-cover"
               />
               <div
@@ -699,17 +706,17 @@ const displayedVideos = computed(() => {
                 </svg>
               </div>
             </div>
-            <p class="font-bold text-sm text-gray-900 dark:text-white truncate">
-              {{ person.name }}
+            <p class="font-bold text-sm text-gray-900 dark:text-white truncate group-hover:text-teal-500 transition-colors">
+              {{ castMember.name }}
             </p>
             <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
-              {{ person.character }}
+              {{ castMember.character }}
             </p>
-          </div>
+          </router-link>
         </div>
 
         <div
-          v-if="(media.credits.cast.length || 0) > 12"
+          v-if="(media.credits.cast.length || 0) > 16"
           class="mt-10 text-center"
         >
           <button
