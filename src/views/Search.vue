@@ -19,7 +19,7 @@ const search = async () => {
   
   try {
     const data = await tmdb.search(q);
-    results.value = data.results.filter(item => item.media_type !== 'person');
+    results.value = data.results;
   } catch (err) {
     console.error(err);
   } finally {
@@ -62,10 +62,10 @@ const getPoster = (item: MediaItem) => {
     </div>
 
     <div v-else class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-      <router-link 
-        v-for="item in results" 
+      <router-link
+        v-for="item in results"
         :key="item.id"
-        :to="item.media_type === 'person' ? '#' : `/details/${item.media_type}/${item.id}`"
+        :to="item.media_type === 'person' ? `/person/${item.id}` : `/details/${item.media_type}/${item.id}`"
         class="group relative flex flex-col bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-200 overflow-hidden"
       >
         <div class="aspect-[2/3] overflow-hidden bg-gray-200 dark:bg-gray-700">
