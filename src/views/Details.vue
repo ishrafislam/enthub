@@ -119,8 +119,7 @@ const trailer = computed(
     ),
 );
 
-// Assuming a grid of roughly 6 items per row on large screens, 2 rows = 12 items.
-// We can adjust this number based on design preference.
+// Grid has 8 columns on xl screens, so show 16 items (2 full rows)
 const sortedCast = computed(() => {
   if (!media.value?.credits.cast) return [];
   return [...media.value.credits.cast].sort(
@@ -130,7 +129,7 @@ const sortedCast = computed(() => {
 
 const displayedCast = computed(() => {
   if (showAllCast.value) return sortedCast.value;
-  return sortedCast.value.slice(0, 12);
+  return sortedCast.value.slice(0, 16);
 });
 
 const displayedVideos = computed(() => {
@@ -717,7 +716,7 @@ const displayedVideos = computed(() => {
         </div>
 
         <div
-          v-if="(media.credits.cast.length || 0) > 12"
+          v-if="(media.credits.cast.length || 0) > 16"
           class="mt-10 text-center"
         >
           <button
