@@ -1,5 +1,8 @@
 {
   "permissions": {
-    "allow": ["WebFetch(domain:developer.themoviedb.org)"]
+    "allow": [
+      "WebFetch(domain:developer.themoviedb.org)",
+      "Bash(dir:*)"
+    ]
   }
 }
