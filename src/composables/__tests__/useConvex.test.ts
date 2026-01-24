@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { ref, computed, defineComponent, h, nextTick } from 'vue'
-import { mount, flushPromises } from '@vue/test-utils'
+import { mount } from '@vue/test-utils'
 
 // Mock Convex clients before importing the module
 const mockOnUpdate = vi.fn()

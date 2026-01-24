@@ -301,7 +301,7 @@ describe('tmdb service', () => {
         expect.any(Object)
       )
       expect(result.name).toBe('Brad Pitt')
-      expect(result.combined_credits.cast).toHaveLength(1)
+      expect(result.combined_credits?.cast).toHaveLength(1)
     })
   })
 
