@@ -20,36 +20,66 @@ const step = ref<'email' | 'code'>('email');
 const loading = ref(false);
 const error = ref('');
 
+// Extract error message from Convex error
+const getErrorMessage = (err: unknown, fallback: string): string => {
+  // Handle ConvexError - the message is in err.data
+  if (err && typeof err === 'object' && 'data' in err) {
+    const data = (err as { data: unknown }).data;
+    if (typeof data === 'string') {
+      return data;
+    }
+    if (data && typeof data === 'object' && 'message' in data) {
+      return String((data as { message: unknown }).message);
+    }
+  }
+
+  if (err instanceof Error) {
+    return err.message || fallback;
+  }
+
+  if (typeof err === 'string') {
+    return err;
+  }
+
+  return fallback;
+};
+
 const handleSendCode = async () => {
-  if (!email.value) return;
+  if (!email.value) {
+    error.value = 'Email is required.';
+    return;
+  }
   loading.value = true;
   error.value = '';
-  
+
   try {
     await client.mutation(api.auth.signIn, { email: email.value });
     step.value = 'code';
-  } catch (err: any) {
-    error.value = err.message || 'Failed to send code';
+  } catch (err: unknown) {
+    error.value = getErrorMessage(err, 'Failed to send code. Please try again.');
   } finally {
     loading.value = false;
   }
 };
 
 const handleVerify = async () => {
-  if (!code.value) return;
+  if (!code.value) {
+    error.value = 'Verification code is required.';
+    return;
+  }
   loading.value = true;
   error.value = '';
 
   try {
-    const result = await client.mutation(api.auth.verifyCode, { 
-      email: email.value, 
-      code: code.value 
+    const result = await client.mutation(api.auth.verifyCode, {
+      email: email.value,
+      code: code.value
     });
-    
+
     authStore.login(result.userId);
     router.push('/');
-  } catch (err: any) {
-    error.value = err.message || 'Invalid code';
+  } catch (err: unknown) {
+    error.value = getErrorMessage(err, 'Invalid code. Please try again.');
   } finally {
     loading.value = false;
   }
