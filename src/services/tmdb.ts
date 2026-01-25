@@ -3,6 +3,11 @@ import type { TMDBResponse, MediaItem, MediaDetails, TMDBCollection, PersonDetai
 const BASE_URL = 'https://api.themoviedb.org/3';
 const TOKEN = import.meta.env.VITE_TMDB_READ_TOKEN;
 
+// Validation constants
+const MAX_SEARCH_QUERY_LENGTH = 100;
+const MIN_PAGE = 1;
+const MAX_PAGE = 500; // TMDB's maximum page limit
+
 if (!TOKEN) {
   console.warn("VITE_TMDB_READ_TOKEN is not defined. TMDB requests will fail.");
 }
@@ -38,8 +43,20 @@ export const tmdb = {
   getTrending: (timeWindow: 'day' | 'week' = 'week') => 
     fetchTMDB<TMDBResponse<MediaItem>>(`/trending/all/${timeWindow}`),
 
-  search: (query: string, page = 1) =>
-    fetchTMDB<TMDBResponse<MediaItem>>('/search/multi', { query, page: page.toString() }),
+  search: (query: string, page = 1) => {
+    const sanitizedQuery = query.trim().slice(0, MAX_SEARCH_QUERY_LENGTH);
+
+    if (!sanitizedQuery) {
+      throw new Error('Search query cannot be empty.');
+    }
+
+    const validPage = Math.max(MIN_PAGE, Math.min(Math.floor(page), MAX_PAGE));
+
+    return fetchTMDB<TMDBResponse<MediaItem>>('/search/multi', {
+      query: sanitizedQuery,
+      page: validPage.toString(),
+    });
+  },
 
   getDetails: (type: 'movie' | 'tv', id: number) =>
     fetchTMDB<MediaDetails>(`/${type}/${id}`, { append_to_response: 'credits,videos' }),

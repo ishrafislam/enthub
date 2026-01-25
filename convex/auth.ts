@@ -1,11 +1,34 @@
 import { mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { api } from "./_generated/api";
+import { ConvexError } from "convex/values";
+
+// Email validation regex (RFC 5322 simplified)
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const MAX_EMAIL_LENGTH = 254; // RFC 5321
+
+function validateEmail(email: string): string {
+  const normalized = email.toLowerCase().trim();
+
+  if (!normalized) {
+    throw new ConvexError("Email is required.");
+  }
+
+  if (normalized.length > MAX_EMAIL_LENGTH) {
+    throw new ConvexError("Email address is too long.");
+  }
+
+  if (!EMAIL_REGEX.test(normalized)) {
+    throw new ConvexError("Invalid email format.");
+  }
+
+  return normalized;
+}
 
 export const signIn = mutation({
   args: { email: v.string() },
   handler: async (ctx, args) => {
-    const email = args.email.toLowerCase().trim();
+    const email = validateEmail(args.email);
     
     // 1. Generate 6-digit code. 
     // In Convex mutations, Math.random() is deterministic but seeded per request.
@@ -41,11 +64,28 @@ export const signIn = mutation({
   },
 });
 
+// Code validation
+const CODE_REGEX = /^\d{6}$/;
+
+function validateCode(code: string): string {
+  const normalized = code.trim();
+
+  if (!normalized) {
+    throw new ConvexError("Verification code is required.");
+  }
+
+  if (!CODE_REGEX.test(normalized)) {
+    throw new ConvexError("Invalid verification code format. Please enter the 6-digit code.");
+  }
+
+  return normalized;
+}
+
 export const verifyCode = mutation({
   args: { email: v.string(), code: v.string() },
   handler: async (ctx, args) => {
-    const email = args.email.toLowerCase().trim();
-    const code = args.code.trim();
+    const email = validateEmail(args.email);
+    const code = validateCode(args.code);
 
     // 1. Find the active code for this email
     const authCode = await ctx.db
@@ -54,23 +94,23 @@ export const verifyCode = mutation({
       .first();
 
     if (!authCode) {
-      throw new Error("No login request found for this email. Please try again.");
+      throw new ConvexError("No login request found for this email. Please try again.");
     }
 
     if (Date.now() > authCode.expiresAt) {
       await ctx.db.delete(authCode._id);
-      throw new Error("Code expired. Please request a new one.");
+      throw new ConvexError("Code expired. Please request a new one.");
     }
 
     // 2. Check attempts (Rate Limiting)
     if (authCode.attempts >= 5) {
       await ctx.db.delete(authCode._id);
-      throw new Error("Too many failed attempts. For security, this code has been invalidated.");
+      throw new ConvexError("Too many failed attempts. For security, this code has been invalidated.");
     }
 
     if (authCode.code !== code) {
       await ctx.db.patch(authCode._id, { attempts: authCode.attempts + 1 });
-      throw new Error(`Invalid code. ${4 - authCode.attempts} attempts remaining.`);
+      throw new ConvexError(`Invalid code. ${4 - authCode.attempts} attempts remaining.`);
     }
 
     // 3. Consume code
