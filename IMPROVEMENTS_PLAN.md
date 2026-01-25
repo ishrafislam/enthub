@@ -1356,7 +1356,7 @@ export const getDetails = (type: 'movie' | 'tv', id: number) =>
    ```typescript
    // src/services/tmdb.ts
    if (!TOKEN) {
-     console.warn("VITE_TMDB_READ_TOKEN is not defined. TMDB requests will fail.");
+     console.warn("Token is not defined. TMDB requests will fail.");
      // Already present at line 7-8
    }
    ```

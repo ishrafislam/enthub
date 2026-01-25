@@ -9,19 +9,28 @@ const route = useRoute();
 const results = ref<MediaItem[]>([]);
 const loading = ref(true);
 const query = ref('');
+const error = ref('');
 
 const search = async () => {
   const q = route.query.q as string;
-  if (!q) return;
-  
+  if (!q) {
+    error.value = '';
+    results.value = [];
+    loading.value = false;
+    return;
+  }
+
   query.value = q;
   loading.value = true;
-  
+  error.value = '';
+
   try {
     const data = await tmdb.search(q);
     results.value = data.results;
   } catch (err) {
     console.error(err);
+    error.value = err instanceof Error ? err.message : 'Search failed. Please try again.';
+    results.value = [];
   } finally {
     loading.value = false;
   }
@@ -46,6 +55,11 @@ const getPoster = (item: MediaItem) => {
     <h2 class="text-3xl font-bold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-800 pb-4">
       Search Results for <span class="text-teal-500">"{{ query }}"</span>
     </h2>
+
+    <div v-if="error" class="bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 p-4 rounded-lg text-sm flex items-center gap-2">
+      <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+      {{ error }}
+    </div>
 
     <div v-if="loading" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
       <div v-for="n in 10" :key="n" class="space-y-3">
