@@ -29,8 +29,8 @@ export const signIn = mutation({
   args: { email: v.string() },
   handler: async (ctx, args) => {
     const email = validateEmail(args.email);
-    
-    // 1. Generate 6-digit code. 
+
+    // 1. Generate 6-digit code.
     // In Convex mutations, Math.random() is deterministic but seeded per request.
     // For a simple OTP, this is standard Convex practice.
     const code = Math.floor(100000 + Math.random() * 900000).toString();
@@ -42,7 +42,7 @@ export const signIn = mutation({
       .query("authCodes")
       .withIndex("by_email", (q) => q.eq("email", email))
       .collect();
-    
+
     for (const doc of existing) {
       await ctx.db.delete(doc._id);
     }
@@ -75,7 +75,9 @@ function validateCode(code: string): string {
   }
 
   if (!CODE_REGEX.test(normalized)) {
-    throw new ConvexError("Invalid verification code format. Please enter the 6-digit code.");
+    throw new ConvexError(
+      "Invalid verification code format. Please enter the 6-digit code.",
+    );
   }
 
   return normalized;
@@ -94,7 +96,9 @@ export const verifyCode = mutation({
       .first();
 
     if (!authCode) {
-      throw new ConvexError("No login request found for this email. Please try again.");
+      throw new ConvexError(
+        "No login request found for this email. Please try again.",
+      );
     }
 
     if (Date.now() > authCode.expiresAt) {
@@ -105,12 +109,14 @@ export const verifyCode = mutation({
     // 2. Check attempts (Rate Limiting)
     if (authCode.attempts >= 5) {
       await ctx.db.delete(authCode._id);
-      throw new ConvexError("Too many failed attempts. For security, this code has been invalidated.");
+      throw new ConvexError(
+        "Too many failed attempts. For security, this code has been invalidated.",
+      );
     }
 
     if (authCode.code !== code) {
       await ctx.db.patch(authCode._id, { attempts: authCode.attempts + 1 });
-      throw new ConvexError(`Invalid code. ${4 - authCode.attempts} attempts remaining.`);
+      throw new ConvexError(`Invalid code`);
     }
 
     // 3. Consume code
