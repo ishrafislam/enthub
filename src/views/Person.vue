@@ -7,6 +7,9 @@ import { useConvexQuery } from "../composables/useConvex";
 import { api } from "../../convex/_generated/api";
 import { authStore } from "../store/auth";
 import Skeleton from "../components/Skeleton.vue";
+import { useTheme } from "../composables/useTheme";
+
+const { isCyberpunk } = useTheme();
 
 const route = useRoute();
 const person = ref<PersonDetails | null>(null);
@@ -215,7 +218,11 @@ watch(() => route.params.id, fetchPerson);
   <div v-else-if="person" class="pb-20 overflow-x-hidden">
     <!-- Hero Section -->
     <div
-      class="bg-gradient-to-b from-gray-100 to-gray-50 dark:from-gray-900 dark:to-gray-950"
+      :class="[
+        isCyberpunk
+          ? 'bg-gradient-to-b from-cyber-black to-cyber-night'
+          : 'bg-gradient-to-b from-gray-100 to-gray-50 dark:from-gray-900 dark:to-gray-950',
+      ]"
     >
       <div
         class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 flex flex-col md:flex-row gap-8"
@@ -223,8 +230,28 @@ watch(() => route.params.id, fetchPerson);
         <!-- Profile Image -->
         <div class="flex-shrink-0 mx-auto md:mx-0">
           <div
-            class="w-48 md:w-64 aspect-[2/3] rounded-2xl overflow-hidden shadow-2xl ring-1 ring-black/10 dark:ring-white/10 bg-gray-200 dark:bg-gray-800"
+            :class="[
+              'w-48 md:w-64 aspect-[2/3] overflow-hidden shadow-2xl',
+              isCyberpunk
+                ? 'rounded-none border border-cyber-cyan/30 relative'
+                : 'rounded-2xl ring-1 ring-black/10 dark:ring-white/10 bg-gray-200 dark:bg-gray-800',
+            ]"
           >
+            <!-- Cyberpunk corner accents -->
+            <template v-if="isCyberpunk">
+              <div
+                class="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-cyber-cyan z-10"
+              ></div>
+              <div
+                class="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-cyber-cyan z-10"
+              ></div>
+              <div
+                class="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-cyber-cyan z-10"
+              ></div>
+              <div
+                class="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-cyber-cyan z-10"
+              ></div>
+            </template>
             <img
               v-if="person.profile_path"
               :src="tmdb.getImageUrl(person.profile_path, 'w500')"
@@ -256,8 +283,22 @@ watch(() => route.params.id, fetchPerson);
 
         <!-- Info -->
         <div class="flex-1 text-center md:text-left">
+          <!-- Cyberpunk data prefix -->
+          <div
+            v-if="isCyberpunk"
+            class="flex items-center justify-center md:justify-start gap-2 mb-3 text-cyber-cyan/60 font-cyber-mono text-xs tracking-widest"
+          >
+            <span class="w-6 h-px bg-cyber-cyan/40"></span>
+            <span>PROFILE.DATA</span>
+          </div>
+
           <h1
-            class="text-3xl md:text-4xl lg:text-5xl font-extrabold text-gray-900 dark:text-white mb-3"
+            :class="[
+              'text-3xl md:text-4xl lg:text-5xl font-extrabold mb-3',
+              isCyberpunk
+                ? 'text-white font-display uppercase tracking-wide'
+                : 'text-gray-900 dark:text-white',
+            ]"
           >
             {{ person.name }}
           </h1>
@@ -267,7 +308,12 @@ watch(() => route.params.id, fetchPerson);
           >
             <span
               v-if="person.known_for_department"
-              class="inline-flex items-center gap-1.5 bg-teal-500/20 text-teal-600 dark:text-teal-400 px-3 py-1 rounded-full text-sm font-semibold"
+              :class="[
+                'inline-flex items-center gap-1.5 px-3 py-1 text-sm font-semibold',
+                isCyberpunk
+                  ? 'bg-cyber-cyan/20 text-cyber-cyan border border-cyber-cyan/30 font-cyber-mono'
+                  : 'bg-teal-500/20 text-teal-600 dark:text-teal-400 rounded-full',
+              ]"
             >
               <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                 <path
@@ -291,18 +337,33 @@ watch(() => route.params.id, fetchPerson);
           >
             <div
               v-if="person.birthday"
-              class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm"
+              :class="[
+                'p-4 shadow-sm',
+                isCyberpunk
+                  ? 'bg-cyber-night border border-cyber-chrome rounded-none'
+                  : 'bg-white dark:bg-gray-800 rounded-xl',
+              ]"
             >
               <p
-                class="text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider font-semibold mb-1"
+                :class="[
+                  'text-xs uppercase tracking-wider font-semibold mb-1',
+                  isCyberpunk
+                    ? 'text-cyber-muted font-cyber-mono'
+                    : 'text-gray-500 dark:text-gray-400',
+                ]"
               >
                 {{ person.deathday ? "Born" : "Birthday" }}
               </p>
-              <p class="text-gray-900 dark:text-white font-medium">
+              <p
+                :class="[
+                  'font-medium',
+                  isCyberpunk ? 'text-white font-display' : 'text-gray-900 dark:text-white',
+                ]"
+              >
                 {{ formatDate(person.birthday) }}
                 <span
                   v-if="!person.deathday && calculateAge(person.birthday, null)"
-                  class="text-gray-500 dark:text-gray-400"
+                  :class="isCyberpunk ? 'text-cyber-cyan font-data' : 'text-gray-500 dark:text-gray-400'"
                 >
                   ({{ calculateAge(person.birthday, null) }} years old)
                 </span>
@@ -311,18 +372,33 @@ watch(() => route.params.id, fetchPerson);
 
             <div
               v-if="person.deathday"
-              class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm"
+              :class="[
+                'p-4 shadow-sm',
+                isCyberpunk
+                  ? 'bg-cyber-night border border-cyber-chrome rounded-none'
+                  : 'bg-white dark:bg-gray-800 rounded-xl',
+              ]"
             >
               <p
-                class="text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider font-semibold mb-1"
+                :class="[
+                  'text-xs uppercase tracking-wider font-semibold mb-1',
+                  isCyberpunk
+                    ? 'text-cyber-muted font-cyber-mono'
+                    : 'text-gray-500 dark:text-gray-400',
+                ]"
               >
                 Died
               </p>
-              <p class="text-gray-900 dark:text-white font-medium">
+              <p
+                :class="[
+                  'font-medium',
+                  isCyberpunk ? 'text-white font-display' : 'text-gray-900 dark:text-white',
+                ]"
+              >
                 {{ formatDate(person.deathday) }}
                 <span
                   v-if="calculateAge(person.birthday, person.deathday)"
-                  class="text-gray-500 dark:text-gray-400"
+                  :class="isCyberpunk ? 'text-cyber-red' : 'text-gray-500 dark:text-gray-400'"
                 >
                   ({{ calculateAge(person.birthday, person.deathday) }} years
                   old)
@@ -332,14 +408,29 @@ watch(() => route.params.id, fetchPerson);
 
             <div
               v-if="person.place_of_birth"
-              class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm"
+              :class="[
+                'p-4 shadow-sm',
+                isCyberpunk
+                  ? 'bg-cyber-night border border-cyber-chrome rounded-none'
+                  : 'bg-white dark:bg-gray-800 rounded-xl',
+              ]"
             >
               <p
-                class="text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider font-semibold mb-1"
+                :class="[
+                  'text-xs uppercase tracking-wider font-semibold mb-1',
+                  isCyberpunk
+                    ? 'text-cyber-muted font-cyber-mono'
+                    : 'text-gray-500 dark:text-gray-400',
+                ]"
               >
                 Birthplace
               </p>
-              <p class="text-gray-900 dark:text-white font-medium">
+              <p
+                :class="[
+                  'font-medium',
+                  isCyberpunk ? 'text-white font-display' : 'text-gray-900 dark:text-white',
+                ]"
+              >
                 {{ person.place_of_birth }}
               </p>
             </div>
@@ -347,13 +438,22 @@ watch(() => route.params.id, fetchPerson);
 
           <!-- Biography -->
           <div v-if="person.biography">
-            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">
+            <h3
+              :class="[
+                'text-lg font-bold mb-2',
+                isCyberpunk
+                  ? 'text-cyber-cyan font-display uppercase tracking-wider flex items-center gap-2'
+                  : 'text-gray-900 dark:text-white',
+              ]"
+            >
+              <span v-if="isCyberpunk" class="text-cyber-yellow">//</span>
               Biography
             </h3>
             <div class="relative">
               <p
                 :class="[
-                  'text-gray-600 dark:text-gray-300 leading-relaxed',
+                  'leading-relaxed',
+                  isCyberpunk ? 'text-cyber-gray font-display' : 'text-gray-600 dark:text-gray-300',
                   !showFullBio && person.biography.length > 500
                     ? 'line-clamp-4'
                     : '',
@@ -363,7 +463,12 @@ watch(() => route.params.id, fetchPerson);
               </p>
               <button
                 v-if="person.biography.length > 500"
-                class="mt-2 text-teal-500 hover:text-teal-600 font-medium text-sm"
+                :class="[
+                  'mt-2 font-medium text-sm',
+                  isCyberpunk
+                    ? 'text-cyber-cyan hover:text-cyber-yellow font-display uppercase tracking-wide'
+                    : 'text-teal-500 hover:text-teal-600',
+                ]"
                 @click="showFullBio = !showFullBio"
               >
                 {{ showFullBio ? "Show Less" : "Read More" }}
@@ -423,8 +528,14 @@ watch(() => route.params.id, fetchPerson);
       class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12"
     >
       <h2
-        class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-6"
+        :class="[
+          'text-2xl md:text-3xl font-bold mb-6',
+          isCyberpunk
+            ? 'text-white font-display uppercase tracking-wider flex items-center gap-3'
+            : 'text-gray-900 dark:text-white',
+        ]"
       >
+        <span v-if="isCyberpunk" class="text-cyber-cyan">&gt;</span>
         Known For
       </h2>
 
@@ -526,8 +637,14 @@ watch(() => route.params.id, fetchPerson);
         class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6"
       >
         <h2
-          class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white"
+          :class="[
+            'text-2xl md:text-3xl font-bold',
+            isCyberpunk
+              ? 'text-white font-display uppercase tracking-wider flex items-center gap-3'
+              : 'text-gray-900 dark:text-white',
+          ]"
         >
+          <span v-if="isCyberpunk" class="text-cyber-cyan">&gt;</span>
           Filmography
         </h2>
 

@@ -7,6 +7,9 @@ import { useConvexQuery } from "../composables/useConvex";
 import { api } from "../../convex/_generated/api";
 import { authStore } from "../store/auth";
 import Skeleton from "../components/Skeleton.vue";
+import { useTheme } from "../composables/useTheme";
+
+const { isCyberpunk } = useTheme();
 
 const route = useRoute();
 const collection = ref<TMDBCollection | null>(null);
@@ -121,13 +124,42 @@ watch(() => route.params.id, fetchCollection);
         />
         <div
           v-else
-          class="w-full h-full bg-gradient-to-br from-gray-800 to-gray-900"
+          :class="[
+            'w-full h-full',
+            isCyberpunk
+              ? 'bg-gradient-to-br from-cyber-black to-cyber-night'
+              : 'bg-gradient-to-br from-gray-800 to-gray-900',
+          ]"
         ></div>
         <div
-          class="absolute inset-0 bg-gradient-to-t from-gray-50 via-gray-50/60 to-transparent dark:from-gray-950 dark:via-gray-950/70 dark:to-transparent"
+          :class="[
+            'absolute inset-0',
+            isCyberpunk
+              ? 'bg-gradient-to-t from-cyber-black via-cyber-black/70 to-cyber-black/30'
+              : 'bg-gradient-to-t from-gray-50 via-gray-50/60 to-transparent dark:from-gray-950 dark:via-gray-950/70 dark:to-transparent',
+          ]"
         ></div>
         <div
-          class="absolute inset-0 bg-gradient-to-r from-gray-50/90 via-transparent to-transparent dark:from-gray-950/90 dark:via-transparent dark:to-transparent"
+          :class="[
+            'absolute inset-0',
+            isCyberpunk
+              ? 'bg-gradient-to-r from-cyber-black/90 via-transparent to-transparent'
+              : 'bg-gradient-to-r from-gray-50/90 via-transparent to-transparent dark:from-gray-950/90 dark:via-transparent dark:to-transparent',
+          ]"
+        ></div>
+        <!-- Cyberpunk scan lines -->
+        <div
+          v-if="isCyberpunk"
+          class="absolute inset-0 pointer-events-none"
+          style="
+            background: repeating-linear-gradient(
+              0deg,
+              transparent,
+              transparent 2px,
+              rgba(85, 234, 212, 0.03) 2px,
+              rgba(85, 234, 212, 0.03) 4px
+            );
+          "
         ></div>
       </div>
 
@@ -137,7 +169,12 @@ watch(() => route.params.id, fetchCollection);
         >
           <!-- Collection Poster -->
           <div
-            class="hidden md:block w-40 lg:w-48 flex-shrink-0 shadow-2xl rounded-2xl overflow-hidden ring-1 ring-white/20 transform translate-y-16 lg:translate-y-20 z-30"
+            :class="[
+              'hidden md:block w-40 lg:w-48 flex-shrink-0 shadow-2xl overflow-hidden transform translate-y-16 lg:translate-y-20 z-30',
+              isCyberpunk
+                ? 'rounded-none border border-cyber-cyan/30'
+                : 'rounded-2xl ring-1 ring-white/20',
+            ]"
           >
             <img
               :src="tmdb.getImageUrl(collection.poster_path, 'w500')"
@@ -148,9 +185,19 @@ watch(() => route.params.id, fetchCollection);
             />
           </div>
 
-          <div class="flex-1 text-gray-900 dark:text-white z-10 w-full">
+          <div
+            :class="[
+              'flex-1 z-10 w-full',
+              isCyberpunk ? 'text-white' : 'text-gray-900 dark:text-white',
+            ]"
+          >
             <div
-              class="inline-flex items-center gap-2 bg-teal-500/20 text-teal-600 dark:text-teal-400 px-4 py-1.5 rounded-full text-sm font-semibold mb-4"
+              :class="[
+                'inline-flex items-center gap-2 px-4 py-1.5 text-sm font-semibold mb-4',
+                isCyberpunk
+                  ? 'bg-cyber-cyan/20 text-cyber-cyan border border-cyber-cyan/30 font-cyber-mono'
+                  : 'bg-teal-500/20 text-teal-600 dark:text-teal-400 rounded-full',
+              ]"
             >
               <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                 <path
@@ -161,22 +208,35 @@ watch(() => route.params.id, fetchCollection);
             </div>
 
             <h1
-              class="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-4 drop-shadow-sm leading-tight"
+              :class="[
+                'text-3xl md:text-4xl lg:text-5xl font-extrabold mb-4 leading-tight',
+                isCyberpunk ? 'font-display uppercase tracking-wide' : 'drop-shadow-sm',
+              ]"
             >
               {{ collection.name }}
             </h1>
 
             <p
               v-if="collection.overview"
-              class="text-gray-600 dark:text-gray-300 text-base md:text-lg leading-relaxed max-w-3xl line-clamp-3 md:line-clamp-none"
+              :class="[
+                'text-base md:text-lg leading-relaxed max-w-3xl line-clamp-3 md:line-clamp-none',
+                isCyberpunk ? 'text-cyber-gray font-display' : 'text-gray-600 dark:text-gray-300',
+              ]"
             >
               {{ collection.overview }}
             </p>
 
             <div
-              class="mt-4 flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400"
+              :class="[
+                'mt-4 flex items-center gap-4 text-sm',
+                isCyberpunk ? 'text-cyber-muted' : 'text-gray-500 dark:text-gray-400',
+              ]"
             >
-              <span class="font-semibold"
+              <span
+                :class="[
+                  'font-semibold',
+                  isCyberpunk ? 'text-cyber-yellow font-data' : '',
+                ]"
                 >{{ collection.parts.length }} movies</span
               >
             </div>
@@ -188,8 +248,14 @@ watch(() => route.params.id, fetchCollection);
     <!-- Movies Grid -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-24 lg:mt-32">
       <h2
-        class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-8 border-b border-gray-200 dark:border-gray-800 pb-4"
+        :class="[
+          'text-2xl md:text-3xl font-bold mb-8 pb-4 border-b',
+          isCyberpunk
+            ? 'text-white font-display uppercase tracking-wider border-cyber-chrome flex items-center gap-3'
+            : 'text-gray-900 dark:text-white border-gray-200 dark:border-gray-800',
+        ]"
       >
+        <span v-if="isCyberpunk" class="text-cyber-cyan">&gt;</span>
         Movies in this Collection
       </h2>
 
@@ -200,7 +266,12 @@ watch(() => route.params.id, fetchCollection);
           v-for="movie in sortedMovies"
           :key="movie.id"
           :to="`/details/movie/${movie.id}`"
-          class="group relative flex flex-col bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 overflow-hidden ring-1 ring-black/5 dark:ring-white/10 hover:ring-teal-500"
+          :class="[
+            'group relative flex flex-col shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 overflow-hidden',
+            isCyberpunk
+              ? 'bg-cyber-night border border-cyber-chrome rounded-none hover:border-cyber-cyan hover:shadow-[0_0_20px_rgba(85,234,212,0.2)]'
+              : 'bg-white dark:bg-gray-800 rounded-2xl ring-1 ring-black/5 dark:ring-white/10 hover:ring-teal-500',
+          ]"
         >
           <!-- Poster -->
           <div class="aspect-[2/3] overflow-hidden relative">

@@ -1,28 +1,41 @@
-import { ref, watch, onMounted, onUnmounted } from "vue";
+import { ref, watch, onMounted, onUnmounted, computed } from "vue";
 
-type Theme = "light" | "dark" | "system";
+type Theme = "light" | "dark" | "system" | "cyberpunk";
 
 const theme = ref<Theme>("system");
 
 const applyTheme = () => {
   if (typeof window === "undefined") return;
 
-  const isDark =
-    theme.value === "dark" ||
-    (theme.value === "system" &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches);
+  const html = document.documentElement;
 
-  if (isDark) {
-    document.documentElement.classList.add("dark");
+  // Remove all theme classes first
+  html.classList.remove("dark", "cyberpunk");
+
+  if (theme.value === "cyberpunk") {
+    // Cyberpunk theme uses dark as base + cyberpunk class
+    html.classList.add("dark", "cyberpunk");
   } else {
-    document.documentElement.classList.remove("dark");
+    const isDark =
+      theme.value === "dark" ||
+      (theme.value === "system" &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches);
+
+    if (isDark) {
+      html.classList.add("dark");
+    }
   }
 };
 
 const getStoredTheme = (): Theme => {
   if (typeof localStorage === "undefined") return "system";
   const stored = localStorage.getItem("theme");
-  if (stored === "light" || stored === "dark" || stored === "system")
+  if (
+    stored === "light" ||
+    stored === "dark" ||
+    stored === "system" ||
+    stored === "cyberpunk"
+  )
     return stored;
   return "system";
 };
@@ -41,6 +54,9 @@ export function useTheme() {
     if (theme.value === "system") applyTheme();
   };
 
+  // Computed property to check if cyberpunk theme is active
+  const isCyberpunk = computed(() => theme.value === "cyberpunk");
+
   onMounted(() => {
     applyTheme();
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
@@ -52,5 +68,5 @@ export function useTheme() {
     });
   });
 
-  return { theme, applyTheme };
+  return { theme, applyTheme, isCyberpunk };
 }
