@@ -1,11 +1,11 @@
-import { ref, onMounted, onUnmounted, watch, unref } from 'vue';
+import { ref, onMounted, onUnmounted, watch, unref } from "vue";
 import { ConvexHttpClient, ConvexClient } from "convex/browser";
 
 const client = new ConvexClient(import.meta.env.VITE_CONVEX_URL);
 const httpClient = new ConvexHttpClient(import.meta.env.VITE_CONVEX_URL);
 
 export function useConvexQuery(query: any, args: any) {
-  if (!query) throw new Error('Query reference is required for useConvexQuery');
+  if (!query) throw new Error("Query reference is required for useConvexQuery");
 
   const data = ref<any>(null);
   const error = ref<any>(null);
@@ -17,13 +17,16 @@ export function useConvexQuery(query: any, args: any) {
   const subscribe = () => {
     // Clear any pending subscription attempts (simple debounce)
     if (timeout) clearTimeout(timeout);
-    
+
     timeout = setTimeout(() => {
       // Correctly extract the value from a Ref or ComputedRef
       const argsValue = unref(args);
-      
+
       // Don't subscribe if we don't have valid args (e.g. userId is null)
-      if (!argsValue || Object.values(argsValue).some(v => v === null || v === undefined)) {
+      if (
+        !argsValue ||
+        Object.values(argsValue).some((v) => v === null || v === undefined)
+      ) {
         data.value = null;
         loading.value = false;
         return;
@@ -31,15 +34,20 @@ export function useConvexQuery(query: any, args: any) {
 
       loading.value = true;
       if (unsubscribe) unsubscribe();
-      
+
       try {
-        unsubscribe = client.onUpdate(query, argsValue, (updatedData) => {
-          data.value = updatedData;
-          loading.value = false;
-        }, (err) => {
-          error.value = err;
-          loading.value = false;
-        });
+        unsubscribe = client.onUpdate(
+          query,
+          argsValue,
+          (updatedData) => {
+            data.value = updatedData;
+            loading.value = false;
+          },
+          (err) => {
+            error.value = err;
+            loading.value = false;
+          },
+        );
       } catch (err) {
         error.value = err;
         loading.value = false;
@@ -48,11 +56,15 @@ export function useConvexQuery(query: any, args: any) {
   };
 
   onMounted(subscribe);
-  
+
   // Watch the unref'd value for changes
-  watch(() => unref(args), () => {
-    subscribe();
-  }, { deep: true });
+  watch(
+    () => unref(args),
+    () => {
+      subscribe();
+    },
+    { deep: true },
+  );
 
   onUnmounted(() => {
     if (unsubscribe) unsubscribe();
@@ -62,7 +74,8 @@ export function useConvexQuery(query: any, args: any) {
 }
 
 export function useConvexMutation(mutation: any) {
-  if (!mutation) throw new Error('Mutation reference is required for useConvexMutation');
+  if (!mutation)
+    throw new Error("Mutation reference is required for useConvexMutation");
 
   const loading = ref(false);
   const error = ref<any>(null);

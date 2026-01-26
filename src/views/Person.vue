@@ -12,8 +12,8 @@ const route = useRoute();
 const person = ref<PersonDetails | null>(null);
 const loading = ref(true);
 const showFullBio = ref(false);
-const activeTab = ref<'acting' | 'crew'>('acting');
-const sortBy = ref<'date' | 'popularity'>('date');
+const activeTab = ref<"acting" | "crew">("acting");
+const sortBy = ref<"date" | "popularity">("date");
 
 // Convex: get user's watchlist and watched lists to show status
 const userId = computed(() => authStore.userId);
@@ -68,15 +68,19 @@ const calculateAge = (birthday: string | null, deathday: string | null) => {
 
 const getGenderText = (gender: number) => {
   switch (gender) {
-    case 1: return "Female";
-    case 2: return "Male";
-    case 3: return "Non-binary";
-    default: return null;
+    case 1:
+      return "Female";
+    case 2:
+      return "Male";
+    case 3:
+      return "Non-binary";
+    default:
+      return null;
   }
 };
 
 // Only include movie and TV media types
-const isValidMediaType = (type: string) => type === 'movie' || type === 'tv';
+const isValidMediaType = (type: string) => type === "movie" || type === "tv";
 
 // Get "Known For" - top 8 most popular credits
 const knownFor = computed(() => {
@@ -96,9 +100,7 @@ const knownFor = computed(() => {
     return true;
   });
 
-  return unique
-    .sort((a, b) => b.popularity - a.popularity)
-    .slice(0, 8);
+  return unique.sort((a, b) => b.popularity - a.popularity).slice(0, 8);
 });
 
 // Sorted and filtered acting credits
@@ -106,13 +108,13 @@ const actingCredits = computed(() => {
   if (!person.value?.combined_credits?.cast) return [];
 
   const credits = person.value.combined_credits.cast.filter((credit) =>
-    isValidMediaType(credit.media_type)
+    isValidMediaType(credit.media_type),
   );
 
-  if (sortBy.value === 'date') {
+  if (sortBy.value === "date") {
     return credits.sort((a, b) => {
-      const dateA = a.release_date || a.first_air_date || '';
-      const dateB = b.release_date || b.first_air_date || '';
+      const dateA = a.release_date || a.first_air_date || "";
+      const dateB = b.release_date || b.first_air_date || "";
       if (!dateA && !dateB) return 0;
       if (!dateA) return 1;
       if (!dateB) return -1;
@@ -128,13 +130,13 @@ const crewCredits = computed(() => {
   if (!person.value?.combined_credits?.crew) return [];
 
   const credits = person.value.combined_credits.crew.filter((credit) =>
-    isValidMediaType(credit.media_type)
+    isValidMediaType(credit.media_type),
   );
 
-  if (sortBy.value === 'date') {
+  if (sortBy.value === "date") {
     return credits.sort((a, b) => {
-      const dateA = a.release_date || a.first_air_date || '';
-      const dateB = b.release_date || b.first_air_date || '';
+      const dateA = a.release_date || a.first_air_date || "";
+      const dateB = b.release_date || b.first_air_date || "";
       if (!dateA && !dateB) return 0;
       if (!dateA) return 1;
       if (!dateB) return -1;
@@ -186,27 +188,35 @@ watch(() => route.params.id, fetchPerson);
       <div
         class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex flex-col md:flex-row gap-8"
       >
-        <Skeleton className="w-64 h-96 rounded-2xl flex-shrink-0 mx-auto md:mx-0" />
+        <Skeleton
+          class-name="w-64 h-96 rounded-2xl flex-shrink-0 mx-auto md:mx-0"
+        />
         <div class="flex-1 space-y-4">
-          <Skeleton className="h-10 w-2/3" />
-          <Skeleton className="h-6 w-1/3" />
-          <Skeleton className="h-4 w-1/4" />
-          <Skeleton className="h-32 w-full mt-6" />
+          <Skeleton class-name="h-10 w-2/3" />
+          <Skeleton class-name="h-6 w-1/3" />
+          <Skeleton class-name="h-4 w-1/4" />
+          <Skeleton class-name="h-32 w-full mt-6" />
         </div>
       </div>
     </div>
     <!-- Known For Skeleton -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12">
-      <Skeleton className="h-8 w-48 mb-6" />
+      <Skeleton class-name="h-8 w-48 mb-6" />
       <div class="flex gap-4 overflow-hidden">
-        <Skeleton v-for="i in 6" :key="i" className="w-32 h-48 rounded-xl flex-shrink-0" />
+        <Skeleton
+          v-for="i in 6"
+          :key="i"
+          class-name="w-32 h-48 rounded-xl flex-shrink-0"
+        />
       </div>
     </div>
   </div>
 
   <div v-else-if="person" class="pb-20 overflow-x-hidden">
     <!-- Hero Section -->
-    <div class="bg-gradient-to-b from-gray-100 to-gray-50 dark:from-gray-900 dark:to-gray-950">
+    <div
+      class="bg-gradient-to-b from-gray-100 to-gray-50 dark:from-gray-900 dark:to-gray-950"
+    >
       <div
         class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 flex flex-col md:flex-row gap-8"
       >
@@ -225,7 +235,12 @@ watch(() => route.params.id, fetchPerson);
               v-else
               class="w-full h-full flex items-center justify-center text-gray-400"
             >
-              <svg class="w-24 h-24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg
+                class="w-24 h-24"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
                 <path
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -239,17 +254,23 @@ watch(() => route.params.id, fetchPerson);
 
         <!-- Info -->
         <div class="flex-1 text-center md:text-left">
-          <h1 class="text-3xl md:text-4xl lg:text-5xl font-extrabold text-gray-900 dark:text-white mb-3">
+          <h1
+            class="text-3xl md:text-4xl lg:text-5xl font-extrabold text-gray-900 dark:text-white mb-3"
+          >
             {{ person.name }}
           </h1>
 
-          <div class="flex flex-wrap items-center justify-center md:justify-start gap-3 mb-6">
+          <div
+            class="flex flex-wrap items-center justify-center md:justify-start gap-3 mb-6"
+          >
             <span
               v-if="person.known_for_department"
               class="inline-flex items-center gap-1.5 bg-teal-500/20 text-teal-600 dark:text-teal-400 px-3 py-1 rounded-full text-sm font-semibold"
             >
               <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                <path
+                  d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
+                />
               </svg>
               {{ person.known_for_department }}
             </span>
@@ -263,33 +284,57 @@ watch(() => route.params.id, fetchPerson);
           </div>
 
           <!-- Personal Details -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6 text-sm">
-            <div v-if="person.birthday" class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm">
-              <p class="text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider font-semibold mb-1">
-                {{ person.deathday ? 'Born' : 'Birthday' }}
+          <div
+            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6 text-sm"
+          >
+            <div
+              v-if="person.birthday"
+              class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm"
+            >
+              <p
+                class="text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider font-semibold mb-1"
+              >
+                {{ person.deathday ? "Born" : "Birthday" }}
               </p>
               <p class="text-gray-900 dark:text-white font-medium">
                 {{ formatDate(person.birthday) }}
-                <span v-if="!person.deathday && calculateAge(person.birthday, null)" class="text-gray-500 dark:text-gray-400">
+                <span
+                  v-if="!person.deathday && calculateAge(person.birthday, null)"
+                  class="text-gray-500 dark:text-gray-400"
+                >
                   ({{ calculateAge(person.birthday, null) }} years old)
                 </span>
               </p>
             </div>
 
-            <div v-if="person.deathday" class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm">
-              <p class="text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider font-semibold mb-1">
+            <div
+              v-if="person.deathday"
+              class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm"
+            >
+              <p
+                class="text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider font-semibold mb-1"
+              >
                 Died
               </p>
               <p class="text-gray-900 dark:text-white font-medium">
                 {{ formatDate(person.deathday) }}
-                <span v-if="calculateAge(person.birthday, person.deathday)" class="text-gray-500 dark:text-gray-400">
-                  ({{ calculateAge(person.birthday, person.deathday) }} years old)
+                <span
+                  v-if="calculateAge(person.birthday, person.deathday)"
+                  class="text-gray-500 dark:text-gray-400"
+                >
+                  ({{ calculateAge(person.birthday, person.deathday) }} years
+                  old)
                 </span>
               </p>
             </div>
 
-            <div v-if="person.place_of_birth" class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm">
-              <p class="text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider font-semibold mb-1">
+            <div
+              v-if="person.place_of_birth"
+              class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm"
+            >
+              <p
+                class="text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider font-semibold mb-1"
+              >
                 Birthplace
               </p>
               <p class="text-gray-900 dark:text-white font-medium">
@@ -300,28 +345,35 @@ watch(() => route.params.id, fetchPerson);
 
           <!-- Biography -->
           <div v-if="person.biography">
-            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">Biography</h3>
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">
+              Biography
+            </h3>
             <div class="relative">
               <p
                 :class="[
                   'text-gray-600 dark:text-gray-300 leading-relaxed',
-                  !showFullBio && person.biography.length > 500 ? 'line-clamp-4' : ''
+                  !showFullBio && person.biography.length > 500
+                    ? 'line-clamp-4'
+                    : '',
                 ]"
               >
                 {{ person.biography }}
               </p>
               <button
                 v-if="person.biography.length > 500"
-                @click="showFullBio = !showFullBio"
                 class="mt-2 text-teal-500 hover:text-teal-600 font-medium text-sm"
+                @click="showFullBio = !showFullBio"
               >
-                {{ showFullBio ? 'Show Less' : 'Read More' }}
+                {{ showFullBio ? "Show Less" : "Read More" }}
               </button>
             </div>
           </div>
 
           <!-- External Links -->
-          <div v-if="person.imdb_id || person.homepage" class="mt-6 flex flex-wrap gap-3">
+          <div
+            v-if="person.imdb_id || person.homepage"
+            class="mt-6 flex flex-wrap gap-3"
+          >
             <a
               v-if="person.imdb_id"
               :href="`https://www.imdb.com/name/${person.imdb_id}`"
@@ -330,7 +382,9 @@ watch(() => route.params.id, fetchPerson);
               class="inline-flex items-center gap-2 bg-amber-500 text-white px-4 py-2 rounded-full font-semibold text-sm hover:bg-amber-600 transition"
             >
               <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M14.31 9.588v.005c-.077-.048-.227-.07-.42-.07v4.815c.27 0 .44-.06.51-.18.07-.12.11-.473.11-1.058V10.93c0-.418-.01-.693-.03-.823-.02-.13-.08-.232-.17-.304v-.005zm-6.89 4.1v-3.93c0-.34.1-.575.3-.7.2-.125.467-.187.8-.187.267 0 .467.06.6.17.133.11.233.27.3.48.067.21.1.49.1.84v2.66c0 .51-.067.86-.2 1.05-.133.19-.367.29-.7.29-.467 0-.733-.17-.8-.51-.067-.34-.1-.87-.1-1.58v-.58zm-4.42-4.1h1.32l.64 4.32h.06l.63-4.32h1.33l-1.31 5.93h-1.44l-1.23-5.93zm9.2 0h2.2c.4 0 .693.113.88.34.187.227.28.567.28 1.02v3.17c0 .557-.107.94-.32 1.15-.213.21-.553.315-1.02.315h-2.02V9.588z" />
+                <path
+                  d="M14.31 9.588v.005c-.077-.048-.227-.07-.42-.07v4.815c.27 0 .44-.06.51-.18.07-.12.11-.473.11-1.058V10.93c0-.418-.01-.693-.03-.823-.02-.13-.08-.232-.17-.304v-.005zm-6.89 4.1v-3.93c0-.34.1-.575.3-.7.2-.125.467-.187.8-.187.267 0 .467.06.6.17.133.11.233.27.3.48.067.21.1.49.1.84v2.66c0 .51-.067.86-.2 1.05-.133.19-.367.29-.7.29-.467 0-.733-.17-.8-.51-.067-.34-.1-.87-.1-1.58v-.58zm-4.42-4.1h1.32l.64 4.32h.06l.63-4.32h1.33l-1.31 5.93h-1.44l-1.23-5.93zm9.2 0h2.2c.4 0 .693.113.88.34.187.227.28.567.28 1.02v3.17c0 .557-.107.94-.32 1.15-.213.21-.553.315-1.02.315h-2.02V9.588z"
+                />
               </svg>
               IMDb
             </a>
@@ -341,8 +395,18 @@ watch(() => route.params.id, fetchPerson);
               rel="noopener noreferrer"
               class="inline-flex items-center gap-2 bg-gray-800 dark:bg-gray-700 text-white px-4 py-2 rounded-full font-semibold text-sm hover:bg-gray-700 dark:hover:bg-gray-600 transition"
             >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"
+                />
               </svg>
               Website
             </a>
@@ -352,19 +416,28 @@ watch(() => route.params.id, fetchPerson);
     </div>
 
     <!-- Known For Section -->
-    <section v-if="knownFor.length" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12">
-      <h2 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-6">
+    <section
+      v-if="knownFor.length"
+      class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12"
+    >
+      <h2
+        class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-6"
+      >
         Known For
       </h2>
 
-      <div class="flex gap-4 overflow-x-auto pb-4 -mx-4 px-4 snap-x snap-mandatory scrollbar-hide">
+      <div
+        class="flex gap-4 overflow-x-auto pb-4 -mx-4 px-4 snap-x snap-mandatory scrollbar-hide"
+      >
         <router-link
           v-for="credit in knownFor"
           :key="`${credit.media_type}-${credit.id}`"
           :to="`/details/${credit.media_type}/${credit.id}`"
           class="flex-shrink-0 w-32 snap-start group"
         >
-          <div class="aspect-[2/3] rounded-xl overflow-hidden mb-2 bg-gray-200 dark:bg-gray-800 shadow-md ring-1 ring-black/5 dark:ring-white/10 transition-all duration-300 group-hover:ring-teal-500 group-hover:-translate-y-1 group-hover:shadow-xl relative">
+          <div
+            class="aspect-[2/3] rounded-xl overflow-hidden mb-2 bg-gray-200 dark:bg-gray-800 shadow-md ring-1 ring-black/5 dark:ring-white/10 transition-all duration-300 group-hover:ring-teal-500 group-hover:-translate-y-1 group-hover:shadow-xl relative"
+          >
             <img
               v-if="credit.poster_path"
               :src="tmdb.getImageUrl(credit.poster_path)"
@@ -376,8 +449,18 @@ watch(() => route.params.id, fetchPerson);
               v-else
               class="w-full h-full flex items-center justify-center text-gray-400"
             >
-              <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z" />
+              <svg
+                class="w-10 h-10"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"
+                />
               </svg>
             </div>
 
@@ -392,7 +475,11 @@ watch(() => route.params.id, fetchPerson);
                 title="Watched"
               >
                 <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                  <path
+                    fill-rule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clip-rule="evenodd"
+                  />
                 </svg>
               </div>
               <div
@@ -402,19 +489,27 @@ watch(() => route.params.id, fetchPerson);
               >
                 <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                  <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
+                  <path
+                    fill-rule="evenodd"
+                    d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
+                    clip-rule="evenodd"
+                  />
                 </svg>
               </div>
             </div>
 
             <!-- Media type badge -->
             <div class="absolute bottom-2 left-2">
-              <span class="bg-black/70 text-white text-xs px-2 py-0.5 rounded font-medium">
-                {{ credit.media_type === 'movie' ? 'Movie' : 'TV' }}
+              <span
+                class="bg-black/70 text-white text-xs px-2 py-0.5 rounded font-medium"
+              >
+                {{ credit.media_type === "movie" ? "Movie" : "TV" }}
               </span>
             </div>
           </div>
-          <p class="text-sm font-semibold text-gray-900 dark:text-white truncate">
+          <p
+            class="text-sm font-semibold text-gray-900 dark:text-white truncate"
+          >
             {{ credit.title || credit.name }}
           </p>
         </router-link>
@@ -423,8 +518,12 @@ watch(() => route.params.id, fetchPerson);
 
     <!-- Filmography Section -->
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12">
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-        <h2 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
+      <div
+        class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6"
+      >
+        <h2
+          class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white"
+        >
           Filmography
         </h2>
 
@@ -443,30 +542,34 @@ watch(() => route.params.id, fetchPerson);
       <!-- Tabs -->
       <div class="flex border-b border-gray-200 dark:border-gray-800 mb-6">
         <button
-          @click="activeTab = 'acting'"
           :class="[
             'px-6 py-3 text-sm font-semibold border-b-2 transition-colors',
             activeTab === 'acting'
               ? 'border-teal-500 text-teal-600 dark:text-teal-400'
-              : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+              : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300',
           ]"
+          @click="activeTab = 'acting'"
         >
           Acting
-          <span class="ml-2 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-2 py-0.5 rounded-full text-xs">
+          <span
+            class="ml-2 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-2 py-0.5 rounded-full text-xs"
+          >
             {{ person.combined_credits?.cast?.length || 0 }}
           </span>
         </button>
         <button
-          @click="activeTab = 'crew'"
           :class="[
             'px-6 py-3 text-sm font-semibold border-b-2 transition-colors',
             activeTab === 'crew'
               ? 'border-teal-500 text-teal-600 dark:text-teal-400'
-              : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+              : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300',
           ]"
+          @click="activeTab = 'crew'"
         >
           Crew
-          <span class="ml-2 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-2 py-0.5 rounded-full text-xs">
+          <span
+            class="ml-2 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-2 py-0.5 rounded-full text-xs"
+          >
             {{ person.combined_credits?.crew?.length || 0 }}
           </span>
         </button>
@@ -474,7 +577,9 @@ watch(() => route.params.id, fetchPerson);
 
       <!-- Acting Credits Grid -->
       <div v-if="activeTab === 'acting'">
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6">
+        <div
+          class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6"
+        >
           <router-link
             v-for="credit in actingCredits"
             :key="`cast-${credit.media_type}-${credit.id}-${credit.character}`"
@@ -482,7 +587,9 @@ watch(() => route.params.id, fetchPerson);
             class="group relative flex flex-col bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden ring-1 ring-black/5 dark:ring-white/10 hover:ring-teal-500"
           >
             <!-- Poster -->
-            <div class="aspect-[2/3] overflow-hidden relative bg-gray-200 dark:bg-gray-700">
+            <div
+              class="aspect-[2/3] overflow-hidden relative bg-gray-200 dark:bg-gray-700"
+            >
               <img
                 v-if="credit.poster_path"
                 :src="tmdb.getImageUrl(credit.poster_path)"
@@ -490,9 +597,22 @@ watch(() => route.params.id, fetchPerson);
                 class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 loading="lazy"
               />
-              <div v-else class="w-full h-full flex items-center justify-center text-gray-400">
-                <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z" />
+              <div
+                v-else
+                class="w-full h-full flex items-center justify-center text-gray-400"
+              >
+                <svg
+                  class="w-12 h-12"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"
+                  />
                 </svg>
               </div>
 
@@ -507,7 +627,11 @@ watch(() => route.params.id, fetchPerson);
                   title="Watched"
                 >
                   <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    <path
+                      fill-rule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clip-rule="evenodd"
+                    />
                   </svg>
                 </div>
                 <div
@@ -517,15 +641,21 @@ watch(() => route.params.id, fetchPerson);
                 >
                   <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                    <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
+                    <path
+                      fill-rule="evenodd"
+                      d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
+                      clip-rule="evenodd"
+                    />
                   </svg>
                 </div>
               </div>
 
               <!-- Media type badge -->
               <div class="absolute top-2 left-2">
-                <span class="bg-black/70 text-white text-xs px-2 py-0.5 rounded font-medium">
-                  {{ credit.media_type === 'movie' ? 'Movie' : 'TV' }}
+                <span
+                  class="bg-black/70 text-white text-xs px-2 py-0.5 rounded font-medium"
+                >
+                  {{ credit.media_type === "movie" ? "Movie" : "TV" }}
                 </span>
               </div>
 
@@ -533,32 +663,53 @@ watch(() => route.params.id, fetchPerson);
               <div
                 class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-3"
               >
-                <p v-if="credit.character" class="text-white text-sm line-clamp-2">
+                <p
+                  v-if="credit.character"
+                  class="text-white text-sm line-clamp-2"
+                >
                   as {{ credit.character }}
                 </p>
-                <p v-if="credit.episode_count" class="text-gray-300 text-xs mt-1">
-                  {{ credit.episode_count }} episode{{ credit.episode_count > 1 ? 's' : '' }}
+                <p
+                  v-if="credit.episode_count"
+                  class="text-gray-300 text-xs mt-1"
+                >
+                  {{ credit.episode_count }} episode{{
+                    credit.episode_count > 1 ? "s" : ""
+                  }}
                 </p>
               </div>
             </div>
 
             <!-- Info -->
             <div class="p-3 flex-1 flex flex-col">
-              <h4 class="font-bold text-gray-900 dark:text-white text-sm truncate group-hover:text-teal-500 transition-colors">
+              <h4
+                class="font-bold text-gray-900 dark:text-white text-sm truncate group-hover:text-teal-500 transition-colors"
+              >
                 {{ credit.title || credit.name }}
               </h4>
-              <p v-if="credit.character" class="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5 group-hover:hidden">
+              <p
+                v-if="credit.character"
+                class="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5 group-hover:hidden"
+              >
                 {{ credit.character }}
               </p>
               <div class="mt-auto pt-2 flex items-center justify-between">
-                <div v-if="credit.vote_average" class="flex items-center bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">
+                <div
+                  v-if="credit.vote_average"
+                  class="flex items-center bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded"
+                >
                   <span class="text-amber-500 text-xs mr-1">★</span>
                   <span class="text-xs font-bold text-gray-900 dark:text-white">
                     {{ credit.vote_average.toFixed(1) }}
                   </span>
                 </div>
-                <span class="text-xs text-gray-500 dark:text-gray-400 font-medium">
-                  {{ getYear(credit.release_date || credit.first_air_date) || 'TBA' }}
+                <span
+                  class="text-xs text-gray-500 dark:text-gray-400 font-medium"
+                >
+                  {{
+                    getYear(credit.release_date || credit.first_air_date) ||
+                    "TBA"
+                  }}
                 </span>
               </div>
             </div>
@@ -566,18 +717,28 @@ watch(() => route.params.id, fetchPerson);
         </div>
 
         <!-- Empty state -->
-        <div v-if="!actingCredits.length" class="text-center py-12 text-gray-500 dark:text-gray-400">
+        <div
+          v-if="!actingCredits.length"
+          class="text-center py-12 text-gray-500 dark:text-gray-400"
+        >
           <p>No acting credits found.</p>
         </div>
       </div>
 
       <!-- Crew Credits Grid -->
       <div v-if="activeTab === 'crew'" class="space-y-10">
-        <div v-for="(credits, department) in crewByDepartment" :key="department">
-          <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-200 dark:border-gray-700 pb-2">
+        <div
+          v-for="(credits, department) in crewByDepartment"
+          :key="department"
+        >
+          <h3
+            class="text-lg font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-200 dark:border-gray-700 pb-2"
+          >
             {{ department }}
           </h3>
-          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6">
+          <div
+            class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6"
+          >
             <router-link
               v-for="credit in credits"
               :key="`crew-${credit.media_type}-${credit.id}-${credit.job}`"
@@ -585,7 +746,9 @@ watch(() => route.params.id, fetchPerson);
               class="group relative flex flex-col bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden ring-1 ring-black/5 dark:ring-white/10 hover:ring-teal-500"
             >
               <!-- Poster -->
-              <div class="aspect-[2/3] overflow-hidden relative bg-gray-200 dark:bg-gray-700">
+              <div
+                class="aspect-[2/3] overflow-hidden relative bg-gray-200 dark:bg-gray-700"
+              >
                 <img
                   v-if="credit.poster_path"
                   :src="tmdb.getImageUrl(credit.poster_path)"
@@ -593,9 +756,22 @@ watch(() => route.params.id, fetchPerson);
                   class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   loading="lazy"
                 />
-                <div v-else class="w-full h-full flex items-center justify-center text-gray-400">
-                  <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z" />
+                <div
+                  v-else
+                  class="w-full h-full flex items-center justify-center text-gray-400"
+                >
+                  <svg
+                    class="w-12 h-12"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"
+                    />
                   </svg>
                 </div>
 
@@ -609,8 +785,16 @@ watch(() => route.params.id, fetchPerson);
                     class="bg-teal-500 text-white p-1.5 rounded-full shadow-lg"
                     title="Watched"
                   >
-                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    <svg
+                      class="w-4 h-4"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clip-rule="evenodd"
+                      />
                     </svg>
                   </div>
                   <div
@@ -618,17 +802,27 @@ watch(() => route.params.id, fetchPerson);
                     class="bg-amber-500 text-white p-1.5 rounded-full shadow-lg"
                     title="In Watchlist"
                   >
-                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <svg
+                      class="w-4 h-4"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
                       <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                      <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
+                      <path
+                        fill-rule="evenodd"
+                        d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
+                        clip-rule="evenodd"
+                      />
                     </svg>
                   </div>
                 </div>
 
                 <!-- Media type badge -->
                 <div class="absolute top-2 left-2">
-                  <span class="bg-black/70 text-white text-xs px-2 py-0.5 rounded font-medium">
-                    {{ credit.media_type === 'movie' ? 'Movie' : 'TV' }}
+                  <span
+                    class="bg-black/70 text-white text-xs px-2 py-0.5 rounded font-medium"
+                  >
+                    {{ credit.media_type === "movie" ? "Movie" : "TV" }}
                   </span>
                 </div>
 
@@ -644,21 +838,35 @@ watch(() => route.params.id, fetchPerson);
 
               <!-- Info -->
               <div class="p-3 flex-1 flex flex-col">
-                <h4 class="font-bold text-gray-900 dark:text-white text-sm truncate group-hover:text-teal-500 transition-colors">
+                <h4
+                  class="font-bold text-gray-900 dark:text-white text-sm truncate group-hover:text-teal-500 transition-colors"
+                >
                   {{ credit.title || credit.name }}
                 </h4>
-                <p class="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">
+                <p
+                  class="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5"
+                >
                   {{ credit.job }}
                 </p>
                 <div class="mt-auto pt-2 flex items-center justify-between">
-                  <div v-if="credit.vote_average" class="flex items-center bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">
+                  <div
+                    v-if="credit.vote_average"
+                    class="flex items-center bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded"
+                  >
                     <span class="text-amber-500 text-xs mr-1">★</span>
-                    <span class="text-xs font-bold text-gray-900 dark:text-white">
+                    <span
+                      class="text-xs font-bold text-gray-900 dark:text-white"
+                    >
                       {{ credit.vote_average.toFixed(1) }}
                     </span>
                   </div>
-                  <span class="text-xs text-gray-500 dark:text-gray-400 font-medium">
-                    {{ getYear(credit.release_date || credit.first_air_date) || 'TBA' }}
+                  <span
+                    class="text-xs text-gray-500 dark:text-gray-400 font-medium"
+                  >
+                    {{
+                      getYear(credit.release_date || credit.first_air_date) ||
+                      "TBA"
+                    }}
                   </span>
                 </div>
               </div>
@@ -667,7 +875,10 @@ watch(() => route.params.id, fetchPerson);
         </div>
 
         <!-- Empty state -->
-        <div v-if="!Object.keys(crewByDepartment).length" class="text-center py-12 text-gray-500 dark:text-gray-400">
+        <div
+          v-if="!Object.keys(crewByDepartment).length"
+          class="text-center py-12 text-gray-500 dark:text-gray-400"
+        >
           <p>No crew credits found.</p>
         </div>
       </div>
