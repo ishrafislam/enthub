@@ -148,14 +148,14 @@ const displayedVideos = computed(() => {
         class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 h-full flex items-end pb-12 gap-10"
       >
         <Skeleton
-          className="hidden md:block w-80 h-[480px] rounded-2xl transform translate-y-32 z-30"
+          class-name="hidden md:block w-80 h-[480px] rounded-2xl transform translate-y-32 z-30"
         />
         <div class="flex-1 space-y-6 pb-16">
-          <Skeleton className="h-12 w-2/3" />
-          <Skeleton className="h-6 w-1/3" />
+          <Skeleton class-name="h-12 w-2/3" />
+          <Skeleton class-name="h-6 w-1/3" />
           <div class="flex gap-4">
-            <Skeleton className="h-12 w-32 rounded-full" />
-            <Skeleton className="h-12 w-32 rounded-full" />
+            <Skeleton class-name="h-12 w-32 rounded-full" />
+            <Skeleton class-name="h-12 w-32 rounded-full" />
           </div>
         </div>
       </div>
@@ -165,16 +165,16 @@ const displayedVideos = computed(() => {
       class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-48 grid grid-cols-1 lg:grid-cols-4 gap-12"
     >
       <div class="lg:col-span-1 space-y-4">
-        <Skeleton className="h-64 w-full rounded-2xl" />
+        <Skeleton class-name="h-64 w-full rounded-2xl" />
       </div>
       <div class="lg:col-span-3 space-y-8">
-        <Skeleton className="h-8 w-1/4" />
-        <Skeleton className="h-32 w-full" />
+        <Skeleton class-name="h-8 w-1/4" />
+        <Skeleton class-name="h-32 w-full" />
         <div class="flex gap-6">
           <Skeleton
             v-for="i in 5"
             :key="i"
-            className="w-24 h-24 rounded-full flex-shrink-0"
+            class-name="w-24 h-24 rounded-full flex-shrink-0"
           />
         </div>
       </div>
@@ -291,13 +291,13 @@ const displayedVideos = computed(() => {
 
               <div class="flex flex-wrap gap-2 md:gap-3 w-full sm:w-auto">
                 <button
-                  @click="handleToggleWatchlist"
                   :class="
                     status?.inWatchlist
                       ? 'bg-amber-500 hover:bg-amber-600'
                       : 'bg-teal-500 hover:bg-teal-600'
                   "
                   class="flex-1 sm:flex-none justify-center text-white px-6 md:px-8 py-3 md:py-4 rounded-full font-bold transition flex items-center gap-2 md:gap-3 shadow-lg hover:shadow-teal-500/30 text-sm md:text-lg"
+                  @click="handleToggleWatchlist"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -314,7 +314,6 @@ const displayedVideos = computed(() => {
                   {{ status?.inWatchlist ? "In Watchlist" : "Watchlist" }}
                 </button>
                 <button
-                  @click="handleMarkAsWatched"
                   :class="
                     status?.inWatched
                       ? 'bg-teal-500 text-white'
@@ -322,6 +321,7 @@ const displayedVideos = computed(() => {
                   "
                   class="border border-gray-200 dark:border-gray-700 p-3 md:p-4 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition shadow-md"
                   title="Mark as Watched"
+                  @click="handleMarkAsWatched"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -564,7 +564,9 @@ const displayedVideos = computed(() => {
                     </svg>
                   </div>
                 </div>
-                <h4 class="font-bold text-gray-900 dark:text-white text-sm group-hover:text-teal-500 transition-colors">
+                <h4
+                  class="font-bold text-gray-900 dark:text-white text-sm group-hover:text-teal-500 transition-colors"
+                >
                   {{ director.name }}
                 </h4>
                 <p class="text-xs text-teal-500 font-semibold uppercase">
@@ -606,7 +608,9 @@ const displayedVideos = computed(() => {
                     </svg>
                   </div>
                 </div>
-                <h4 class="font-bold text-gray-900 dark:text-white text-sm group-hover:text-teal-500 transition-colors">
+                <h4
+                  class="font-bold text-gray-900 dark:text-white text-sm group-hover:text-teal-500 transition-colors"
+                >
                   {{ writer.name }}
                 </h4>
                 <p class="text-xs text-blue-500 font-semibold uppercase">
@@ -648,7 +652,9 @@ const displayedVideos = computed(() => {
                     </svg>
                   </div>
                 </div>
-                <h4 class="font-bold text-gray-900 dark:text-white text-sm group-hover:text-teal-500 transition-colors">
+                <h4
+                  class="font-bold text-gray-900 dark:text-white text-sm group-hover:text-teal-500 transition-colors"
+                >
                   {{ producer.name }}
                 </h4>
                 <p class="text-xs text-gray-500 font-semibold uppercase">
@@ -706,7 +712,9 @@ const displayedVideos = computed(() => {
                 </svg>
               </div>
             </div>
-            <p class="font-bold text-sm text-gray-900 dark:text-white truncate group-hover:text-teal-500 transition-colors">
+            <p
+              class="font-bold text-sm text-gray-900 dark:text-white truncate group-hover:text-teal-500 transition-colors"
+            >
               {{ castMember.name }}
             </p>
             <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
@@ -720,8 +728,8 @@ const displayedVideos = computed(() => {
           class="mt-10 text-center"
         >
           <button
-            @click="showAllCast = !showAllCast"
             class="inline-flex items-center gap-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-8 py-3 rounded-full font-bold border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition shadow-sm"
+            @click="showAllCast = !showAllCast"
           >
             {{ showAllCast ? "Show Less" : "Show All Cast" }}
             <svg
@@ -796,8 +804,8 @@ const displayedVideos = computed(() => {
           class="mt-10 text-center"
         >
           <button
-            @click="showAllVideos = !showAllVideos"
             class="inline-flex items-center gap-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-8 py-3 rounded-full font-bold border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition shadow-sm"
+            @click="showAllVideos = !showAllVideos"
           >
             {{ showAllVideos ? "Show Less" : "Show All Videos" }}
             <svg

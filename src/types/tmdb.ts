@@ -14,23 +14,23 @@ interface BaseMediaItem {
   overview: string;
   vote_average: number;
   genre_ids: number[];
-  media_type: 'movie' | 'tv' | 'person';
+  media_type: "movie" | "tv" | "person";
 }
 
 export interface MovieItem extends BaseMediaItem {
-  media_type: 'movie';
+  media_type: "movie";
   title: string;
   release_date: string;
 }
 
 export interface TVItem extends BaseMediaItem {
-  media_type: 'tv';
+  media_type: "tv";
   name: string;
   first_air_date: string;
 }
 
 export interface PersonItem {
-  media_type: 'person';
+  media_type: "person";
   id: number;
   name: string;
   profile_path: string | null;
@@ -60,7 +60,7 @@ export interface MediaDetails {
   overview: string;
   vote_average: number;
   genre_ids: number[];
-  media_type?: 'movie' | 'tv';
+  media_type?: "movie" | "tv";
   title?: string;
   name?: string;
   release_date?: string;
@@ -157,7 +157,7 @@ export interface PersonCastCredit {
   id: number;
   title?: string;
   name?: string;
-  media_type: 'movie' | 'tv';
+  media_type: "movie" | "tv";
   character: string;
   release_date?: string;
   first_air_date?: string;
@@ -173,7 +173,7 @@ export interface PersonCrewCredit {
   id: number;
   title?: string;
   name?: string;
-  media_type: 'movie' | 'tv';
+  media_type: "movie" | "tv";
   job: string;
   department: string;
   release_date?: string;

@@ -45,7 +45,9 @@ const sortedMovies = computed(() => {
   return [...collection.value.parts].sort((a, b) => {
     if (!a.release_date) return 1;
     if (!b.release_date) return -1;
-    return new Date(a.release_date).getTime() - new Date(b.release_date).getTime();
+    return (
+      new Date(a.release_date).getTime() - new Date(b.release_date).getTime()
+    );
   });
 });
 
@@ -74,25 +76,33 @@ watch(() => route.params.id, fetchCollection);
 <template>
   <div v-if="loading" class="animate-in fade-in duration-500">
     <!-- Hero Skeleton -->
-    <div class="h-[400px] lg:h-[500px] bg-gray-100 dark:bg-gray-900/50 relative">
+    <div
+      class="h-[400px] lg:h-[500px] bg-gray-100 dark:bg-gray-900/50 relative"
+    >
       <div
         class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 h-full flex items-end pb-12 gap-8"
       >
         <Skeleton
-          className="hidden md:block w-48 h-72 rounded-2xl transform translate-y-20 z-30"
+          class-name="hidden md:block w-48 h-72 rounded-2xl transform translate-y-20 z-30"
         />
         <div class="flex-1 space-y-4 pb-8">
-          <Skeleton className="h-10 w-2/3" />
-          <Skeleton className="h-6 w-1/2" />
-          <Skeleton className="h-20 w-full" />
+          <Skeleton class-name="h-10 w-2/3" />
+          <Skeleton class-name="h-6 w-1/2" />
+          <Skeleton class-name="h-20 w-full" />
         </div>
       </div>
     </div>
     <!-- Grid Skeleton -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-32">
-      <Skeleton className="h-8 w-48 mb-8" />
-      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-        <Skeleton v-for="i in 5" :key="i" className="aspect-[2/3] rounded-2xl" />
+      <Skeleton class-name="h-8 w-48 mb-8" />
+      <div
+        class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6"
+      >
+        <Skeleton
+          v-for="i in 5"
+          :key="i"
+          class-name="aspect-[2/3] rounded-2xl"
+        />
       </div>
     </div>
   </div>
@@ -157,8 +167,12 @@ watch(() => route.params.id, fetchCollection);
               {{ collection.overview }}
             </p>
 
-            <div class="mt-4 flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-              <span class="font-semibold">{{ collection.parts.length }} movies</span>
+            <div
+              class="mt-4 flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400"
+            >
+              <span class="font-semibold"
+                >{{ collection.parts.length }} movies</span
+              >
             </div>
           </div>
         </div>
@@ -251,7 +265,9 @@ watch(() => route.params.id, fetchCollection);
                   {{ movie.vote_average?.toFixed(1) || "N/A" }}
                 </span>
               </div>
-              <span class="text-xs text-gray-500 dark:text-gray-400 font-medium">
+              <span
+                class="text-xs text-gray-500 dark:text-gray-400 font-medium"
+              >
                 {{ getYear(movie.release_date) }}
               </span>
             </div>
