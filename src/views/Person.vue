@@ -227,7 +227,9 @@ watch(() => route.params.id, fetchPerson);
           >
             <img
               v-if="person.profile_path"
-              :src="tmdb.getImageUrl(person.profile_path, 'original')"
+              :src="tmdb.getImageUrl(person.profile_path, 'w500')"
+              :srcset="tmdb.getPosterSrcset(person.profile_path)"
+              sizes="(max-width: 768px) 192px, 256px"
               :alt="person.name"
               class="w-full h-full object-cover"
             />
@@ -441,6 +443,8 @@ watch(() => route.params.id, fetchPerson);
             <img
               v-if="credit.poster_path"
               :src="tmdb.getImageUrl(credit.poster_path)"
+              :srcset="tmdb.getPosterSrcset(credit.poster_path)"
+              sizes="128px"
               :alt="credit.title || credit.name"
               class="w-full h-full object-cover"
               loading="lazy"
@@ -593,6 +597,8 @@ watch(() => route.params.id, fetchPerson);
               <img
                 v-if="credit.poster_path"
                 :src="tmdb.getImageUrl(credit.poster_path)"
+                :srcset="tmdb.getPosterSrcset(credit.poster_path)"
+                :sizes="tmdb.posterSizes"
                 :alt="credit.title || credit.name"
                 class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 loading="lazy"
@@ -752,6 +758,8 @@ watch(() => route.params.id, fetchPerson);
                 <img
                   v-if="credit.poster_path"
                   :src="tmdb.getImageUrl(credit.poster_path)"
+                  :srcset="tmdb.getPosterSrcset(credit.poster_path)"
+                  :sizes="tmdb.posterSizes"
                   :alt="credit.title || credit.name"
                   class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   loading="lazy"

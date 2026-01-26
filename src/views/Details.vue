@@ -186,7 +186,10 @@ const displayedVideos = computed(() => {
     <div class="relative h-[500px] lg:h-[850px] w-full">
       <div class="absolute inset-0">
         <img
-          :src="tmdb.getImageUrl(media.backdrop_path, 'original')"
+          :src="tmdb.getImageUrl(media.backdrop_path, 'w1280')"
+          :srcset="tmdb.getBackdropSrcset(media.backdrop_path)"
+          :sizes="tmdb.backdropSizes"
+          alt=""
           class="w-full h-full object-cover"
         />
         <div
@@ -206,7 +209,10 @@ const displayedVideos = computed(() => {
             class="hidden md:block w-64 lg:w-80 flex-shrink-0 shadow-2xl rounded-2xl overflow-hidden ring-1 ring-white/20 transform translate-y-20 lg:translate-y-32 z-30"
           >
             <img
-              :src="tmdb.getImageUrl(media.poster_path, 'original')"
+              :src="tmdb.getImageUrl(media.poster_path, 'w500')"
+              :srcset="tmdb.getPosterSrcset(media.poster_path)"
+              sizes="(max-width: 1024px) 256px, 320px"
+              :alt="media.title || media.name"
               class="w-full h-auto block"
             />
           </div>
@@ -542,8 +548,12 @@ const displayedVideos = computed(() => {
                 >
                   <img
                     v-if="director.profile_path"
-                    :src="tmdb.getImageUrl(director.profile_path)"
+                    :src="tmdb.getImageUrl(director.profile_path, 'w185')"
+                    :srcset="tmdb.getProfileSrcset(director.profile_path)"
+                    sizes="96px"
+                    :alt="director.name"
                     class="w-full h-full object-cover"
+                    loading="lazy"
                   />
                   <div
                     v-else
@@ -586,8 +596,12 @@ const displayedVideos = computed(() => {
                 >
                   <img
                     v-if="writer.profile_path"
-                    :src="tmdb.getImageUrl(writer.profile_path)"
+                    :src="tmdb.getImageUrl(writer.profile_path, 'w185')"
+                    :srcset="tmdb.getProfileSrcset(writer.profile_path)"
+                    sizes="96px"
+                    :alt="writer.name"
                     class="w-full h-full object-cover"
+                    loading="lazy"
                   />
                   <div
                     v-else
@@ -630,8 +644,12 @@ const displayedVideos = computed(() => {
                 >
                   <img
                     v-if="producer.profile_path"
-                    :src="tmdb.getImageUrl(producer.profile_path)"
+                    :src="tmdb.getImageUrl(producer.profile_path, 'w185')"
+                    :srcset="tmdb.getProfileSrcset(producer.profile_path)"
+                    sizes="96px"
+                    :alt="producer.name"
                     class="w-full h-full object-cover"
+                    loading="lazy"
                   />
                   <div
                     v-else
@@ -691,7 +709,11 @@ const displayedVideos = computed(() => {
               <img
                 v-if="castMember.profile_path"
                 :src="tmdb.getImageUrl(castMember.profile_path)"
+                :srcset="tmdb.getProfileSrcset(castMember.profile_path)"
+                :sizes="tmdb.profileSizes"
+                :alt="castMember.name"
                 class="w-full h-full object-cover"
+                loading="lazy"
               />
               <div
                 v-else
