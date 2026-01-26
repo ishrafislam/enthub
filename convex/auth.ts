@@ -123,7 +123,7 @@ export const verifyCode = mutation({
     await ctx.db.delete(authCode._id);
 
     // 4. Find or Create User
-    let user = await ctx.db
+    const user = await ctx.db
       .query("users")
       .withIndex("by_email", (q) => q.eq("email", email))
       .unique();
