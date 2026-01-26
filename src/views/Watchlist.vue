@@ -87,7 +87,11 @@ const { data: watchlist, loading } = useConvexQuery(
           <img
             v-if="item.posterPath"
             :src="tmdb.getImageUrl(item.posterPath)"
+            :srcset="tmdb.getPosterSrcset(item.posterPath)"
+            :sizes="tmdb.posterSizes"
+            :alt="item.title"
             class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+            loading="lazy"
           />
           <div
             v-else

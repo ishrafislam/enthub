@@ -132,7 +132,11 @@ const getPoster = (item: MediaItem) => {
           <img
             v-if="getPoster(item)"
             :src="tmdb.getImageUrl(getPoster(item))"
+            :srcset="tmdb.getPosterSrcset(getPoster(item))"
+            :sizes="tmdb.posterSizes"
+            :alt="getTitle(item)"
             class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+            loading="lazy"
           />
           <div
             v-else

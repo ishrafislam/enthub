@@ -113,7 +113,10 @@ watch(() => route.params.id, fetchCollection);
       <div class="absolute inset-0">
         <img
           v-if="collection.backdrop_path"
-          :src="tmdb.getImageUrl(collection.backdrop_path, 'original')"
+          :src="tmdb.getImageUrl(collection.backdrop_path, 'w1280')"
+          :srcset="tmdb.getBackdropSrcset(collection.backdrop_path)"
+          :sizes="tmdb.backdropSizes"
+          alt=""
           class="w-full h-full object-cover"
         />
         <div
@@ -137,7 +140,10 @@ watch(() => route.params.id, fetchCollection);
             class="hidden md:block w-40 lg:w-48 flex-shrink-0 shadow-2xl rounded-2xl overflow-hidden ring-1 ring-white/20 transform translate-y-16 lg:translate-y-20 z-30"
           >
             <img
-              :src="tmdb.getImageUrl(collection.poster_path, 'original')"
+              :src="tmdb.getImageUrl(collection.poster_path, 'w500')"
+              :srcset="tmdb.getPosterSrcset(collection.poster_path)"
+              sizes="(max-width: 1024px) 160px, 192px"
+              :alt="collection.name"
               class="w-full h-auto block"
             />
           </div>
@@ -200,6 +206,8 @@ watch(() => route.params.id, fetchCollection);
           <div class="aspect-[2/3] overflow-hidden relative">
             <img
               :src="tmdb.getImageUrl(movie.poster_path)"
+              :srcset="tmdb.getPosterSrcset(movie.poster_path)"
+              :sizes="tmdb.posterSizes"
               :alt="movie.title"
               class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
               loading="lazy"

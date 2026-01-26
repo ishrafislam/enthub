@@ -73,11 +73,13 @@ const getPoster = (item: MediaItem) => {
       class="relative h-[400px] md:h-[600px] flex items-center justify-center overflow-hidden mb-8 md:mb-12"
     >
       <!-- Dynamic Background -->
-      <div class="absolute inset-0">
+      <div class="absolute inset-0 bg-gray-300 dark:bg-gray-900">
         <img
           :src="heroBackdrop"
-          class="w-full h-full object-cover"
-          alt="Hero Background"
+          style="opacity: 0"
+          class="w-full h-full object-cover transition-opacity duration-500"
+          alt=""
+          @load="($event.target as HTMLImageElement).style.opacity = '1'"
         />
         <div
           class="absolute inset-0 bg-gradient-to-t from-gray-50 via-gray-50/60 to-transparent dark:from-black dark:via-black/70"
@@ -181,6 +183,8 @@ const getPoster = (item: MediaItem) => {
             <div class="aspect-[2/3] overflow-hidden relative">
               <img
                 :src="tmdb.getImageUrl(getPoster(item))"
+                :srcset="tmdb.getPosterSrcset(getPoster(item))"
+                :sizes="tmdb.posterSizes"
                 :alt="getTitle(item)"
                 class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 loading="lazy"
