@@ -50,6 +50,24 @@ async function fetchTMDB<T>(
   }
 }
 
+// TMDB image size options
+// Poster sizes: w92, w154, w185, w342, w500, w780, original
+// Backdrop sizes: w300, w780, w1280, original
+// Profile sizes: w45, w185, h632, original
+type ImageSize =
+  | "w92"
+  | "w154"
+  | "w185"
+  | "w300"
+  | "w342"
+  | "w500"
+  | "w780"
+  | "w1280"
+  | "original";
+
+const IMAGE_BASE_URL = "https://image.tmdb.org/t/p";
+const PLACEHOLDER_IMAGE = "/placeholder-poster.svg";
+
 export const tmdb = {
   getTrending: (timeWindow: "day" | "week" = "week") =>
     fetchTMDB<TMDBResponse<MediaItem>>(`/trending/all/${timeWindow}`),
@@ -82,8 +100,58 @@ export const tmdb = {
       append_to_response: "combined_credits",
     }),
 
-  getImageUrl: (path: string | null, size: "w500" | "original" = "w500") =>
+  /**
+   * Get a single image URL for a given path and size
+   * @param path - TMDB image path (e.g., /abc123.jpg)
+   * @param size - Image size (default: w500)
+   * @returns Full image URL or placeholder if path is null
+   */
+  getImageUrl: (path: string | null, size: ImageSize = "w500") =>
+    path ? `${IMAGE_BASE_URL}/${size}${path}` : PLACEHOLDER_IMAGE,
+
+  /**
+   * Generate srcset attribute for responsive poster images
+   * @param path - TMDB image path
+   * @returns srcset string for poster images (w300, w500, w780)
+   */
+  getPosterSrcset: (path: string | null) =>
     path
-      ? `https://image.tmdb.org/t/p/${size}${path}`
-      : "/placeholder-poster.png", // We'll need a placeholder
+      ? `${IMAGE_BASE_URL}/w300${path} 300w, ${IMAGE_BASE_URL}/w500${path} 500w, ${IMAGE_BASE_URL}/w780${path} 780w`
+      : undefined,
+
+  /**
+   * Generate srcset attribute for responsive backdrop images
+   * @param path - TMDB backdrop path
+   * @returns srcset string for backdrop images (w780, w1280, original)
+   */
+  getBackdropSrcset: (path: string | null) =>
+    path
+      ? `${IMAGE_BASE_URL}/w780${path} 780w, ${IMAGE_BASE_URL}/w1280${path} 1280w, ${IMAGE_BASE_URL}/original${path} 1920w`
+      : undefined,
+
+  /**
+   * Generate srcset attribute for responsive profile images
+   * @param path - TMDB profile path
+   * @returns srcset string for profile images (w185, w500)
+   */
+  getProfileSrcset: (path: string | null) =>
+    path
+      ? `${IMAGE_BASE_URL}/w185${path} 185w, ${IMAGE_BASE_URL}/w500${path} 500w`
+      : undefined,
+
+  /**
+   * Default sizes attribute for poster images in a responsive grid
+   * Matches common grid breakpoints: 2 cols (mobile), 3 cols (sm), 4 cols (md), 5 cols (lg)
+   */
+  posterSizes: "(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw",
+
+  /**
+   * Default sizes attribute for backdrop images (full-width heroes)
+   */
+  backdropSizes: "100vw",
+
+  /**
+   * Default sizes attribute for profile images in grids
+   */
+  profileSizes: "(max-width: 640px) 96px, 185px",
 };

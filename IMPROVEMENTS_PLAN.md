@@ -934,33 +934,38 @@ export const getDetails = (type: 'movie' | 'tv', id: number) =>
 
 ---
 
-#### 3.7 Image Optimization
+#### 3.7 Image Optimization ✅ COMPLETED
 **Description:** Optimize TMDB images for faster loading
 
-**Implementation:**
-- **Responsive Images:**
-  ```vue
-  <img
-    :srcset="`
-      ${tmdb.getImageUrl(path, 'w300')} 300w,
-      ${tmdb.getImageUrl(path, 'w500')} 500w,
-      ${tmdb.getImageUrl(path, 'original')} 1000w
-    `"
-    sizes="(max-width: 640px) 300px, 500px"
-    :src="tmdb.getImageUrl(path, 'w500')"
-    loading="lazy"
-  />
-  ```
+**Status:** Completed (January 2026)
 
-- **WebP Fallback:** (TMDB doesn't serve WebP, but cache on CDN could convert)
+**Implementation:**
+- **Responsive Images with srcset:**
+  - Added `getPosterSrcset()`, `getBackdropSrcset()`, `getProfileSrcset()` helpers to tmdb.ts
+  - Posters use w300/w500/w780 srcset for responsive loading
+  - Backdrops use w780/w1280/original srcset for hero images
+  - Profile images use w185/w500 srcset
+  - Added `posterSizes`, `backdropSizes`, `profileSizes` constants for common layouts
+  - Added `loading="lazy"` attribute to all grid images
 
 - **Placeholder Images:**
-  - Create `/public/placeholder-poster.png` (lightweight, blurred)
-  - Show skeleton while image loads
+  - Created `/public/placeholder-poster.svg` (lightweight SVG placeholder)
+  - Shows "No Image" text with a subtle icon
 
-**Benefits:** Reduced bandwidth, faster page loads
+- **Files Modified:**
+  - `src/services/tmdb.ts` - Added srcset helpers and image size types
+  - `public/placeholder-poster.svg` - New placeholder image
+  - `src/views/Home.vue` - Responsive poster images
+  - `src/views/Search.vue` - Responsive poster images
+  - `src/views/Details.vue` - Responsive backdrops, posters, and profile images
+  - `src/views/Collection.vue` - Responsive backdrops and posters
+  - `src/views/Person.vue` - Responsive profile and poster images
+  - `src/views/Watchlist.vue` - Responsive poster images
+  - `src/views/Watched.vue` - Responsive poster images
 
-**Estimated Effort:** Low (2-3 files)
+**Benefits:** Reduced bandwidth, faster page loads, better responsive image loading
+
+**Estimated Effort:** Low (2-3 files) - Actual: 9 files modified
 
 ---
 
@@ -2107,6 +2112,7 @@ npx typedoc --out docs/api convex/
 
 | Feature | Completion Date | Files Modified/Created |
 |---------|-----------------|------------------------|
+| Image Optimization | January 2026 | `src/services/tmdb.ts`, `public/placeholder-poster.svg`, `src/views/Home.vue`, `src/views/Search.vue`, `src/views/Details.vue`, `src/views/Collection.vue`, `src/views/Person.vue`, `src/views/Watchlist.vue`, `src/views/Watched.vue` |
 | Person Details Page | January 2026 | `src/types/tmdb.ts`, `src/services/tmdb.ts`, `src/views/Person.vue`, `src/views/Details.vue`, `src/views/Search.vue`, `src/router/index.ts` |
 | TMDB Collection Integration | January 2026 | `src/types/tmdb.ts`, `src/services/tmdb.ts`, `src/views/Details.vue`, `src/views/Collection.vue`, `src/router/index.ts` |
 

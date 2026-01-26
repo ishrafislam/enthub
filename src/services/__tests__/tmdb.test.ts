@@ -21,7 +21,7 @@ describe("tmdb service", () => {
   describe("getImageUrl", () => {
     it("should return placeholder when path is null", () => {
       const result = tmdb.getImageUrl(null);
-      expect(result).toBe("/placeholder-poster.png");
+      expect(result).toBe("/placeholder-poster.svg");
     });
 
     it("should return correct URL with default size (w500)", () => {
@@ -36,7 +36,7 @@ describe("tmdb service", () => {
 
     it("should handle empty string path", () => {
       const result = tmdb.getImageUrl("");
-      expect(result).toBe("/placeholder-poster.png");
+      expect(result).toBe("/placeholder-poster.svg");
     });
   });
 
