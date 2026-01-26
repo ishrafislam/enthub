@@ -9,7 +9,7 @@ beforeEach(() => {
   // so we silence the warning globally.
   config.global = {
     ...config.global,
-    // @ts-ignore – Vue Test Utils typings don’t include warnHandler,
+    // @ts-expect-error – Vue Test Utils typings don’t include warnHandler,
     // but the runtime respects it.
     warnHandler: () => {},
   };
