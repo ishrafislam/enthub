@@ -23,6 +23,19 @@ if (!TOKEN) {
   console.warn("Token is not defined. TMDB requests will fail.");
 }
 
+// Utility functions for validation
+function validatePage(page: number): number {
+  return Math.max(MIN_PAGE, Math.min(Math.floor(page), MAX_PAGE));
+}
+
+function sanitizeSearchParams(query: string, page: number) {
+  const sanitizedQuery = query.trim().slice(0, MAX_SEARCH_QUERY_LENGTH);
+  if (!sanitizedQuery) {
+    throw new Error("Search query cannot be empty.");
+  }
+  return { query: sanitizedQuery, page: validatePage(page).toString() };
+}
+
 const headers = {
   accept: "application/json",
   Authorization: `Bearer ${TOKEN}`,
@@ -77,81 +90,50 @@ export const tmdb = {
   getTrending: (timeWindow: "day" | "week" = "week") =>
     fetchTMDB<TMDBResponse<MediaItem>>(`/trending/all/${timeWindow}`),
 
-  getTrendingMovies: (timeWindow: "day" | "week" = "week", page = 1) => {
-    const validPage = Math.max(MIN_PAGE, Math.min(Math.floor(page), MAX_PAGE));
-    return fetchTMDB<TMDBResponse<MovieItem>>(`/trending/movie/${timeWindow}`, {
-      page: validPage.toString(),
-    });
-  },
+  getTrendingMovies: (timeWindow: "day" | "week" = "week", page = 1) =>
+    fetchTMDB<TMDBResponse<MovieItem>>(`/trending/movie/${timeWindow}`, {
+      page: validatePage(page).toString(),
+    }),
 
-  getTrendingTV: (timeWindow: "day" | "week" = "week", page = 1) => {
-    const validPage = Math.max(MIN_PAGE, Math.min(Math.floor(page), MAX_PAGE));
-    return fetchTMDB<TMDBResponse<TVItem>>(`/trending/tv/${timeWindow}`, {
-      page: validPage.toString(),
-    });
-  },
+  getTrendingTV: (timeWindow: "day" | "week" = "week", page = 1) =>
+    fetchTMDB<TMDBResponse<TVItem>>(`/trending/tv/${timeWindow}`, {
+      page: validatePage(page).toString(),
+    }),
 
-  getTrendingPeople: (timeWindow: "day" | "week" = "week", page = 1) => {
-    const validPage = Math.max(MIN_PAGE, Math.min(Math.floor(page), MAX_PAGE));
-    return fetchTMDB<TMDBResponse<PersonItem>>(`/trending/person/${timeWindow}`, {
-      page: validPage.toString(),
-    });
-  },
+  getTrendingPeople: (timeWindow: "day" | "week" = "week", page = 1) =>
+    fetchTMDB<TMDBResponse<PersonItem>>(`/trending/person/${timeWindow}`, {
+      page: validatePage(page).toString(),
+    }),
 
-  search: (query: string, type: SearchType = "multi", page = 1) => {
-    const sanitizedQuery = query.trim().slice(0, MAX_SEARCH_QUERY_LENGTH);
+  search: (query: string, type: SearchType = "multi", page = 1) =>
+    fetchTMDB<TMDBResponse<MediaItem>>(
+      `/search/${type}`,
+      sanitizeSearchParams(query, page),
+    ),
 
-    if (!sanitizedQuery) {
-      throw new Error("Search query cannot be empty.");
-    }
+  searchMovies: (query: string, page = 1) =>
+    fetchTMDB<TMDBResponse<MovieItem>>(
+      "/search/movie",
+      sanitizeSearchParams(query, page),
+    ),
 
-    const validPage = Math.max(MIN_PAGE, Math.min(Math.floor(page), MAX_PAGE));
+  searchTV: (query: string, page = 1) =>
+    fetchTMDB<TMDBResponse<TVItem>>(
+      "/search/tv",
+      sanitizeSearchParams(query, page),
+    ),
 
-    return fetchTMDB<TMDBResponse<MediaItem>>(`/search/${type}`, {
-      query: sanitizedQuery,
-      page: validPage.toString(),
-    });
-  },
+  searchPeople: (query: string, page = 1) =>
+    fetchTMDB<TMDBResponse<PersonItem>>(
+      "/search/person",
+      sanitizeSearchParams(query, page),
+    ),
 
-  searchMovies: (query: string, page = 1) => {
-    const sanitizedQuery = query.trim().slice(0, MAX_SEARCH_QUERY_LENGTH);
-    if (!sanitizedQuery) throw new Error("Search query cannot be empty.");
-    const validPage = Math.max(MIN_PAGE, Math.min(Math.floor(page), MAX_PAGE));
-    return fetchTMDB<TMDBResponse<MovieItem>>("/search/movie", {
-      query: sanitizedQuery,
-      page: validPage.toString(),
-    });
-  },
-
-  searchTV: (query: string, page = 1) => {
-    const sanitizedQuery = query.trim().slice(0, MAX_SEARCH_QUERY_LENGTH);
-    if (!sanitizedQuery) throw new Error("Search query cannot be empty.");
-    const validPage = Math.max(MIN_PAGE, Math.min(Math.floor(page), MAX_PAGE));
-    return fetchTMDB<TMDBResponse<TVItem>>("/search/tv", {
-      query: sanitizedQuery,
-      page: validPage.toString(),
-    });
-  },
-
-  searchPeople: (query: string, page = 1) => {
-    const sanitizedQuery = query.trim().slice(0, MAX_SEARCH_QUERY_LENGTH);
-    if (!sanitizedQuery) throw new Error("Search query cannot be empty.");
-    const validPage = Math.max(MIN_PAGE, Math.min(Math.floor(page), MAX_PAGE));
-    return fetchTMDB<TMDBResponse<PersonItem>>("/search/person", {
-      query: sanitizedQuery,
-      page: validPage.toString(),
-    });
-  },
-
-  searchCollections: (query: string, page = 1) => {
-    const sanitizedQuery = query.trim().slice(0, MAX_SEARCH_QUERY_LENGTH);
-    if (!sanitizedQuery) throw new Error("Search query cannot be empty.");
-    const validPage = Math.max(MIN_PAGE, Math.min(Math.floor(page), MAX_PAGE));
-    return fetchTMDB<TMDBResponse<CollectionSearchItem>>("/search/collection", {
-      query: sanitizedQuery,
-      page: validPage.toString(),
-    });
-  },
+  searchCollections: (query: string, page = 1) =>
+    fetchTMDB<TMDBResponse<CollectionSearchItem>>(
+      "/search/collection",
+      sanitizeSearchParams(query, page),
+    ),
 
   getDetails: (type: "movie" | "tv", id: number) =>
     fetchTMDB<MediaDetails>(`/${type}/${id}`, {
