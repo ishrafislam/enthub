@@ -184,3 +184,20 @@ export interface PersonCrewCredit {
   vote_count: number;
   popularity: number;
 }
+
+// Collection search result item
+export interface CollectionSearchItem {
+  id: number;
+  name: string;
+  overview: string;
+  poster_path: string | null;
+  backdrop_path: string | null;
+}
+
+// Search types
+export type SearchType = "multi" | "movie" | "tv" | "person" | "collection";
+
+// Union type for all search results
+export type SearchResultItem =
+  | MediaItem
+  | CollectionSearchItem;

@@ -141,10 +141,24 @@ describe("tmdb service", () => {
         json: () => Promise.resolve(mockSearchResponse),
       });
 
-      await tmdb.search("test", 5);
+      await tmdb.search("test", "multi", 5);
 
       expect(mockFetch).toHaveBeenCalledWith(
         expect.stringContaining("page=5"),
+        expect.any(Object),
+      );
+    });
+
+    it("should search with different search types", async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(mockSearchResponse),
+      });
+
+      await tmdb.search("test", "movie", 1);
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.stringContaining("/search/movie"),
         expect.any(Object),
       );
     });
