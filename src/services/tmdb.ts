@@ -9,6 +9,7 @@ import type {
   PersonDetails,
   CollectionSearchItem,
   SearchType,
+  TVSeasonDetails,
 } from "../types/tmdb";
 
 const BASE_URL = "https://api.themoviedb.org/3";
@@ -148,6 +149,9 @@ export const tmdb = {
       append_to_response: "combined_credits",
     }),
 
+  getSeasonDetails: (seriesId: number, seasonNumber: number) =>
+    fetchTMDB<TVSeasonDetails>(`/tv/${seriesId}/season/${seasonNumber}`),
+
   /**
    * Get a single image URL for a given path and size
    * @param path - TMDB image path (e.g., /abc123.jpg)
@@ -186,6 +190,22 @@ export const tmdb = {
     path
       ? `${IMAGE_BASE_URL}/w185${path} 185w, ${IMAGE_BASE_URL}/w500${path} 500w`
       : "",
+
+  /**
+   * Generate srcset attribute for responsive episode still images
+   * @param path - TMDB still image path
+   * @returns srcset string for still images (w300, w780, original), or empty string if path is null
+   */
+  getStillSrcset: (path: string | null): string =>
+    path
+      ? `${IMAGE_BASE_URL}/w300${path} 300w, ${IMAGE_BASE_URL}/w780${path} 780w, ${IMAGE_BASE_URL}/original${path} 1920w`
+      : "",
+
+  /**
+   * Default sizes attribute for episode still images
+   */
+  stillSizes:
+    "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw",
 
   /**
    * Default sizes attribute for poster images in a responsive grid
