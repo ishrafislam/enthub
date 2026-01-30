@@ -379,7 +379,209 @@ interface PersonCrewCredit {
 
 ---
 
-#### 1.4 Advanced Search & Filtering
+#### 1.4 TV Season & Episode Details
+**Description:** Display TV show seasons and episode details, allowing users to browse seasons and view individual episode information directly from the TV show details page
+
+**Status:** Planned
+
+**Background:**
+The current TV show details page (`/details/tv/:id`) fetches data from `GET /tv/{series_id}?append_to_response=credits,videos` but does not display any season or episode information. The TMDB API provides season data in the TV series details response (via the `seasons` array), and dedicated endpoints for fetching season details (with full episode listings) and individual episode details.
+
+**TMDB API Reference:**
+- **TV Series Details (existing):** `GET /tv/{series_id}` — Already implemented, but the `seasons` and `number_of_seasons`/`number_of_episodes` fields in the response are not captured in our types
+- **TV Season Details:** `GET /tv/{series_id}/season/{season_number}` — https://developer.themoviedb.org/reference/tv-season-details
+- **TV Episode Details:** `GET /tv/{series_id}/season/{season_number}/episode/{episode_number}` — https://developer.themoviedb.org/reference/tv-episode-details
+
+**Response Schemas:**
+
+```typescript
+// Fields to add to MediaDetails (from TV series details response)
+interface MediaDetails {
+  // ... existing fields ...
+  number_of_seasons?: number;
+  number_of_episodes?: number;
+  seasons?: SeasonSummary[];
+}
+
+// Season summary (included in TV series details response)
+interface SeasonSummary {
+  id: number;
+  name: string;
+  overview: string;
+  air_date: string | null;
+  episode_count: number;
+  poster_path: string | null;
+  season_number: number;
+  vote_average: number;
+}
+
+// Full season details (from GET /tv/{id}/season/{season_number})
+interface SeasonDetails {
+  _id: string;
+  id: number;
+  name: string;
+  overview: string;
+  air_date: string | null;
+  poster_path: string | null;
+  season_number: number;
+  vote_average: number;
+  episodes: Episode[];
+}
+
+// Episode object (included in season details response)
+interface Episode {
+  id: number;
+  name: string;
+  overview: string;
+  air_date: string | null;
+  episode_number: number;
+  episode_type: string;
+  season_number: number;
+  show_id: number;
+  runtime: number | null;
+  still_path: string | null;
+  vote_average: number;
+  vote_count: number;
+  production_code: string;
+  crew: CrewMember[];
+  guest_stars: CastMember[];
+}
+
+// Full episode details (from GET /tv/{id}/season/{sn}/episode/{en})
+interface EpisodeDetails {
+  id: number;
+  name: string;
+  overview: string;
+  air_date: string | null;
+  episode_number: number;
+  season_number: number;
+  show_id: number;
+  runtime: number | null;
+  still_path: string | null;
+  vote_average: number;
+  vote_count: number;
+  production_code: string;
+  crew: CrewMember[];
+  guest_stars: CastMember[];
+}
+```
+
+**Implementation:**
+
+**Step 1: Add Types to `src/types/tmdb.ts`**
+- Add `SeasonSummary`, `SeasonDetails`, `Episode`, and `EpisodeDetails` interfaces
+- Extend `MediaDetails` with `number_of_seasons`, `number_of_episodes`, and `seasons` fields
+
+**Step 2: Add TMDB Service Methods to `src/services/tmdb.ts`**
+```typescript
+// Fetch full season details with episode list
+getSeasonDetails: (seriesId: number, seasonNumber: number) =>
+  fetchTMDB<SeasonDetails>(`/tv/${seriesId}/season/${seasonNumber}`),
+
+// Fetch individual episode details
+getEpisodeDetails: (seriesId: number, seasonNumber: number, episodeNumber: number) =>
+  fetchTMDB<EpisodeDetails>(
+    `/tv/${seriesId}/season/${seasonNumber}/episode/${episodeNumber}`
+  ),
+```
+
+**Step 3: Add Seasons Section to `src/views/Details.vue`**
+- Below the overview section (only shown when `route.params.type === 'tv'`), add a "Seasons" section
+- Display season cards in a horizontal scrollable row or a grid
+- Each season card shows: poster, name, air date, episode count
+- Clicking a season navigates to the season page
+
+**Step 4: Create `src/views/Season.vue` — Season Details Page**
+- Fetches season details via `tmdb.getSeasonDetails(seriesId, seasonNumber)`
+- Shows season poster, name, overview, and air date at the top
+- Lists all episodes in a vertical list/card layout
+- Each episode card shows: still image, episode number, name, air date, runtime, overview (truncated), rating
+- Season selector dropdown/tabs to switch between seasons without going back
+- Clicking an episode expands inline or navigates to episode page
+
+**Step 5: Create `src/views/Episode.vue` — Episode Details Page (Optional)**
+- Fetches episode details via `tmdb.getEpisodeDetails(seriesId, seasonNumber, episodeNumber)`
+- Shows episode still image as hero, name, overview, air date, runtime, rating
+- Displays guest stars and crew
+- Navigation to previous/next episode
+- *Note: This page is optional — episode details can alternatively be shown inline in the Season page via expandable cards*
+
+**Step 6: Add Routes to `src/router/index.ts`**
+```typescript
+{
+  path: '/tv/:id/season/:seasonNumber',
+  name: 'Season',
+  component: () => import('../views/Season.vue'),
+},
+{
+  path: '/tv/:id/season/:seasonNumber/episode/:episodeNumber',
+  name: 'Episode',
+  component: () => import('../views/Episode.vue'),
+},
+```
+
+**UI Mockup (Seasons Section on TV Details Page):**
+```
+┌─────────────────────────────────────────────────┐
+│ Seasons                     8 Seasons           │
+│ ┌─────────┐ ┌─────────┐ ┌─────────┐            │
+│ │ Season  │ │ Season  │ │ Season  │  ...        │
+│ │ 1       │ │ 2       │ │ 3       │             │
+│ │ Poster  │ │ Poster  │ │ Poster  │             │
+│ │         │ │         │ │         │             │
+│ │ 2011    │ │ 2012    │ │ 2013    │             │
+│ │ 7 eps   │ │ 13 eps  │ │ 16 eps  │             │
+│ └─────────┘ └─────────┘ └─────────┘             │
+└─────────────────────────────────────────────────┘
+```
+
+**UI Mockup (Season Details Page):**
+```
+┌─────────────────────────────────────────────────┐
+│ ← Back to Breaking Bad                          │
+│                                                 │
+│ ┌────────┐  Season 1                            │
+│ │ Poster │  2008 · 7 Episodes                   │
+│ │        │  Overview text here...               │
+│ └────────┘                                      │
+│                                                 │
+│ Season: [1 ▼]                                   │
+├─────────────────────────────────────────────────┤
+│ ┌───────────────┐                               │
+│ │ Still Image   │ E1 · Pilot                    │
+│ │               │ Jan 20, 2008 · 58m · ★ 8.1   │
+│ └───────────────┘ A high school chemistry        │
+│                   teacher is diagnosed with...   │
+├─────────────────────────────────────────────────┤
+│ ┌───────────────┐                               │
+│ │ Still Image   │ E2 · Cat's in the Bag...      │
+│ │               │ Jan 27, 2008 · 48m · ★ 7.9   │
+│ └───────────────┘ Walt and Jesse attempt to...   │
+├─────────────────────────────────────────────────┤
+│ ...                                              │
+└─────────────────────────────────────────────────┘
+```
+
+**Files to Create/Modify:**
+- `src/types/tmdb.ts` — Add season/episode types, extend MediaDetails
+- `src/services/tmdb.ts` — Add `getSeasonDetails()` and `getEpisodeDetails()` methods
+- `src/views/Details.vue` — Add seasons section for TV shows
+- `src/views/Season.vue` — New season details page with episode listing
+- `src/views/Episode.vue` — New episode details page (optional, can be inline)
+- `src/router/index.ts` — Add season and episode routes
+
+**Benefits:**
+- Complete TV show browsing experience with season and episode breakdown
+- Users can explore episode-level details (air dates, ratings, guest stars)
+- Natural navigation: TV show → Season → Episode
+- No database changes required (data from TMDB)
+- Paves the way for future per-episode watch tracking
+
+**Estimated Effort:** Medium (5-6 files to create/modify)
+
+---
+
+#### 1.5 Advanced Search & Filtering (was 1.4)
 **Description:** Enhanced search with filters (genre, year, rating, etc.)
 
 **Implementation:**
@@ -409,7 +611,7 @@ interface PersonCrewCredit {
 
 ---
 
-#### 1.5 Recommendations Engine
+#### 1.6 Recommendations Engine
 **Description:** Personalized recommendations based on watch history
 
 **Implementation:**
@@ -1977,6 +2179,7 @@ npx typedoc --out docs/api convex/
 | Task | Priority | Effort | Dependencies |
 |------|----------|--------|--------------|
 | ~~Person Details Page~~ | ~~P1~~ | ~~Medium~~ | ✅ Done |
+| TV Season & Episode Details | P1 | Medium | None |
 | Ratings & Reviews | P1 | Medium | None |
 | Advanced Filtering | P1 | Med-High | None |
 | User Profiles | P2 | Medium | None |
@@ -2061,6 +2264,7 @@ npx typedoc --out docs/api convex/
 ### High Impact, Medium Effort
 1. ✅ ~~TMDB Collection Integration~~ (Completed)
 2. ✅ ~~Person Details Page~~ (Completed)
+3. 🔥 TV Season & Episode Details
 
 ### Low Impact, Low Effort (Fill Gaps)
 1. ⚡ CSP Headers
