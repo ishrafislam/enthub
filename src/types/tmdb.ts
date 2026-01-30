@@ -69,6 +69,9 @@ export interface MediaDetails {
   genres: { id: number; name: string }[];
   runtime?: number; // Movies
   episode_run_time?: number[]; // TV
+  number_of_seasons?: number; // TV
+  number_of_episodes?: number; // TV
+  seasons?: TVSeasonSummary[]; // TV
   tagline?: string;
   status?: string;
   budget?: number;
@@ -98,6 +101,47 @@ export interface CrewMember {
   job: string;
   department: string;
   profile_path: string | null;
+}
+
+// TV Season & Episode types
+export interface TVSeasonSummary {
+  id: number;
+  name: string;
+  overview: string;
+  air_date: string | null;
+  episode_count: number;
+  poster_path: string | null;
+  season_number: number;
+  vote_average: number;
+}
+
+export interface TVEpisode {
+  id: number;
+  name: string;
+  overview: string;
+  air_date: string | null;
+  episode_number: number;
+  episode_type: string;
+  season_number: number;
+  show_id: number;
+  runtime: number | null;
+  still_path: string | null;
+  vote_average: number;
+  vote_count: number;
+  production_code: string;
+  crew: CrewMember[];
+  guest_stars: CastMember[];
+}
+
+export interface TVSeasonDetails {
+  id: number;
+  name: string;
+  overview: string;
+  air_date: string | null;
+  poster_path: string | null;
+  season_number: number;
+  vote_average: number;
+  episodes: TVEpisode[];
 }
 
 // Collection types

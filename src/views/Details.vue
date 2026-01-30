@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { tmdb } from "../services/tmdb";
-import type { MediaDetails, CrewMember } from "../types/tmdb";
+import type { MediaDetails, CrewMember, TVSeasonSummary } from "../types/tmdb";
 import { useConvexQuery, useConvexMutation } from "../composables/useConvex";
 import { api } from "../../convex/_generated/api";
 import { authStore } from "../store/auth";
@@ -69,9 +69,11 @@ const handleMarkAsWatched = async () => {
   });
 };
 
-onMounted(async () => {
+const fetchData = async () => {
   const type = route.params.type as "movie" | "tv";
   const id = Number(route.params.id);
+  loading.value = true;
+  media.value = null;
 
   try {
     media.value = await tmdb.getDetails(type, id);
@@ -80,7 +82,17 @@ onMounted(async () => {
   } finally {
     loading.value = false;
   }
-});
+};
+
+watch(
+  () => [route.params.type, route.params.id],
+  () => {
+    if (route.params.type && route.params.id) {
+      fetchData();
+    }
+  },
+  { immediate: true },
+);
 
 const getYear = (date?: string) =>
   date ? new Date(date).getFullYear() : "N/A";
@@ -135,6 +147,15 @@ const displayedCast = computed(() => {
 const displayedVideos = computed(() => {
   if (showAllVideos.value) return media.value?.videos.results || [];
   return media.value?.videos.results.slice(0, 8) || [];
+});
+
+const seasons = computed(() => {
+  if (!media.value?.seasons) return [];
+  const allSeasons = media.value.seasons;
+  const regular = allSeasons.filter(
+    (s: TVSeasonSummary) => s.season_number > 0,
+  );
+  return regular.length > 0 ? regular : allSeasons;
 });
 </script>
 
@@ -526,6 +547,71 @@ const displayedVideos = computed(() => {
             </router-link>
           </section>
 
+          <!-- Seasons Section (TV only) -->
+          <section v-if="seasons.length && $route.params.type === 'tv'">
+            <h3
+              class="text-2xl font-bold text-gray-900 dark:text-white mb-2"
+            >
+              Seasons
+            </h3>
+            <p class="text-gray-500 dark:text-gray-400 mb-6 text-sm">
+              {{ media.number_of_seasons }}
+              season{{ media.number_of_seasons !== 1 ? "s" : "" }},
+              {{ media.number_of_episodes }} episodes
+            </p>
+
+            <div
+              class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4"
+            >
+              <router-link
+                v-for="season in seasons"
+                :key="season.id"
+                :to="`/tv/${$route.params.id}/season/${season.season_number}`"
+                class="group"
+              >
+                <div
+                  class="aspect-[2/3] rounded-xl overflow-hidden mb-2 bg-gray-200 dark:bg-gray-800 shadow-md ring-1 ring-black/5 dark:ring-white/10 transition-all duration-300 group-hover:ring-teal-500 group-hover:-translate-y-1 group-hover:shadow-xl"
+                >
+                  <img
+                    v-if="season.poster_path"
+                    :src="tmdb.getImageUrl(season.poster_path)"
+                    :srcset="tmdb.getPosterSrcset(season.poster_path)"
+                    sizes="(max-width: 640px) 33vw, (max-width: 768px) 25vw, (max-width: 1024px) 20vw, 16vw"
+                    :alt="season.name"
+                    class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    loading="lazy"
+                  />
+                  <div
+                    v-else
+                    class="w-full h-full flex items-center justify-center text-gray-400"
+                  >
+                    <svg
+                      class="w-10 h-10"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"
+                      />
+                    </svg>
+                  </div>
+                </div>
+                <p
+                  class="text-sm font-semibold text-gray-900 dark:text-white truncate group-hover:text-teal-500 transition-colors"
+                >
+                  {{ season.name }}
+                </p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">
+                  {{ season.episode_count }} episodes
+                </p>
+              </router-link>
+            </div>
+          </section>
+
           <!-- Key Crew with Pictures -->
           <section
             v-if="directors.length || writers.length || producers.length"
@@ -879,3 +965,13 @@ const displayedVideos = computed(() => {
     </div>
   </div>
 </template>
+
+<style scoped>
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+</style>
