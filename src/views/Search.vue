@@ -11,6 +11,7 @@ import type {
   SearchType,
 } from "../types/tmdb";
 import Skeleton from "../components/Skeleton.vue";
+import MediaCard from "../components/MediaCard.vue";
 import { useTheme } from "../composables/useTheme";
 
 const { isCyberpunk } = useTheme();
@@ -407,132 +408,18 @@ const getOverview = (item: MediaItem | CollectionSearchItem) => {
       <div
         class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6"
       >
-        <router-link
+        <MediaCard
           v-for="item in results"
           :key="'id' in item ? item.id : Math.random()"
+          :id="item.id"
+          :title="getTitle(item)"
+          :poster-path="getPoster(item)"
           :to="getLink(item)"
-          :class="[
-            'group relative flex flex-col shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 overflow-hidden',
-            isCyberpunk
-              ? 'bg-cyber-night border border-cyber-chrome rounded-none hover:border-cyber-cyan hover:shadow-[0_0_20px_rgba(85,234,212,0.2)]'
-              : 'bg-white dark:bg-gray-800 rounded-2xl ring-1 ring-black/5 dark:ring-white/10',
-          ]"
-        >
-          <div class="aspect-[2/3] overflow-hidden relative">
-            <img
-              v-if="getPoster(item)"
-              :src="tmdb.getImageUrl(getPoster(item))"
-              :srcset="tmdb.getPosterSrcset(getPoster(item))"
-              :sizes="tmdb.posterSizes"
-              :alt="getTitle(item)"
-              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-              loading="lazy"
-            />
-            <div
-              v-else
-              :class="[
-                'w-full h-full flex items-center justify-center',
-                isCyberpunk
-                  ? 'bg-cyber-chrome text-cyber-muted font-cyber-mono text-xs'
-                  : 'bg-gray-200 dark:bg-gray-700 text-gray-400',
-              ]"
-            >
-              <span v-if="isCyberpunk">[NO_IMG]</span>
-              <span v-else>No Image</span>
-            </div>
-            <!-- Hover overlay with overview -->
-            <div
-              v-if="getOverview(item)"
-              class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-            >
-              <div class="absolute bottom-4 left-4 right-4 text-white">
-                <p class="font-bold text-sm line-clamp-2">
-                  {{ getOverview(item) }}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div class="p-4 flex-1 flex flex-col justify-between">
-            <div>
-              <h3
-                :class="[
-                  'font-bold truncate text-base mb-1',
-                  isCyberpunk
-                    ? 'text-white font-display'
-                    : 'text-gray-900 dark:text-white',
-                ]"
-                :title="getTitle(item)"
-              >
-                {{ getTitle(item) }}
-              </h3>
-              <p
-                :class="[
-                  'text-xs font-medium',
-                  isCyberpunk
-                    ? 'text-cyber-muted font-cyber-mono'
-                    : 'text-gray-500 dark:text-gray-400',
-                ]"
-              >
-                {{ getSubtitle(item) }}
-              </p>
-            </div>
-
-            <div
-              v-if="hasRating(item)"
-              class="mt-3 flex items-center justify-between"
-            >
-              <div
-                :class="[
-                  'flex items-center px-2 py-1',
-                  isCyberpunk
-                    ? 'bg-cyber-chrome rounded-none'
-                    : 'bg-gray-100 dark:bg-gray-700 rounded-md',
-                ]"
-              >
-                <span
-                  :class="[
-                    'text-sm mr-1',
-                    isCyberpunk ? 'text-cyber-yellow' : 'text-amber-500',
-                  ]"
-                  >★</span
-                >
-                <span
-                  :class="[
-                    'text-xs font-bold',
-                    isCyberpunk
-                      ? 'text-white font-data'
-                      : 'text-gray-700 dark:text-gray-200',
-                  ]"
-                >
-                  {{ getRating(item)?.toFixed(1) }}
-                </span>
-              </div>
-              <span
-                :class="[
-                  'text-xs uppercase tracking-wider px-1.5 py-0.5',
-                  isCyberpunk
-                    ? 'text-cyber-cyan font-cyber-mono border border-cyber-chrome'
-                    : 'text-gray-400 border border-gray-200 dark:border-gray-700 rounded',
-                ]"
-              >
-                {{ getMediaType(item) }}
-              </span>
-            </div>
-            <div v-else class="mt-3 flex items-center justify-end">
-              <span
-                :class="[
-                  'text-xs uppercase tracking-wider px-1.5 py-0.5',
-                  isCyberpunk
-                    ? 'text-cyber-cyan font-cyber-mono border border-cyber-chrome'
-                    : 'text-gray-400 border border-gray-200 dark:border-gray-700 rounded',
-                ]"
-              >
-                {{ getMediaType(item) }}
-              </span>
-            </div>
-          </div>
-        </router-link>
+          :media-type="getMediaType(item)"
+          :subtitle="getSubtitle(item)"
+          :rating="hasRating(item) ? getRating(item) : null"
+          :overview="getOverview(item)"
+        />
       </div>
 
       <!-- View More Button -->

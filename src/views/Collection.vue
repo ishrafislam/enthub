@@ -7,6 +7,7 @@ import { useConvexQuery } from "../composables/useConvex";
 import { api } from "../../convex/_generated/api";
 import { authStore } from "../store/auth";
 import Skeleton from "../components/Skeleton.vue";
+import MediaCard from "../components/MediaCard.vue";
 import { useTheme } from "../composables/useTheme";
 
 const { isCyberpunk } = useTheme();
@@ -262,96 +263,18 @@ watch(() => route.params.id, fetchCollection);
       <div
         class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6"
       >
-        <router-link
+        <MediaCard
           v-for="movie in sortedMovies"
           :key="movie.id"
+          :id="movie.id"
+          :title="movie.title"
+          :poster-path="movie.poster_path"
           :to="`/details/movie/${movie.id}`"
-          :class="[
-            'group relative flex flex-col shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 overflow-hidden',
-            isCyberpunk
-              ? 'bg-cyber-night border border-cyber-chrome rounded-none hover:border-cyber-cyan hover:shadow-[0_0_20px_rgba(85,234,212,0.2)]'
-              : 'bg-white dark:bg-gray-800 rounded-2xl ring-1 ring-black/5 dark:ring-white/10 hover:ring-teal-500',
-          ]"
-        >
-          <!-- Poster -->
-          <div class="aspect-[2/3] overflow-hidden relative">
-            <img
-              :src="tmdb.getImageUrl(movie.poster_path)"
-              :srcset="tmdb.getPosterSrcset(movie.poster_path)"
-              :sizes="tmdb.posterSizes"
-              :alt="movie.title"
-              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-              loading="lazy"
-            />
-
-            <!-- Status Badge -->
-            <div
-              v-if="isWatched(movie.id) || isInWatchlist(movie.id)"
-              class="absolute top-2 right-2"
-            >
-              <div
-                v-if="isWatched(movie.id)"
-                class="bg-teal-500 text-white p-1.5 rounded-full shadow-lg"
-                title="Watched"
-              >
-                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path
-                    fill-rule="evenodd"
-                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                    clip-rule="evenodd"
-                  />
-                </svg>
-              </div>
-              <div
-                v-else-if="isInWatchlist(movie.id)"
-                class="bg-amber-500 text-white p-1.5 rounded-full shadow-lg"
-                title="In Watchlist"
-              >
-                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                  <path
-                    fill-rule="evenodd"
-                    d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
-                    clip-rule="evenodd"
-                  />
-                </svg>
-              </div>
-            </div>
-
-            <!-- Hover overlay -->
-            <div
-              class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4"
-            >
-              <p class="text-white text-sm line-clamp-3">
-                {{ movie.overview || "No overview available." }}
-              </p>
-            </div>
-          </div>
-
-          <!-- Info -->
-          <div class="p-4 flex-1 flex flex-col justify-between">
-            <h3
-              class="font-bold text-gray-900 dark:text-white truncate text-base"
-            >
-              {{ movie.title }}
-            </h3>
-            <div class="mt-3 flex items-center justify-between">
-              <div
-                class="flex items-center bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded"
-              >
-                <span class="text-amber-500 text-sm mr-1">★</span>
-                <span class="text-xs font-bold text-gray-900 dark:text-white">
-                  {{ movie.vote_average?.toFixed(1) || "N/A" }}
-                </span>
-              </div>
-              <span
-                class="text-xs text-gray-500 dark:text-gray-400 font-medium"
-              >
-                {{ getYear(movie.release_date) }}
-              </span>
-            </div>
-          </div>
-        </router-link>
+          :year="getYear(movie.release_date)"
+          :rating="movie.vote_average"
+          :overview="movie.overview || 'No overview available.'"
+          :status-badge="isWatched(movie.id) ? 'watched' : isInWatchlist(movie.id) ? 'watchlist' : null"
+        />
       </div>
 
       <!-- Empty state -->

@@ -7,6 +7,9 @@ import { useConvexQuery, useConvexMutation } from "../composables/useConvex";
 import { api } from "../../convex/_generated/api";
 import { authStore } from "../store/auth";
 import Skeleton from "../components/Skeleton.vue";
+import MediaCard from "../components/MediaCard.vue";
+import PersonCard from "../components/PersonCard.vue";
+import CollectionCard from "../components/CollectionCard.vue";
 import { useTheme } from "../composables/useTheme";
 
 const { isCyberpunk } = useTheme();
@@ -684,111 +687,12 @@ const seasons = computed(() => {
 
           <!-- Collection Banner -->
           <section v-if="media.belongs_to_collection">
-            <router-link
-              :to="`/collection/${media.belongs_to_collection.id}`"
-              :class="[
-                'group block relative overflow-hidden border transition-all duration-300 hover:shadow-xl',
-                isCyberpunk
-                  ? 'rounded-none border-cyber-chrome hover:border-cyber-cyan hover:shadow-[0_0_20px_rgba(85,234,212,0.2)]'
-                  : 'rounded-2xl border-gray-200 dark:border-gray-700 hover:border-teal-500',
-              ]"
-            >
-              <!-- Background -->
-              <div class="absolute inset-0">
-                <img
-                  v-if="media.belongs_to_collection.backdrop_path"
-                  :src="
-                    tmdb.getImageUrl(
-                      media.belongs_to_collection.backdrop_path,
-                      'original',
-                    )
-                  "
-                  class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-                <div
-                  :class="[
-                    'absolute inset-0',
-                    isCyberpunk
-                      ? 'bg-gradient-to-r from-cyber-black/95 via-cyber-black/80 to-cyber-black/60'
-                      : 'bg-gradient-to-r from-gray-900/95 via-gray-900/80 to-gray-900/60',
-                  ]"
-                ></div>
-              </div>
-
-              <!-- Content -->
-              <div class="relative flex items-center gap-6 p-6">
-                <!-- Collection Poster -->
-                <div
-                  :class="[
-                    'hidden sm:block w-24 h-36 flex-shrink-0 overflow-hidden shadow-lg',
-                    isCyberpunk
-                      ? 'rounded-none border border-cyber-cyan/30'
-                      : 'rounded-lg ring-1 ring-white/20',
-                  ]"
-                >
-                  <img
-                    :src="
-                      tmdb.getImageUrl(media.belongs_to_collection.poster_path)
-                    "
-                    class="w-full h-full object-cover"
-                  />
-                </div>
-
-                <!-- Info -->
-                <div class="flex-1 min-w-0">
-                  <p
-                    :class="[
-                      'text-sm font-semibold uppercase tracking-wider mb-1',
-                      isCyberpunk
-                        ? 'text-cyber-cyan font-cyber-mono'
-                        : 'text-teal-400',
-                    ]"
-                  >
-                    Part of
-                  </p>
-                  <h4
-                    :class="[
-                      'text-white text-xl md:text-2xl font-bold mb-2 truncate',
-                      isCyberpunk ? 'font-display' : '',
-                    ]"
-                  >
-                    {{ media.belongs_to_collection.name }}
-                  </h4>
-                  <p
-                    :class="[
-                      'text-sm',
-                      isCyberpunk ? 'text-cyber-gray' : 'text-gray-300',
-                    ]"
-                  >
-                    View all movies in this collection
-                  </p>
-                </div>
-
-                <!-- Arrow -->
-                <div
-                  :class="[
-                    'flex-shrink-0 transition-colors',
-                    isCyberpunk
-                      ? 'text-cyber-cyan/60 group-hover:text-cyber-cyan'
-                      : 'text-white/60 group-hover:text-teal-400',
-                  ]"
-                >
-                  <svg
-                    class="w-8 h-8 transform group-hover:translate-x-1 transition-transform"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M9 5l7 7-7 7"
-                    ></path>
-                  </svg>
-                </div>
-              </div>
-            </router-link>
+            <CollectionCard
+              :id="media.belongs_to_collection.id"
+              :name="media.belongs_to_collection.name"
+              :poster-path="media.belongs_to_collection.poster_path"
+              :backdrop-path="media.belongs_to_collection.backdrop_path"
+            />
           </section>
 
           <!-- Seasons Section (TV only) -->
@@ -820,72 +724,15 @@ const seasons = computed(() => {
             <div
               class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4"
             >
-              <router-link
+              <MediaCard
                 v-for="season in seasons"
                 :key="season.id"
+                :id="season.id"
+                :title="season.name"
+                :poster-path="season.poster_path"
                 :to="`/tv/${$route.params.id}/season/${season.season_number}`"
-                class="group"
-              >
-                <div
-                  :class="[
-                    'aspect-[2/3] overflow-hidden mb-2 shadow-md transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-xl',
-                    isCyberpunk
-                      ? 'rounded-none bg-cyber-night border border-cyber-chrome group-hover:border-cyber-cyan group-hover:shadow-[0_0_15px_rgba(85,234,212,0.2)]'
-                      : 'rounded-xl bg-gray-200 dark:bg-gray-800 ring-1 ring-black/5 dark:ring-white/10 group-hover:ring-teal-500',
-                  ]"
-                >
-                  <img
-                    v-if="season.poster_path"
-                    :src="tmdb.getImageUrl(season.poster_path)"
-                    :srcset="tmdb.getPosterSrcset(season.poster_path)"
-                    sizes="(max-width: 640px) 33vw, (max-width: 768px) 25vw, (max-width: 1024px) 20vw, 16vw"
-                    :alt="season.name"
-                    class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                    loading="lazy"
-                  />
-                  <div
-                    v-else
-                    :class="[
-                      'w-full h-full flex items-center justify-center',
-                      isCyberpunk ? 'text-cyber-muted' : 'text-gray-400',
-                    ]"
-                  >
-                    <svg
-                      class="w-10 h-10"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"
-                      />
-                    </svg>
-                  </div>
-                </div>
-                <p
-                  :class="[
-                    'text-sm font-semibold truncate transition-colors',
-                    isCyberpunk
-                      ? 'text-white font-display group-hover:text-cyber-cyan'
-                      : 'text-gray-900 dark:text-white group-hover:text-teal-500',
-                  ]"
-                >
-                  {{ season.name }}
-                </p>
-                <p
-                  :class="[
-                    'text-xs',
-                    isCyberpunk
-                      ? 'text-cyber-muted font-cyber-mono'
-                      : 'text-gray-500 dark:text-gray-400',
-                  ]"
-                >
-                  {{ season.episode_count }} episodes
-                </p>
-              </router-link>
+                :subtitle="`${season.episode_count} episodes`"
+              />
             </div>
           </section>
 
@@ -905,211 +752,40 @@ const seasons = computed(() => {
               Key Crew
             </h3>
             <div
-              class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8"
+              class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-6"
             >
               <!-- Directors -->
-              <router-link
+              <PersonCard
                 v-for="director in directors"
                 :key="director.id"
-                :to="`/person/${director.id}`"
-                class="text-center group cursor-pointer"
-              >
-                <div
-                  :class="[
-                    'w-24 h-24 mx-auto mb-3 overflow-hidden border-2 transition duration-300 shadow-md',
-                    isCyberpunk
-                      ? 'rounded-none border-cyber-chrome group-hover:border-cyber-cyan bg-cyber-night'
-                      : 'rounded-full border-transparent group-hover:border-teal-500 bg-gray-200 dark:bg-gray-800',
-                  ]"
-                >
-                  <img
-                    v-if="director.profile_path"
-                    :src="tmdb.getImageUrl(director.profile_path, 'w185')"
-                    :srcset="tmdb.getProfileSrcset(director.profile_path)"
-                    sizes="96px"
-                    :alt="director.name"
-                    class="w-full h-full object-cover"
-                    loading="lazy"
-                  />
-                  <div
-                    v-else
-                    :class="[
-                      'w-full h-full flex items-center justify-center',
-                      isCyberpunk ? 'text-cyber-muted' : 'text-gray-400',
-                    ]"
-                  >
-                    <svg
-                      class="w-10 h-10"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                      ></path>
-                    </svg>
-                  </div>
-                </div>
-                <h4
-                  :class="[
-                    'font-bold text-sm transition-colors',
-                    isCyberpunk
-                      ? 'text-white font-display group-hover:text-cyber-cyan'
-                      : 'text-gray-900 dark:text-white group-hover:text-teal-500',
-                  ]"
-                >
-                  {{ director.name }}
-                </h4>
-                <p
-                  :class="[
-                    'text-xs font-semibold uppercase',
-                    isCyberpunk
-                      ? 'text-cyber-cyan font-cyber-mono'
-                      : 'text-teal-500',
-                  ]"
-                >
-                  Director
-                </p>
-              </router-link>
+                :id="director.id"
+                :name="director.name"
+                :image-path="director.profile_path"
+                subtitle="Director"
+                variant="card"
+              />
 
               <!-- Writers -->
-              <router-link
+              <PersonCard
                 v-for="writer in writers.slice(0, 5)"
                 :key="writer.id"
-                :to="`/person/${writer.id}`"
-                class="text-center group cursor-pointer"
-              >
-                <div
-                  :class="[
-                    'w-24 h-24 mx-auto mb-3 overflow-hidden border-2 transition duration-300 shadow-md',
-                    isCyberpunk
-                      ? 'rounded-none border-cyber-chrome group-hover:border-cyber-cyan bg-cyber-night'
-                      : 'rounded-full border-transparent group-hover:border-teal-500 bg-gray-200 dark:bg-gray-800',
-                  ]"
-                >
-                  <img
-                    v-if="writer.profile_path"
-                    :src="tmdb.getImageUrl(writer.profile_path, 'w185')"
-                    :srcset="tmdb.getProfileSrcset(writer.profile_path)"
-                    sizes="96px"
-                    :alt="writer.name"
-                    class="w-full h-full object-cover"
-                    loading="lazy"
-                  />
-                  <div
-                    v-else
-                    :class="[
-                      'w-full h-full flex items-center justify-center',
-                      isCyberpunk ? 'text-cyber-muted' : 'text-gray-400',
-                    ]"
-                  >
-                    <svg
-                      class="w-10 h-10"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                      ></path>
-                    </svg>
-                  </div>
-                </div>
-                <h4
-                  :class="[
-                    'font-bold text-sm transition-colors',
-                    isCyberpunk
-                      ? 'text-white font-display group-hover:text-cyber-cyan'
-                      : 'text-gray-900 dark:text-white group-hover:text-teal-500',
-                  ]"
-                >
-                  {{ writer.name }}
-                </h4>
-                <p
-                  :class="[
-                    'text-xs font-semibold uppercase',
-                    isCyberpunk
-                      ? 'text-cyber-yellow font-cyber-mono'
-                      : 'text-blue-500',
-                  ]"
-                >
-                  Writer
-                </p>
-              </router-link>
+                :id="writer.id"
+                :name="writer.name"
+                :image-path="writer.profile_path"
+                subtitle="Writer"
+                variant="card"
+              />
 
               <!-- Producers -->
-              <router-link
+              <PersonCard
                 v-for="producer in producers.slice(0, 5)"
                 :key="producer.id"
-                :to="`/person/${producer.id}`"
-                class="text-center group cursor-pointer"
-              >
-                <div
-                  :class="[
-                    'w-24 h-24 mx-auto mb-3 overflow-hidden border-2 transition duration-300 shadow-md',
-                    isCyberpunk
-                      ? 'rounded-none border-cyber-chrome group-hover:border-cyber-cyan bg-cyber-night'
-                      : 'rounded-full border-transparent group-hover:border-teal-500 bg-gray-200 dark:bg-gray-800',
-                  ]"
-                >
-                  <img
-                    v-if="producer.profile_path"
-                    :src="tmdb.getImageUrl(producer.profile_path, 'w185')"
-                    :srcset="tmdb.getProfileSrcset(producer.profile_path)"
-                    sizes="96px"
-                    :alt="producer.name"
-                    class="w-full h-full object-cover"
-                    loading="lazy"
-                  />
-                  <div
-                    v-else
-                    :class="[
-                      'w-full h-full flex items-center justify-center',
-                      isCyberpunk ? 'text-cyber-muted' : 'text-gray-400',
-                    ]"
-                  >
-                    <svg
-                      class="w-10 h-10"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                      ></path>
-                    </svg>
-                  </div>
-                </div>
-                <h4
-                  :class="[
-                    'font-bold text-sm transition-colors',
-                    isCyberpunk
-                      ? 'text-white font-display group-hover:text-cyber-cyan'
-                      : 'text-gray-900 dark:text-white group-hover:text-teal-500',
-                  ]"
-                >
-                  {{ producer.name }}
-                </h4>
-                <p
-                  :class="[
-                    'text-xs font-semibold uppercase',
-                    isCyberpunk
-                      ? 'text-cyber-muted font-cyber-mono'
-                      : 'text-gray-500',
-                  ]"
-                >
-                  {{ producer.job }}
-                </p>
-              </router-link>
+                :id="producer.id"
+                :name="producer.name"
+                :image-path="producer.profile_path"
+                :subtitle="producer.job"
+                variant="card"
+              />
             </div>
           </section>
         </div>
@@ -1141,72 +817,15 @@ const seasons = computed(() => {
         <div
           class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-6"
         >
-          <router-link
+          <PersonCard
             v-for="castMember in displayedCast"
             :key="castMember.id"
-            :to="`/person/${castMember.id}`"
-            class="group cursor-pointer"
-          >
-            <div
-              :class="[
-                'aspect-[2/3] overflow-hidden mb-3 shadow-md border transition-all duration-300 group-hover:-translate-y-1',
-                isCyberpunk
-                  ? 'rounded-none bg-cyber-night border-cyber-chrome group-hover:border-cyber-cyan group-hover:shadow-[0_0_15px_rgba(85,234,212,0.2)]'
-                  : 'rounded-xl bg-gray-200 dark:bg-gray-800 border-gray-200 dark:border-gray-700 group-hover:border-teal-500',
-              ]"
-            >
-              <img
-                v-if="castMember.profile_path"
-                :src="tmdb.getImageUrl(castMember.profile_path)"
-                :srcset="tmdb.getProfileSrcset(castMember.profile_path)"
-                :sizes="tmdb.profileSizes"
-                :alt="castMember.name"
-                class="w-full h-full object-cover"
-                loading="lazy"
-              />
-              <div
-                v-else
-                :class="[
-                  'w-full h-full flex items-center justify-center',
-                  isCyberpunk ? 'text-cyber-muted' : 'text-gray-400',
-                ]"
-              >
-                <svg
-                  class="w-12 h-12"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                  ></path>
-                </svg>
-              </div>
-            </div>
-            <p
-              :class="[
-                'font-bold text-sm truncate transition-colors',
-                isCyberpunk
-                  ? 'text-white font-display group-hover:text-cyber-cyan'
-                  : 'text-gray-900 dark:text-white group-hover:text-teal-500',
-              ]"
-            >
-              {{ castMember.name }}
-            </p>
-            <p
-              :class="[
-                'text-xs truncate',
-                isCyberpunk
-                  ? 'text-cyber-muted'
-                  : 'text-gray-500 dark:text-gray-400',
-              ]"
-            >
-              {{ castMember.character }}
-            </p>
-          </router-link>
+            :id="castMember.id"
+            :name="castMember.name"
+            :image-path="castMember.profile_path"
+            :subtitle="castMember.character"
+            variant="card"
+          />
         </div>
 
         <div

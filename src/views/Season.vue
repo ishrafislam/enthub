@@ -4,6 +4,7 @@ import { useRoute, useRouter } from "vue-router";
 import { tmdb } from "../services/tmdb";
 import type { TVSeasonDetails, MediaDetails } from "../types/tmdb";
 import Skeleton from "../components/Skeleton.vue";
+import PersonCard from "../components/PersonCard.vue";
 import { useTheme } from "../composables/useTheme";
 
 const { isCyberpunk } = useTheme();
@@ -517,74 +518,16 @@ watch(
               <div
                 class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide"
               >
-                <router-link
+                <PersonCard
                   v-for="star in episode.guest_stars.slice(0, 10)"
                   :key="star.id"
-                  :to="`/person/${star.id}`"
-                  class="flex-shrink-0 text-center group w-20"
-                >
-                  <div
-                    :class="[
-                      'w-16 h-16 mx-auto mb-1.5 overflow-hidden border-2 transition',
-                      isCyberpunk
-                        ? 'rounded-none border-cyber-chrome group-hover:border-cyber-cyan bg-cyber-night'
-                        : 'rounded-full border-transparent group-hover:border-teal-500 bg-gray-200 dark:bg-gray-700',
-                    ]"
-                  >
-                    <img
-                      v-if="star.profile_path"
-                      :src="
-                        tmdb.getImageUrl(star.profile_path, 'w185')
-                      "
-                      :alt="star.name"
-                      class="w-full h-full object-cover"
-                      loading="lazy"
-                    />
-                    <div
-                      v-else
-                      :class="[
-                        'w-full h-full flex items-center justify-center',
-                        isCyberpunk
-                          ? 'text-cyber-muted'
-                          : 'text-gray-400',
-                      ]"
-                    >
-                      <svg
-                        class="w-6 h-6"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                        />
-                      </svg>
-                    </div>
-                  </div>
-                  <p
-                    :class="[
-                      'text-xs font-semibold truncate transition-colors',
-                      isCyberpunk
-                        ? 'text-white font-display group-hover:text-cyber-cyan'
-                        : 'text-gray-900 dark:text-white group-hover:text-teal-500',
-                    ]"
-                  >
-                    {{ star.name }}
-                  </p>
-                  <p
-                    :class="[
-                      'text-xs truncate',
-                      isCyberpunk
-                        ? 'text-cyber-muted'
-                        : 'text-gray-500 dark:text-gray-400',
-                    ]"
-                  >
-                    {{ star.character }}
-                  </p>
-                </router-link>
+                  :id="star.id"
+                  :name="star.name"
+                  :image-path="star.profile_path"
+                  :subtitle="star.character"
+                  variant="circular"
+                  class="flex-shrink-0 w-20"
+                />
               </div>
             </div>
           </div>

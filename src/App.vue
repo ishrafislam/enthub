@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import Navbar from "./components/Navbar.vue";
 import { useTheme } from "./composables/useTheme";
+import { version } from "../package.json";
 
 const { isCyberpunk } = useTheme();
 </script>
@@ -33,6 +34,57 @@ const { isCyberpunk } = useTheme();
     <main :class="isCyberpunk ? 'relative' : ''">
       <router-view></router-view>
     </main>
+
+    <!-- Footer -->
+    <footer
+      :class="[
+        'border-t py-6 mt-auto',
+        isCyberpunk
+          ? 'bg-cyber-night border-cyber-chrome'
+          : 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800',
+      ]"
+    >
+      <div
+        class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2"
+      >
+        <p
+          :class="[
+            'text-sm',
+            isCyberpunk
+              ? 'text-cyber-muted font-cyber-mono'
+              : 'text-gray-500 dark:text-gray-400',
+          ]"
+        >
+          <span
+            :class="isCyberpunk ? 'text-cyber-cyan' : 'text-teal-500'"
+            >EntHub</span
+          >
+          &mdash; Powered by
+          <a
+            href="https://www.themoviedb.org/"
+            target="_blank"
+            rel="noopener noreferrer"
+            :class="[
+              'font-medium',
+              isCyberpunk
+                ? 'cyber-footer-link text-cyber-gray'
+                : 'transition-colors text-gray-600 dark:text-gray-300 hover:text-teal-500',
+            ]"
+            >TMDB</a
+          >
+        </p>
+        <p
+          :class="[
+            'text-xs',
+            isCyberpunk
+              ? 'text-cyber-muted font-cyber-mono'
+              : 'text-gray-400 dark:text-gray-500',
+          ]"
+        >
+          v{{ version }}
+        </p>
+      </div>
+    </footer>
   </div>
 </template>
 
@@ -84,6 +136,33 @@ const { isCyberpunk } = useTheme();
     transform: translateY(-8px);
     filter: blur(2px) brightness(0.8);
   }
+}
+
+/* Cyberpunk footer link hover effect */
+.cyber-footer-link {
+  position: relative;
+  transition: color 0.2s ease;
+}
+
+.cyber-footer-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 0;
+  height: 1px;
+  background: linear-gradient(90deg, #55ead4, #ff2a6d);
+  transition: width 0.3s ease;
+  box-shadow: 0 0 6px #55ead4;
+}
+
+.cyber-footer-link:hover {
+  color: #55ead4;
+  text-shadow: 0 0 8px rgba(85, 234, 212, 0.5);
+}
+
+.cyber-footer-link:hover::after {
+  width: 100%;
 }
 
 /* Respect reduced motion preference */
