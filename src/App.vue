@@ -1,11 +1,8 @@
 <script setup lang="ts">
-import { computed } from "vue";
 import Navbar from "./components/Navbar.vue";
 import { useTheme } from "./composables/useTheme";
 
 const { isCyberpunk } = useTheme();
-
-const transitionName = computed(() => (isCyberpunk.value ? "cyber" : "fade"));
 </script>
 
 <template>
