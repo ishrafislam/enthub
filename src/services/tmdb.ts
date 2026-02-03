@@ -1,9 +1,15 @@
 import type {
   TMDBResponse,
   MediaItem,
+  MovieItem,
+  TVItem,
+  PersonItem,
   MediaDetails,
   TMDBCollection,
   PersonDetails,
+  CollectionSearchItem,
+  SearchType,
+  TVSeasonDetails,
 } from "../types/tmdb";
 
 const BASE_URL = "https://api.themoviedb.org/3";
@@ -16,6 +22,19 @@ const MAX_PAGE = 500; // TMDB's maximum page limit
 
 if (!TOKEN) {
   console.warn("Token is not defined. TMDB requests will fail.");
+}
+
+// Utility functions for validation
+function validatePage(page: number): number {
+  return Math.max(MIN_PAGE, Math.min(Math.floor(page), MAX_PAGE));
+}
+
+function sanitizeSearchParams(query: string, page: number) {
+  const sanitizedQuery = query.trim().slice(0, MAX_SEARCH_QUERY_LENGTH);
+  if (!sanitizedQuery) {
+    throw new Error("Search query cannot be empty.");
+  }
+  return { query: sanitizedQuery, page: validatePage(page).toString() };
 }
 
 const headers = {
@@ -72,20 +91,50 @@ export const tmdb = {
   getTrending: (timeWindow: "day" | "week" = "week") =>
     fetchTMDB<TMDBResponse<MediaItem>>(`/trending/all/${timeWindow}`),
 
-  search: (query: string, page = 1) => {
-    const sanitizedQuery = query.trim().slice(0, MAX_SEARCH_QUERY_LENGTH);
+  getTrendingMovies: (timeWindow: "day" | "week" = "week", page = 1) =>
+    fetchTMDB<TMDBResponse<MovieItem>>(`/trending/movie/${timeWindow}`, {
+      page: validatePage(page).toString(),
+    }),
 
-    if (!sanitizedQuery) {
-      throw new Error("Search query cannot be empty.");
-    }
+  getTrendingTV: (timeWindow: "day" | "week" = "week", page = 1) =>
+    fetchTMDB<TMDBResponse<TVItem>>(`/trending/tv/${timeWindow}`, {
+      page: validatePage(page).toString(),
+    }),
 
-    const validPage = Math.max(MIN_PAGE, Math.min(Math.floor(page), MAX_PAGE));
+  getTrendingPeople: (timeWindow: "day" | "week" = "week", page = 1) =>
+    fetchTMDB<TMDBResponse<PersonItem>>(`/trending/person/${timeWindow}`, {
+      page: validatePage(page).toString(),
+    }),
 
-    return fetchTMDB<TMDBResponse<MediaItem>>("/search/multi", {
-      query: sanitizedQuery,
-      page: validPage.toString(),
-    });
-  },
+  search: (query: string, type: SearchType = "multi", page = 1) =>
+    fetchTMDB<TMDBResponse<MediaItem>>(
+      `/search/${type}`,
+      sanitizeSearchParams(query, page),
+    ),
+
+  searchMovies: (query: string, page = 1) =>
+    fetchTMDB<TMDBResponse<MovieItem>>(
+      "/search/movie",
+      sanitizeSearchParams(query, page),
+    ),
+
+  searchTV: (query: string, page = 1) =>
+    fetchTMDB<TMDBResponse<TVItem>>(
+      "/search/tv",
+      sanitizeSearchParams(query, page),
+    ),
+
+  searchPeople: (query: string, page = 1) =>
+    fetchTMDB<TMDBResponse<PersonItem>>(
+      "/search/person",
+      sanitizeSearchParams(query, page),
+    ),
+
+  searchCollections: (query: string, page = 1) =>
+    fetchTMDB<TMDBResponse<CollectionSearchItem>>(
+      "/search/collection",
+      sanitizeSearchParams(query, page),
+    ),
 
   getDetails: (type: "movie" | "tv", id: number) =>
     fetchTMDB<MediaDetails>(`/${type}/${id}`, {
@@ -99,6 +148,9 @@ export const tmdb = {
     fetchTMDB<PersonDetails>(`/person/${personId}`, {
       append_to_response: "combined_credits",
     }),
+
+  getSeasonDetails: (seriesId: number, seasonNumber: number) =>
+    fetchTMDB<TVSeasonDetails>(`/tv/${seriesId}/season/${seasonNumber}`),
 
   /**
    * Get a single image URL for a given path and size
@@ -138,6 +190,22 @@ export const tmdb = {
     path
       ? `${IMAGE_BASE_URL}/w185${path} 185w, ${IMAGE_BASE_URL}/w500${path} 500w`
       : "",
+
+  /**
+   * Generate srcset attribute for responsive episode still images
+   * @param path - TMDB still image path
+   * @returns srcset string for still images (w300, w780, original), or empty string if path is null
+   */
+  getStillSrcset: (path: string | null): string =>
+    path
+      ? `${IMAGE_BASE_URL}/w300${path} 300w, ${IMAGE_BASE_URL}/w780${path} 780w, ${IMAGE_BASE_URL}/original${path} 1920w`
+      : "",
+
+  /**
+   * Default sizes attribute for episode still images
+   */
+  stillSizes:
+    "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw",
 
   /**
    * Default sizes attribute for poster images in a responsive grid

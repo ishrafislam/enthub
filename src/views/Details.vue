@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { tmdb } from "../services/tmdb";
-import type { MediaDetails, CrewMember } from "../types/tmdb";
+import type { MediaDetails, CrewMember, TVSeasonSummary } from "../types/tmdb";
 import { useConvexQuery, useConvexMutation } from "../composables/useConvex";
 import { api } from "../../convex/_generated/api";
 import { authStore } from "../store/auth";
@@ -72,9 +72,11 @@ const handleMarkAsWatched = async () => {
   });
 };
 
-onMounted(async () => {
+const fetchData = async () => {
   const type = route.params.type as "movie" | "tv";
   const id = Number(route.params.id);
+  loading.value = true;
+  media.value = null;
 
   try {
     media.value = await tmdb.getDetails(type, id);
@@ -83,7 +85,17 @@ onMounted(async () => {
   } finally {
     loading.value = false;
   }
-});
+};
+
+watch(
+  () => [route.params.type, route.params.id],
+  () => {
+    if (route.params.type && route.params.id) {
+      fetchData();
+    }
+  },
+  { immediate: true },
+);
 
 const getYear = (date?: string) =>
   date ? new Date(date).getFullYear() : "N/A";
@@ -138,6 +150,15 @@ const displayedCast = computed(() => {
 const displayedVideos = computed(() => {
   if (showAllVideos.value) return media.value?.videos.results || [];
   return media.value?.videos.results.slice(0, 8) || [];
+});
+
+const seasons = computed(() => {
+  if (!media.value?.seasons) return [];
+  const allSeasons = media.value.seasons;
+  const regular = allSeasons.filter(
+    (s: TVSeasonSummary) => s.season_number > 0,
+  );
+  return regular.length > 0 ? regular : allSeasons;
 });
 </script>
 
@@ -274,23 +295,25 @@ const displayedVideos = computed(() => {
             >
               <span class="w-6 h-px bg-cyber-cyan/40"></span>
               <span
-                >DATA.{{ $route.params.type === "movie" ? "FILM" : "SERIES" }}</span
+                >DATA.{{
+                  $route.params.type === "movie" ? "FILM" : "SERIES"
+                }}</span
               >
             </div>
 
             <h1
               :class="[
                 'text-3xl md:text-5xl lg:text-7xl font-extrabold mb-2 md:mb-4 leading-tight',
-                isCyberpunk ? 'font-display uppercase tracking-wide' : 'drop-shadow-sm',
+                isCyberpunk
+                  ? 'font-display uppercase tracking-wide'
+                  : 'drop-shadow-sm',
               ]"
             >
               {{ media.title || media.name }}
               <span
                 :class="[
                   'text-xl md:text-3xl lg:text-5xl font-light block md:inline',
-                  isCyberpunk
-                    ? 'text-cyber-yellow font-data'
-                    : 'opacity-70',
+                  isCyberpunk ? 'text-cyber-yellow font-data' : 'opacity-70',
                 ]"
               >
                 ({{ getYear(media.release_date || media.first_air_date) }})
@@ -394,7 +417,9 @@ const displayedVideos = computed(() => {
                 <span
                   :class="[
                     'font-bold text-xs md:text-base leading-tight',
-                    isCyberpunk ? 'text-cyber-gray font-display uppercase tracking-wide' : '',
+                    isCyberpunk
+                      ? 'text-cyber-gray font-display uppercase tracking-wide'
+                      : '',
                   ]"
                   >User<br />Score</span
                 >
@@ -661,7 +686,12 @@ const displayedVideos = computed(() => {
           <section v-if="media.belongs_to_collection">
             <router-link
               :to="`/collection/${media.belongs_to_collection.id}`"
-              class="group block relative rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700 hover:border-teal-500 transition-all duration-300 hover:shadow-xl"
+              :class="[
+                'group block relative overflow-hidden border transition-all duration-300 hover:shadow-xl',
+                isCyberpunk
+                  ? 'rounded-none border-cyber-chrome hover:border-cyber-cyan hover:shadow-[0_0_20px_rgba(85,234,212,0.2)]'
+                  : 'rounded-2xl border-gray-200 dark:border-gray-700 hover:border-teal-500',
+              ]"
             >
               <!-- Background -->
               <div class="absolute inset-0">
@@ -676,7 +706,12 @@ const displayedVideos = computed(() => {
                   class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
                 <div
-                  class="absolute inset-0 bg-gradient-to-r from-gray-900/95 via-gray-900/80 to-gray-900/60"
+                  :class="[
+                    'absolute inset-0',
+                    isCyberpunk
+                      ? 'bg-gradient-to-r from-cyber-black/95 via-cyber-black/80 to-cyber-black/60'
+                      : 'bg-gradient-to-r from-gray-900/95 via-gray-900/80 to-gray-900/60',
+                  ]"
                 ></div>
               </div>
 
@@ -684,7 +719,12 @@ const displayedVideos = computed(() => {
               <div class="relative flex items-center gap-6 p-6">
                 <!-- Collection Poster -->
                 <div
-                  class="hidden sm:block w-24 h-36 flex-shrink-0 rounded-lg overflow-hidden shadow-lg ring-1 ring-white/20"
+                  :class="[
+                    'hidden sm:block w-24 h-36 flex-shrink-0 overflow-hidden shadow-lg',
+                    isCyberpunk
+                      ? 'rounded-none border border-cyber-cyan/30'
+                      : 'rounded-lg ring-1 ring-white/20',
+                  ]"
                 >
                   <img
                     :src="
@@ -697,23 +737,41 @@ const displayedVideos = computed(() => {
                 <!-- Info -->
                 <div class="flex-1 min-w-0">
                   <p
-                    class="text-teal-400 text-sm font-semibold uppercase tracking-wider mb-1"
+                    :class="[
+                      'text-sm font-semibold uppercase tracking-wider mb-1',
+                      isCyberpunk
+                        ? 'text-cyber-cyan font-cyber-mono'
+                        : 'text-teal-400',
+                    ]"
                   >
                     Part of
                   </p>
                   <h4
-                    class="text-white text-xl md:text-2xl font-bold mb-2 truncate"
+                    :class="[
+                      'text-white text-xl md:text-2xl font-bold mb-2 truncate',
+                      isCyberpunk ? 'font-display' : '',
+                    ]"
                   >
                     {{ media.belongs_to_collection.name }}
                   </h4>
-                  <p class="text-gray-300 text-sm">
+                  <p
+                    :class="[
+                      'text-sm',
+                      isCyberpunk ? 'text-cyber-gray' : 'text-gray-300',
+                    ]"
+                  >
                     View all movies in this collection
                   </p>
                 </div>
 
                 <!-- Arrow -->
                 <div
-                  class="flex-shrink-0 text-white/60 group-hover:text-teal-400 transition-colors"
+                  :class="[
+                    'flex-shrink-0 transition-colors',
+                    isCyberpunk
+                      ? 'text-cyber-cyan/60 group-hover:text-cyber-cyan'
+                      : 'text-white/60 group-hover:text-teal-400',
+                  ]"
                 >
                   <svg
                     class="w-8 h-8 transform group-hover:translate-x-1 transition-transform"
@@ -731,6 +789,104 @@ const displayedVideos = computed(() => {
                 </div>
               </div>
             </router-link>
+          </section>
+
+          <!-- Seasons Section (TV only) -->
+          <section v-if="seasons.length && $route.params.type === 'tv'">
+            <h3
+              :class="[
+                'text-2xl font-bold mb-2',
+                isCyberpunk
+                  ? 'text-white font-display uppercase tracking-wider flex items-center gap-2'
+                  : 'text-gray-900 dark:text-white',
+              ]"
+            >
+              <span v-if="isCyberpunk" class="text-cyber-cyan">&gt;</span>
+              Seasons
+            </h3>
+            <p
+              :class="[
+                'mb-6 text-sm',
+                isCyberpunk
+                  ? 'text-cyber-muted font-cyber-mono'
+                  : 'text-gray-500 dark:text-gray-400',
+              ]"
+            >
+              {{ media.number_of_seasons }}
+              season{{ media.number_of_seasons !== 1 ? "s" : "" }},
+              {{ media.number_of_episodes }} episodes
+            </p>
+
+            <div
+              class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4"
+            >
+              <router-link
+                v-for="season in seasons"
+                :key="season.id"
+                :to="`/tv/${$route.params.id}/season/${season.season_number}`"
+                class="group"
+              >
+                <div
+                  :class="[
+                    'aspect-[2/3] overflow-hidden mb-2 shadow-md transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-xl',
+                    isCyberpunk
+                      ? 'rounded-none bg-cyber-night border border-cyber-chrome group-hover:border-cyber-cyan group-hover:shadow-[0_0_15px_rgba(85,234,212,0.2)]'
+                      : 'rounded-xl bg-gray-200 dark:bg-gray-800 ring-1 ring-black/5 dark:ring-white/10 group-hover:ring-teal-500',
+                  ]"
+                >
+                  <img
+                    v-if="season.poster_path"
+                    :src="tmdb.getImageUrl(season.poster_path)"
+                    :srcset="tmdb.getPosterSrcset(season.poster_path)"
+                    sizes="(max-width: 640px) 33vw, (max-width: 768px) 25vw, (max-width: 1024px) 20vw, 16vw"
+                    :alt="season.name"
+                    class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    loading="lazy"
+                  />
+                  <div
+                    v-else
+                    :class="[
+                      'w-full h-full flex items-center justify-center',
+                      isCyberpunk ? 'text-cyber-muted' : 'text-gray-400',
+                    ]"
+                  >
+                    <svg
+                      class="w-10 h-10"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"
+                      />
+                    </svg>
+                  </div>
+                </div>
+                <p
+                  :class="[
+                    'text-sm font-semibold truncate transition-colors',
+                    isCyberpunk
+                      ? 'text-white font-display group-hover:text-cyber-cyan'
+                      : 'text-gray-900 dark:text-white group-hover:text-teal-500',
+                  ]"
+                >
+                  {{ season.name }}
+                </p>
+                <p
+                  :class="[
+                    'text-xs',
+                    isCyberpunk
+                      ? 'text-cyber-muted font-cyber-mono'
+                      : 'text-gray-500 dark:text-gray-400',
+                  ]"
+                >
+                  {{ season.episode_count }} episodes
+                </p>
+              </router-link>
+            </div>
           </section>
 
           <!-- Key Crew with Pictures -->
@@ -810,7 +966,9 @@ const displayedVideos = computed(() => {
                 <p
                   :class="[
                     'text-xs font-semibold uppercase',
-                    isCyberpunk ? 'text-cyber-cyan font-cyber-mono' : 'text-teal-500',
+                    isCyberpunk
+                      ? 'text-cyber-cyan font-cyber-mono'
+                      : 'text-teal-500',
                   ]"
                 >
                   Director
@@ -825,7 +983,12 @@ const displayedVideos = computed(() => {
                 class="text-center group cursor-pointer"
               >
                 <div
-                  class="w-24 h-24 mx-auto mb-3 rounded-full overflow-hidden border-2 border-transparent group-hover:border-teal-500 transition duration-300 shadow-md bg-gray-200 dark:bg-gray-800"
+                  :class="[
+                    'w-24 h-24 mx-auto mb-3 overflow-hidden border-2 transition duration-300 shadow-md',
+                    isCyberpunk
+                      ? 'rounded-none border-cyber-chrome group-hover:border-cyber-cyan bg-cyber-night'
+                      : 'rounded-full border-transparent group-hover:border-teal-500 bg-gray-200 dark:bg-gray-800',
+                  ]"
                 >
                   <img
                     v-if="writer.profile_path"
@@ -838,7 +1001,10 @@ const displayedVideos = computed(() => {
                   />
                   <div
                     v-else
-                    class="w-full h-full flex items-center justify-center text-gray-400"
+                    :class="[
+                      'w-full h-full flex items-center justify-center',
+                      isCyberpunk ? 'text-cyber-muted' : 'text-gray-400',
+                    ]"
                   >
                     <svg
                       class="w-10 h-10"
@@ -856,11 +1022,23 @@ const displayedVideos = computed(() => {
                   </div>
                 </div>
                 <h4
-                  class="font-bold text-gray-900 dark:text-white text-sm group-hover:text-teal-500 transition-colors"
+                  :class="[
+                    'font-bold text-sm transition-colors',
+                    isCyberpunk
+                      ? 'text-white font-display group-hover:text-cyber-cyan'
+                      : 'text-gray-900 dark:text-white group-hover:text-teal-500',
+                  ]"
                 >
                   {{ writer.name }}
                 </h4>
-                <p class="text-xs text-blue-500 font-semibold uppercase">
+                <p
+                  :class="[
+                    'text-xs font-semibold uppercase',
+                    isCyberpunk
+                      ? 'text-cyber-yellow font-cyber-mono'
+                      : 'text-blue-500',
+                  ]"
+                >
                   Writer
                 </p>
               </router-link>
@@ -873,7 +1051,12 @@ const displayedVideos = computed(() => {
                 class="text-center group cursor-pointer"
               >
                 <div
-                  class="w-24 h-24 mx-auto mb-3 rounded-full overflow-hidden border-2 border-transparent group-hover:border-teal-500 transition duration-300 shadow-md bg-gray-200 dark:bg-gray-800"
+                  :class="[
+                    'w-24 h-24 mx-auto mb-3 overflow-hidden border-2 transition duration-300 shadow-md',
+                    isCyberpunk
+                      ? 'rounded-none border-cyber-chrome group-hover:border-cyber-cyan bg-cyber-night'
+                      : 'rounded-full border-transparent group-hover:border-teal-500 bg-gray-200 dark:bg-gray-800',
+                  ]"
                 >
                   <img
                     v-if="producer.profile_path"
@@ -886,7 +1069,10 @@ const displayedVideos = computed(() => {
                   />
                   <div
                     v-else
-                    class="w-full h-full flex items-center justify-center text-gray-400"
+                    :class="[
+                      'w-full h-full flex items-center justify-center',
+                      isCyberpunk ? 'text-cyber-muted' : 'text-gray-400',
+                    ]"
                   >
                     <svg
                       class="w-10 h-10"
@@ -904,11 +1090,23 @@ const displayedVideos = computed(() => {
                   </div>
                 </div>
                 <h4
-                  class="font-bold text-gray-900 dark:text-white text-sm group-hover:text-teal-500 transition-colors"
+                  :class="[
+                    'font-bold text-sm transition-colors',
+                    isCyberpunk
+                      ? 'text-white font-display group-hover:text-cyber-cyan'
+                      : 'text-gray-900 dark:text-white group-hover:text-teal-500',
+                  ]"
                 >
                   {{ producer.name }}
                 </h4>
-                <p class="text-xs text-gray-500 font-semibold uppercase">
+                <p
+                  :class="[
+                    'text-xs font-semibold uppercase',
+                    isCyberpunk
+                      ? 'text-cyber-muted font-cyber-mono'
+                      : 'text-gray-500',
+                  ]"
+                >
                   {{ producer.job }}
                 </p>
               </router-link>
@@ -922,7 +1120,9 @@ const displayedVideos = computed(() => {
         <div
           :class="[
             'flex items-center justify-between mb-8 pb-4 border-b',
-            isCyberpunk ? 'border-cyber-chrome' : 'border-gray-200 dark:border-gray-800',
+            isCyberpunk
+              ? 'border-cyber-chrome'
+              : 'border-gray-200 dark:border-gray-800',
           ]"
         >
           <h3
@@ -999,7 +1199,9 @@ const displayedVideos = computed(() => {
             <p
               :class="[
                 'text-xs truncate',
-                isCyberpunk ? 'text-cyber-muted' : 'text-gray-500 dark:text-gray-400',
+                isCyberpunk
+                  ? 'text-cyber-muted'
+                  : 'text-gray-500 dark:text-gray-400',
               ]"
             >
               {{ castMember.character }}
@@ -1012,7 +1214,12 @@ const displayedVideos = computed(() => {
           class="mt-10 text-center"
         >
           <button
-            class="inline-flex items-center gap-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-8 py-3 rounded-full font-bold border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition shadow-sm"
+            :class="[
+              'inline-flex items-center gap-2 px-8 py-3 font-bold border transition shadow-sm',
+              isCyberpunk
+                ? 'bg-transparent border-cyber-cyan text-cyber-cyan font-display uppercase tracking-wider hover:bg-cyber-cyan hover:text-cyber-black rounded-none'
+                : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-full border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700',
+            ]"
             @click="showAllCast = !showAllCast"
           >
             {{ showAllCast ? "Show Less" : "Show All Cast" }}
@@ -1037,9 +1244,22 @@ const displayedVideos = computed(() => {
       <!-- Videos Section (4 Columns) -->
       <section v-if="media.videos?.results?.length">
         <div
-          class="flex items-center justify-between mb-8 border-b border-gray-200 dark:border-gray-800 pb-4"
+          :class="[
+            'flex items-center justify-between mb-8 border-b pb-4',
+            isCyberpunk
+              ? 'border-cyber-chrome'
+              : 'border-gray-200 dark:border-gray-800',
+          ]"
         >
-          <h3 class="text-3xl font-bold text-gray-900 dark:text-white">
+          <h3
+            :class="[
+              'text-3xl font-bold',
+              isCyberpunk
+                ? 'text-white font-display uppercase tracking-wider flex items-center gap-3'
+                : 'text-gray-900 dark:text-white',
+            ]"
+          >
+            <span v-if="isCyberpunk" class="text-cyber-cyan">&gt;</span>
             Videos
           </h3>
         </div>
@@ -1050,7 +1270,12 @@ const displayedVideos = computed(() => {
             :key="video.id"
             :href="`https://www.youtube.com/watch?v=${video.key}`"
             target="_blank"
-            class="group relative block aspect-video rounded-2xl overflow-hidden shadow-lg border border-gray-200 dark:border-gray-800 transition hover:shadow-2xl hover:-translate-y-1"
+            :class="[
+              'group relative block aspect-video overflow-hidden shadow-lg border transition hover:shadow-2xl hover:-translate-y-1',
+              isCyberpunk
+                ? 'rounded-none border-cyber-chrome hover:border-cyber-cyan hover:shadow-[0_0_15px_rgba(85,234,212,0.2)]'
+                : 'rounded-2xl border-gray-200 dark:border-gray-800',
+            ]"
           >
             <img
               :src="`https://img.youtube.com/vi/${video.key}/mqdefault.jpg`"
@@ -1088,7 +1313,12 @@ const displayedVideos = computed(() => {
           class="mt-10 text-center"
         >
           <button
-            class="inline-flex items-center gap-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-8 py-3 rounded-full font-bold border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition shadow-sm"
+            :class="[
+              'inline-flex items-center gap-2 px-8 py-3 font-bold border transition shadow-sm',
+              isCyberpunk
+                ? 'bg-transparent border-cyber-cyan text-cyber-cyan font-display uppercase tracking-wider hover:bg-cyber-cyan hover:text-cyber-black rounded-none'
+                : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-full border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700',
+            ]"
             @click="showAllVideos = !showAllVideos"
           >
             {{ showAllVideos ? "Show Less" : "Show All Videos" }}
@@ -1113,8 +1343,14 @@ const displayedVideos = computed(() => {
       <!-- Production Companies -->
       <section v-if="media.production_companies?.length">
         <h3
-          class="text-2xl font-bold text-gray-900 dark:text-white mb-8 border-b border-gray-200 dark:border-gray-800 pb-4"
+          :class="[
+            'text-2xl font-bold mb-8 border-b pb-4',
+            isCyberpunk
+              ? 'text-white font-display uppercase tracking-wider border-cyber-chrome flex items-center gap-2'
+              : 'text-gray-900 dark:text-white border-gray-200 dark:border-gray-800',
+          ]"
         >
+          <span v-if="isCyberpunk" class="text-cyber-cyan">&gt;</span>
           Production
         </h3>
         <div class="flex flex-wrap items-center gap-12">
@@ -1125,16 +1361,27 @@ const displayedVideos = computed(() => {
           >
             <div
               v-if="company.logo_path"
-              class="h-12 md:h-16 bg-white p-3 rounded-xl shadow-sm border border-gray-100 group-hover:shadow-md transition"
+              :class="[
+                'h-12 md:h-16 p-3 shadow-sm border transition',
+                isCyberpunk
+                  ? 'bg-white/90 rounded-none border-cyber-chrome group-hover:border-cyber-cyan group-hover:shadow-[0_0_10px_rgba(85,234,212,0.15)]'
+                  : 'bg-white rounded-xl border-gray-100 group-hover:shadow-md',
+              ]"
             >
               <img
                 :src="tmdb.getImageUrl(company.logo_path, 'original')"
                 class="h-full object-contain mix-blend-multiply"
               />
             </div>
-            <span class="font-bold text-gray-700 dark:text-gray-300 text-lg">{{
-              company.name
-            }}</span>
+            <span
+              :class="[
+                'font-bold text-lg',
+                isCyberpunk
+                  ? 'text-cyber-gray font-display'
+                  : 'text-gray-700 dark:text-gray-300',
+              ]"
+              >{{ company.name }}</span
+            >
           </div>
         </div>
       </section>
@@ -1170,5 +1417,13 @@ const displayedVideos = computed(() => {
     rgba(243, 230, 0, 0.05) 100%
   );
   pointer-events: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }
 </style>
