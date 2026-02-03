@@ -34,11 +34,7 @@ const transitionName = computed(() => (isCyberpunk.value ? "cyber" : "fade"));
 
     <Navbar />
     <main :class="isCyberpunk ? 'relative' : ''">
-      <router-view v-slot="{ Component }">
-        <transition :name="transitionName" mode="out-in">
-          <component :is="Component" />
-        </transition>
-      </router-view>
+      <router-view></router-view>
     </main>
   </div>
 </template>
