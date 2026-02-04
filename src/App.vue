@@ -9,7 +9,7 @@ const { isCyberpunk } = useTheme();
 <template>
   <div
     :class="[
-      'min-h-screen font-sans transition-colors duration-300',
+      'min-h-screen flex flex-col font-sans transition-colors duration-300',
       isCyberpunk
         ? 'bg-cyber-black text-white'
         : 'bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100',
@@ -31,7 +31,7 @@ const { isCyberpunk } = useTheme();
     ></div>
 
     <Navbar />
-    <main :class="isCyberpunk ? 'relative' : ''">
+    <main :class="['flex-1', isCyberpunk ? 'relative' : '']">
       <router-view></router-view>
     </main>
 
