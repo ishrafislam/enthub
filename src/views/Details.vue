@@ -7,6 +7,12 @@ import { useConvexQuery, useConvexMutation } from "../composables/useConvex";
 import { api } from "../../convex/_generated/api";
 import { authStore } from "../store/auth";
 import Skeleton from "../components/Skeleton.vue";
+import MediaCard from "../components/MediaCard.vue";
+import PersonCard from "../components/PersonCard.vue";
+import CollectionCard from "../components/CollectionCard.vue";
+import { useTheme } from "../composables/useTheme";
+
+const { isCyberpunk } = useTheme();
 
 const route = useRoute();
 const router = useRouter();
@@ -213,11 +219,32 @@ const seasons = computed(() => {
           alt=""
           class="w-full h-full object-cover"
         />
+        <!-- Gradient overlays -->
         <div
-          class="absolute inset-0 bg-gradient-to-t from-gray-50 via-gray-50/40 to-transparent dark:from-gray-950 dark:via-gray-950/60 dark:to-transparent"
+          :class="[
+            'absolute inset-0',
+            isCyberpunk
+              ? 'bg-gradient-to-t from-cyber-black via-cyber-black/70 to-cyber-black/30'
+              : 'bg-gradient-to-t from-gray-50 via-gray-50/40 to-transparent dark:from-gray-950 dark:via-gray-950/60 dark:to-transparent',
+          ]"
         ></div>
         <div
-          class="absolute inset-0 bg-gradient-to-r from-gray-50/80 via-transparent to-transparent dark:from-gray-950/80 dark:via-transparent dark:to-transparent"
+          :class="[
+            'absolute inset-0',
+            isCyberpunk
+              ? 'bg-gradient-to-r from-cyber-black/90 via-transparent to-transparent'
+              : 'bg-gradient-to-r from-gray-50/80 via-transparent to-transparent dark:from-gray-950/80 dark:via-transparent dark:to-transparent',
+          ]"
+        ></div>
+        <!-- Cyberpunk scan lines -->
+        <div
+          v-if="isCyberpunk"
+          class="absolute inset-0 cyber-scanlines pointer-events-none"
+        ></div>
+        <!-- Cyberpunk vignette -->
+        <div
+          v-if="isCyberpunk"
+          class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,rgba(0,0,0,0.6)_100%)] pointer-events-none"
         ></div>
       </div>
 
@@ -227,7 +254,12 @@ const seasons = computed(() => {
         >
           <!-- Poster -->
           <div
-            class="hidden md:block w-64 lg:w-80 flex-shrink-0 shadow-2xl rounded-2xl overflow-hidden ring-1 ring-white/20 transform translate-y-20 lg:translate-y-32 z-30"
+            :class="[
+              'hidden md:block w-64 lg:w-80 flex-shrink-0 shadow-2xl overflow-hidden transform translate-y-20 lg:translate-y-32 z-30',
+              isCyberpunk
+                ? 'rounded-none border border-cyber-cyan/30 cyber-poster'
+                : 'rounded-2xl ring-1 ring-white/20',
+            ]"
           >
             <img
               :src="tmdb.getImageUrl(media.poster_path, 'w500')"
@@ -236,15 +268,56 @@ const seasons = computed(() => {
               :alt="media.title || media.name"
               class="w-full h-auto block"
             />
+            <!-- Cyberpunk poster corner accents -->
+            <template v-if="isCyberpunk">
+              <div
+                class="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-cyber-cyan"
+              ></div>
+              <div
+                class="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-cyber-cyan"
+              ></div>
+              <div
+                class="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-cyber-cyan"
+              ></div>
+              <div
+                class="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-cyber-cyan"
+              ></div>
+            </template>
           </div>
 
-          <div class="flex-1 text-gray-900 dark:text-white z-10 w-full">
+          <div
+            :class="[
+              'flex-1 z-10 w-full',
+              isCyberpunk ? 'text-white' : 'text-gray-900 dark:text-white',
+            ]"
+          >
+            <!-- Cyberpunk data prefix -->
+            <div
+              v-if="isCyberpunk"
+              class="flex items-center gap-2 mb-3 text-cyber-cyan/60 font-cyber-mono text-xs tracking-widest"
+            >
+              <span class="w-6 h-px bg-cyber-cyan/40"></span>
+              <span
+                >DATA.{{
+                  $route.params.type === "movie" ? "FILM" : "SERIES"
+                }}</span
+              >
+            </div>
+
             <h1
-              class="text-3xl md:text-5xl lg:text-7xl font-extrabold mb-2 md:mb-4 drop-shadow-sm leading-tight"
+              :class="[
+                'text-3xl md:text-5xl lg:text-7xl font-extrabold mb-2 md:mb-4 leading-tight',
+                isCyberpunk
+                  ? 'font-display uppercase tracking-wide'
+                  : 'drop-shadow-sm',
+              ]"
             >
               {{ media.title || media.name }}
               <span
-                class="text-xl md:text-3xl lg:text-5xl font-light opacity-70 block md:inline"
+                :class="[
+                  'text-xl md:text-3xl lg:text-5xl font-light block md:inline',
+                  isCyberpunk ? 'text-cyber-yellow font-data' : 'opacity-70',
+                ]"
               >
                 ({{ getYear(media.release_date || media.first_air_date) }})
               </span>
@@ -252,22 +325,41 @@ const seasons = computed(() => {
 
             <p
               v-if="media.tagline"
-              class="text-lg md:text-xl lg:text-2xl text-gray-500 dark:text-gray-400 italic mb-4 md:mb-6 font-light"
+              :class="[
+                'text-lg md:text-xl lg:text-2xl italic mb-4 md:mb-6 font-light',
+                isCyberpunk
+                  ? 'text-cyber-gray not-italic font-display tracking-wide border-l-2 border-cyber-cyan/50 pl-4'
+                  : 'text-gray-500 dark:text-gray-400',
+              ]"
             >
-              "{{ media.tagline }}"
+              <span v-if="!isCyberpunk">"</span>{{ media.tagline
+              }}<span v-if="!isCyberpunk">"</span>
             </p>
 
             <div
-              class="flex flex-wrap items-center gap-2 md:gap-4 text-xs md:text-lg font-medium opacity-90 mb-6 md:mb-8"
+              :class="[
+                'flex flex-wrap items-center gap-2 md:gap-4 text-xs md:text-lg font-medium mb-6 md:mb-8',
+                isCyberpunk ? '' : 'opacity-90',
+              ]"
             >
               <span
-                class="bg-gray-200 dark:bg-gray-800/80 backdrop-blur-md px-3 md:px-4 py-1 md:py-1.5 rounded-full border border-gray-300 dark:border-gray-700"
+                :class="[
+                  'backdrop-blur-md px-3 md:px-4 py-1 md:py-1.5',
+                  isCyberpunk
+                    ? 'bg-cyber-night/80 border border-cyber-cyan/50 text-cyber-cyan font-cyber-mono uppercase tracking-wider text-xs'
+                    : 'bg-gray-200 dark:bg-gray-800/80 rounded-full border border-gray-300 dark:border-gray-700',
+                ]"
               >
                 {{ $route.params.type === "movie" ? "Movie" : "TV Series" }}
               </span>
-              <span>{{ media.genres.map((g) => g.name).join(", ") }}</span>
-              <span v-if="media.runtime || media.episode_run_time?.length">
-                •
+              <span :class="isCyberpunk ? 'text-cyber-gray' : ''">{{
+                media.genres.map((g) => g.name).join(", ")
+              }}</span>
+              <span
+                v-if="media.runtime || media.episode_run_time?.length"
+                :class="isCyberpunk ? 'text-cyber-muted' : ''"
+              >
+                <span :class="isCyberpunk ? 'text-cyber-cyan' : ''">•</span>
                 {{
                   formatRuntime(media.runtime || media.episode_run_time?.[0])
                 }}
@@ -277,8 +369,14 @@ const seasons = computed(() => {
             <div
               class="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-4 md:gap-6"
             >
+              <!-- User Score -->
               <div
-                class="flex items-center gap-3 md:gap-4 bg-white/50 dark:bg-black/50 backdrop-blur-md rounded-full px-4 md:px-6 py-2 md:py-3 border border-white/20 dark:border-white/10 shadow-sm"
+                :class="[
+                  'flex items-center gap-3 md:gap-4 backdrop-blur-md px-4 md:px-6 py-2 md:py-3 shadow-sm',
+                  isCyberpunk
+                    ? 'bg-cyber-night/80 border border-cyber-chrome'
+                    : 'bg-white/50 dark:bg-black/50 rounded-full border border-white/20 dark:border-white/10',
+                ]"
               >
                 <div
                   class="relative w-10 h-10 md:w-12 md:h-12 flex items-center justify-center"
@@ -291,7 +389,11 @@ const seasons = computed(() => {
                       stroke="currentColor"
                       stroke-width="4"
                       fill="transparent"
-                      class="text-gray-300 dark:text-gray-700"
+                      :class="
+                        isCyberpunk
+                          ? 'text-cyber-chrome'
+                          : 'text-gray-300 dark:text-gray-700'
+                      "
                     />
                     <circle
                       cx="50%"
@@ -304,26 +406,47 @@ const seasons = computed(() => {
                       :stroke-dashoffset="
                         125.6 - (media.vote_average / 10) * 125.6
                       "
-                      class="text-teal-500"
+                      :class="isCyberpunk ? 'text-cyber-cyan' : 'text-teal-500'"
                     />
                   </svg>
-                  <span class="absolute text-xs md:text-sm font-bold"
+                  <span
+                    :class="[
+                      'absolute text-xs md:text-sm font-bold',
+                      isCyberpunk ? 'text-cyber-cyan font-data' : '',
+                    ]"
                     >{{ Math.round(media.vote_average * 10) }}%</span
                   >
                 </div>
-                <span class="font-bold text-xs md:text-base leading-tight"
+                <span
+                  :class="[
+                    'font-bold text-xs md:text-base leading-tight',
+                    isCyberpunk
+                      ? 'text-cyber-gray font-display uppercase tracking-wide'
+                      : '',
+                  ]"
                   >User<br />Score</span
                 >
               </div>
 
+              <!-- Action Buttons -->
               <div class="flex flex-wrap gap-2 md:gap-3 w-full sm:w-auto">
+                <!-- Watchlist Button -->
                 <button
-                  :class="
-                    status?.inWatchlist
-                      ? 'bg-amber-500 hover:bg-amber-600'
-                      : 'bg-teal-500 hover:bg-teal-600'
+                  :class="[
+                    'flex-1 sm:flex-none justify-center px-6 md:px-8 py-3 md:py-4 font-bold transition flex items-center gap-2 md:gap-3 text-sm md:text-lg',
+                    isCyberpunk
+                      ? status?.inWatchlist
+                        ? 'bg-cyber-yellow text-cyber-black font-display uppercase tracking-wider hover:shadow-[0_0_20px_rgba(243,230,0,0.4)]'
+                        : 'bg-transparent border-2 border-cyber-cyan text-cyber-cyan font-display uppercase tracking-wider hover:bg-cyber-cyan hover:text-cyber-black hover:shadow-[0_0_20px_rgba(85,234,212,0.4)]'
+                      : status?.inWatchlist
+                        ? 'bg-amber-500 hover:bg-amber-600 text-white rounded-full shadow-lg hover:shadow-teal-500/30'
+                        : 'bg-teal-500 hover:bg-teal-600 text-white rounded-full shadow-lg hover:shadow-teal-500/30',
+                  ]"
+                  :style="
+                    isCyberpunk
+                      ? 'clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px))'
+                      : ''
                   "
-                  class="flex-1 sm:flex-none justify-center text-white px-6 md:px-8 py-3 md:py-4 rounded-full font-bold transition flex items-center gap-2 md:gap-3 shadow-lg hover:shadow-teal-500/30 text-sm md:text-lg"
                   @click="handleToggleWatchlist"
                 >
                   <svg
@@ -340,13 +463,19 @@ const seasons = computed(() => {
                   </svg>
                   {{ status?.inWatchlist ? "In Watchlist" : "Watchlist" }}
                 </button>
+
+                <!-- Watched Button -->
                 <button
-                  :class="
-                    status?.inWatched
-                      ? 'bg-teal-500 text-white'
-                      : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white'
-                  "
-                  class="border border-gray-200 dark:border-gray-700 p-3 md:p-4 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition shadow-md"
+                  :class="[
+                    'p-3 md:p-4 transition shadow-md',
+                    isCyberpunk
+                      ? status?.inWatched
+                        ? 'bg-cyber-cyan text-cyber-black border border-cyber-cyan'
+                        : 'bg-cyber-night border border-cyber-chrome text-cyber-gray hover:border-cyber-cyan hover:text-cyber-cyan'
+                      : status?.inWatched
+                        ? 'bg-teal-500 text-white rounded-full'
+                        : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700',
+                  ]"
                   title="Mark as Watched"
                   @click="handleMarkAsWatched"
                 >
@@ -364,11 +493,22 @@ const seasons = computed(() => {
                   </svg>
                 </button>
 
+                <!-- Trailer Button -->
                 <a
                   v-if="trailer"
                   :href="`https://www.youtube.com/watch?v=${trailer.key}`"
                   target="_blank"
-                  class="flex-1 sm:flex-none justify-center bg-gray-900/80 dark:bg-white/10 text-white border border-gray-700 dark:border-white/20 px-6 md:px-8 py-3 md:py-4 rounded-full font-bold transition hover:bg-gray-800 dark:hover:bg-white/20 flex items-center gap-2 md:gap-3 text-sm md:text-lg"
+                  :class="[
+                    'flex-1 sm:flex-none justify-center px-6 md:px-8 py-3 md:py-4 font-bold transition flex items-center gap-2 md:gap-3 text-sm md:text-lg',
+                    isCyberpunk
+                      ? 'bg-transparent border border-cyber-red text-cyber-red font-display uppercase tracking-wider hover:bg-cyber-red hover:text-white hover:shadow-[0_0_20px_rgba(197,0,60,0.4)]'
+                      : 'bg-gray-900/80 dark:bg-white/10 text-white border border-gray-700 dark:border-white/20 rounded-full hover:bg-gray-800 dark:hover:bg-white/20',
+                  ]"
+                  :style="
+                    isCyberpunk
+                      ? 'clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px))'
+                      : ''
+                  "
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -407,52 +547,111 @@ const seasons = computed(() => {
         <!-- Details Sidebar (Left) -->
         <div class="lg:col-span-1">
           <div
-            class="bg-gray-100 dark:bg-gray-800/50 p-6 rounded-2xl border border-gray-200 dark:border-gray-700/50"
+            :class="[
+              'p-6 border',
+              isCyberpunk
+                ? 'bg-cyber-night border-cyber-chrome rounded-none'
+                : 'bg-gray-100 dark:bg-gray-800/50 rounded-2xl border-gray-200 dark:border-gray-700/50',
+            ]"
           >
             <h3
-              class="text-lg font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-200 dark:border-gray-700 pb-2"
+              :class="[
+                'text-lg font-bold mb-4 pb-2 border-b',
+                isCyberpunk
+                  ? 'text-cyber-cyan font-display uppercase tracking-wider border-cyber-chrome'
+                  : 'text-gray-900 dark:text-white border-gray-200 dark:border-gray-700',
+              ]"
             >
-              Details
+              <span v-if="isCyberpunk" class="text-cyber-yellow mr-2">//</span
+              >Details
             </h3>
 
             <div class="space-y-4">
               <div>
                 <p
-                  class="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-semibold"
+                  :class="[
+                    'text-xs uppercase tracking-wider font-semibold',
+                    isCyberpunk
+                      ? 'text-cyber-muted font-cyber-mono'
+                      : 'text-gray-500 dark:text-gray-400',
+                  ]"
                 >
                   Status
                 </p>
-                <p class="font-medium text-gray-900 dark:text-white">
+                <p
+                  :class="[
+                    'font-medium',
+                    isCyberpunk
+                      ? 'text-white font-display'
+                      : 'text-gray-900 dark:text-white',
+                  ]"
+                >
                   {{ media.status || "-" }}
                 </p>
               </div>
               <div>
                 <p
-                  class="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-semibold"
+                  :class="[
+                    'text-xs uppercase tracking-wider font-semibold',
+                    isCyberpunk
+                      ? 'text-cyber-muted font-cyber-mono'
+                      : 'text-gray-500 dark:text-gray-400',
+                  ]"
                 >
                   Original Language
                 </p>
-                <p class="font-medium text-gray-900 dark:text-white uppercase">
+                <p
+                  :class="[
+                    'font-medium uppercase',
+                    isCyberpunk
+                      ? 'text-white font-display'
+                      : 'text-gray-900 dark:text-white',
+                  ]"
+                >
                   {{ media.original_language || "-" }}
                 </p>
               </div>
               <div v-if="media.budget">
                 <p
-                  class="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-semibold"
+                  :class="[
+                    'text-xs uppercase tracking-wider font-semibold',
+                    isCyberpunk
+                      ? 'text-cyber-muted font-cyber-mono'
+                      : 'text-gray-500 dark:text-gray-400',
+                  ]"
                 >
                   Budget
                 </p>
-                <p class="font-medium text-gray-900 dark:text-white">
+                <p
+                  :class="[
+                    'font-medium',
+                    isCyberpunk
+                      ? 'text-cyber-yellow font-data'
+                      : 'text-gray-900 dark:text-white',
+                  ]"
+                >
                   {{ formatMoney(media.budget) }}
                 </p>
               </div>
               <div v-if="media.revenue">
                 <p
-                  class="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-semibold"
+                  :class="[
+                    'text-xs uppercase tracking-wider font-semibold',
+                    isCyberpunk
+                      ? 'text-cyber-muted font-cyber-mono'
+                      : 'text-gray-500 dark:text-gray-400',
+                  ]"
                 >
                   Revenue
                 </p>
-                <p class="font-medium text-gray-900 dark:text-white">
+                <p
+                  :class="[
+                    'font-medium',
+                    isCyberpunk
+                      ? 'text-cyber-cyan font-data'
+                      : 'text-gray-900 dark:text-white',
+                  ]"
+                >
                   {{ formatMoney(media.revenue) }}
                 </p>
               </div>
@@ -463,98 +662,60 @@ const seasons = computed(() => {
         <!-- Overview & Crew (Right) -->
         <div class="lg:col-span-3 space-y-12">
           <section>
-            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+            <h3
+              :class="[
+                'text-2xl font-bold mb-4',
+                isCyberpunk
+                  ? 'text-white font-display uppercase tracking-wider flex items-center gap-2'
+                  : 'text-gray-900 dark:text-white',
+              ]"
+            >
+              <span v-if="isCyberpunk" class="text-cyber-cyan">&gt;</span>
               Overview
             </h3>
-            <p class="text-gray-600 dark:text-gray-300 text-lg leading-relaxed">
+            <p
+              :class="[
+                'text-lg leading-relaxed',
+                isCyberpunk
+                  ? 'text-cyber-gray font-display'
+                  : 'text-gray-600 dark:text-gray-300',
+              ]"
+            >
               {{ media.overview }}
             </p>
           </section>
 
           <!-- Collection Banner -->
           <section v-if="media.belongs_to_collection">
-            <router-link
-              :to="`/collection/${media.belongs_to_collection.id}`"
-              class="group block relative rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700 hover:border-teal-500 transition-all duration-300 hover:shadow-xl"
-            >
-              <!-- Background -->
-              <div class="absolute inset-0">
-                <img
-                  v-if="media.belongs_to_collection.backdrop_path"
-                  :src="
-                    tmdb.getImageUrl(
-                      media.belongs_to_collection.backdrop_path,
-                      'original',
-                    )
-                  "
-                  class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-                <div
-                  class="absolute inset-0 bg-gradient-to-r from-gray-900/95 via-gray-900/80 to-gray-900/60"
-                ></div>
-              </div>
-
-              <!-- Content -->
-              <div class="relative flex items-center gap-6 p-6">
-                <!-- Collection Poster -->
-                <div
-                  class="hidden sm:block w-24 h-36 flex-shrink-0 rounded-lg overflow-hidden shadow-lg ring-1 ring-white/20"
-                >
-                  <img
-                    :src="
-                      tmdb.getImageUrl(media.belongs_to_collection.poster_path)
-                    "
-                    class="w-full h-full object-cover"
-                  />
-                </div>
-
-                <!-- Info -->
-                <div class="flex-1 min-w-0">
-                  <p
-                    class="text-teal-400 text-sm font-semibold uppercase tracking-wider mb-1"
-                  >
-                    Part of
-                  </p>
-                  <h4
-                    class="text-white text-xl md:text-2xl font-bold mb-2 truncate"
-                  >
-                    {{ media.belongs_to_collection.name }}
-                  </h4>
-                  <p class="text-gray-300 text-sm">
-                    View all movies in this collection
-                  </p>
-                </div>
-
-                <!-- Arrow -->
-                <div
-                  class="flex-shrink-0 text-white/60 group-hover:text-teal-400 transition-colors"
-                >
-                  <svg
-                    class="w-8 h-8 transform group-hover:translate-x-1 transition-transform"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M9 5l7 7-7 7"
-                    ></path>
-                  </svg>
-                </div>
-              </div>
-            </router-link>
+            <CollectionCard
+              :id="media.belongs_to_collection.id"
+              :name="media.belongs_to_collection.name"
+              :poster-path="media.belongs_to_collection.poster_path"
+              :backdrop-path="media.belongs_to_collection.backdrop_path"
+            />
           </section>
 
           <!-- Seasons Section (TV only) -->
           <section v-if="seasons.length && $route.params.type === 'tv'">
             <h3
-              class="text-2xl font-bold text-gray-900 dark:text-white mb-2"
+              :class="[
+                'text-2xl font-bold mb-2',
+                isCyberpunk
+                  ? 'text-white font-display uppercase tracking-wider flex items-center gap-2'
+                  : 'text-gray-900 dark:text-white',
+              ]"
             >
+              <span v-if="isCyberpunk" class="text-cyber-cyan">&gt;</span>
               Seasons
             </h3>
-            <p class="text-gray-500 dark:text-gray-400 mb-6 text-sm">
+            <p
+              :class="[
+                'mb-6 text-sm',
+                isCyberpunk
+                  ? 'text-cyber-muted font-cyber-mono'
+                  : 'text-gray-500 dark:text-gray-400',
+              ]"
+            >
               {{ media.number_of_seasons }}
               season{{ media.number_of_seasons !== 1 ? "s" : "" }},
               {{ media.number_of_episodes }} episodes
@@ -563,52 +724,15 @@ const seasons = computed(() => {
             <div
               class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4"
             >
-              <router-link
+              <MediaCard
                 v-for="season in seasons"
+                :id="season.id"
                 :key="season.id"
+                :title="season.name"
+                :poster-path="season.poster_path"
                 :to="`/tv/${$route.params.id}/season/${season.season_number}`"
-                class="group"
-              >
-                <div
-                  class="aspect-[2/3] rounded-xl overflow-hidden mb-2 bg-gray-200 dark:bg-gray-800 shadow-md ring-1 ring-black/5 dark:ring-white/10 transition-all duration-300 group-hover:ring-teal-500 group-hover:-translate-y-1 group-hover:shadow-xl"
-                >
-                  <img
-                    v-if="season.poster_path"
-                    :src="tmdb.getImageUrl(season.poster_path)"
-                    :srcset="tmdb.getPosterSrcset(season.poster_path)"
-                    sizes="(max-width: 640px) 33vw, (max-width: 768px) 25vw, (max-width: 1024px) 20vw, 16vw"
-                    :alt="season.name"
-                    class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                    loading="lazy"
-                  />
-                  <div
-                    v-else
-                    class="w-full h-full flex items-center justify-center text-gray-400"
-                  >
-                    <svg
-                      class="w-10 h-10"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"
-                      />
-                    </svg>
-                  </div>
-                </div>
-                <p
-                  class="text-sm font-semibold text-gray-900 dark:text-white truncate group-hover:text-teal-500 transition-colors"
-                >
-                  {{ season.name }}
-                </p>
-                <p class="text-xs text-gray-500 dark:text-gray-400">
-                  {{ season.episode_count }} episodes
-                </p>
-              </router-link>
+                :subtitle="`${season.episode_count} episodes`"
+              />
             </div>
           </section>
 
@@ -616,155 +740,52 @@ const seasons = computed(() => {
           <section
             v-if="directors.length || writers.length || producers.length"
           >
-            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-8">
+            <h3
+              :class="[
+                'text-2xl font-bold mb-8',
+                isCyberpunk
+                  ? 'text-white font-display uppercase tracking-wider flex items-center gap-2'
+                  : 'text-gray-900 dark:text-white',
+              ]"
+            >
+              <span v-if="isCyberpunk" class="text-cyber-cyan">&gt;</span>
               Key Crew
             </h3>
             <div
-              class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8"
+              class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-6"
             >
               <!-- Directors -->
-              <router-link
+              <PersonCard
                 v-for="director in directors"
+                :id="director.id"
                 :key="director.id"
-                :to="`/person/${director.id}`"
-                class="text-center group cursor-pointer"
-              >
-                <div
-                  class="w-24 h-24 mx-auto mb-3 rounded-full overflow-hidden border-2 border-transparent group-hover:border-teal-500 transition duration-300 shadow-md bg-gray-200 dark:bg-gray-800"
-                >
-                  <img
-                    v-if="director.profile_path"
-                    :src="tmdb.getImageUrl(director.profile_path, 'w185')"
-                    :srcset="tmdb.getProfileSrcset(director.profile_path)"
-                    sizes="96px"
-                    :alt="director.name"
-                    class="w-full h-full object-cover"
-                    loading="lazy"
-                  />
-                  <div
-                    v-else
-                    class="w-full h-full flex items-center justify-center text-gray-400"
-                  >
-                    <svg
-                      class="w-10 h-10"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                      ></path>
-                    </svg>
-                  </div>
-                </div>
-                <h4
-                  class="font-bold text-gray-900 dark:text-white text-sm group-hover:text-teal-500 transition-colors"
-                >
-                  {{ director.name }}
-                </h4>
-                <p class="text-xs text-teal-500 font-semibold uppercase">
-                  Director
-                </p>
-              </router-link>
+                :name="director.name"
+                :image-path="director.profile_path"
+                subtitle="Director"
+                variant="card"
+              />
 
               <!-- Writers -->
-              <router-link
+              <PersonCard
                 v-for="writer in writers.slice(0, 5)"
+                :id="writer.id"
                 :key="writer.id"
-                :to="`/person/${writer.id}`"
-                class="text-center group cursor-pointer"
-              >
-                <div
-                  class="w-24 h-24 mx-auto mb-3 rounded-full overflow-hidden border-2 border-transparent group-hover:border-teal-500 transition duration-300 shadow-md bg-gray-200 dark:bg-gray-800"
-                >
-                  <img
-                    v-if="writer.profile_path"
-                    :src="tmdb.getImageUrl(writer.profile_path, 'w185')"
-                    :srcset="tmdb.getProfileSrcset(writer.profile_path)"
-                    sizes="96px"
-                    :alt="writer.name"
-                    class="w-full h-full object-cover"
-                    loading="lazy"
-                  />
-                  <div
-                    v-else
-                    class="w-full h-full flex items-center justify-center text-gray-400"
-                  >
-                    <svg
-                      class="w-10 h-10"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                      ></path>
-                    </svg>
-                  </div>
-                </div>
-                <h4
-                  class="font-bold text-gray-900 dark:text-white text-sm group-hover:text-teal-500 transition-colors"
-                >
-                  {{ writer.name }}
-                </h4>
-                <p class="text-xs text-blue-500 font-semibold uppercase">
-                  Writer
-                </p>
-              </router-link>
+                :name="writer.name"
+                :image-path="writer.profile_path"
+                subtitle="Writer"
+                variant="card"
+              />
 
               <!-- Producers -->
-              <router-link
+              <PersonCard
                 v-for="producer in producers.slice(0, 5)"
+                :id="producer.id"
                 :key="producer.id"
-                :to="`/person/${producer.id}`"
-                class="text-center group cursor-pointer"
-              >
-                <div
-                  class="w-24 h-24 mx-auto mb-3 rounded-full overflow-hidden border-2 border-transparent group-hover:border-teal-500 transition duration-300 shadow-md bg-gray-200 dark:bg-gray-800"
-                >
-                  <img
-                    v-if="producer.profile_path"
-                    :src="tmdb.getImageUrl(producer.profile_path, 'w185')"
-                    :srcset="tmdb.getProfileSrcset(producer.profile_path)"
-                    sizes="96px"
-                    :alt="producer.name"
-                    class="w-full h-full object-cover"
-                    loading="lazy"
-                  />
-                  <div
-                    v-else
-                    class="w-full h-full flex items-center justify-center text-gray-400"
-                  >
-                    <svg
-                      class="w-10 h-10"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                      ></path>
-                    </svg>
-                  </div>
-                </div>
-                <h4
-                  class="font-bold text-gray-900 dark:text-white text-sm group-hover:text-teal-500 transition-colors"
-                >
-                  {{ producer.name }}
-                </h4>
-                <p class="text-xs text-gray-500 font-semibold uppercase">
-                  {{ producer.job }}
-                </p>
-              </router-link>
+                :name="producer.name"
+                :image-path="producer.profile_path"
+                :subtitle="producer.job"
+                variant="card"
+              />
             </div>
           </section>
         </div>
@@ -773,9 +794,22 @@ const seasons = computed(() => {
       <!-- Cast Section (Full Width Grid) -->
       <section>
         <div
-          class="flex items-center justify-between mb-8 border-b border-gray-200 dark:border-gray-800 pb-4"
+          :class="[
+            'flex items-center justify-between mb-8 pb-4 border-b',
+            isCyberpunk
+              ? 'border-cyber-chrome'
+              : 'border-gray-200 dark:border-gray-800',
+          ]"
         >
-          <h3 class="text-3xl font-bold text-gray-900 dark:text-white">
+          <h3
+            :class="[
+              'text-3xl font-bold',
+              isCyberpunk
+                ? 'text-white font-display uppercase tracking-wider flex items-center gap-3'
+                : 'text-gray-900 dark:text-white',
+            ]"
+          >
+            <span v-if="isCyberpunk" class="text-cyber-cyan">&gt;</span>
             Top Cast
           </h3>
         </div>
@@ -783,52 +817,15 @@ const seasons = computed(() => {
         <div
           class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-6"
         >
-          <router-link
+          <PersonCard
             v-for="castMember in displayedCast"
+            :id="castMember.id"
             :key="castMember.id"
-            :to="`/person/${castMember.id}`"
-            class="group cursor-pointer"
-          >
-            <div
-              class="aspect-[2/3] rounded-xl overflow-hidden mb-3 bg-gray-200 dark:bg-gray-800 shadow-md border border-gray-200 dark:border-gray-700 transition-all duration-300 group-hover:border-teal-500 group-hover:-translate-y-1"
-            >
-              <img
-                v-if="castMember.profile_path"
-                :src="tmdb.getImageUrl(castMember.profile_path)"
-                :srcset="tmdb.getProfileSrcset(castMember.profile_path)"
-                :sizes="tmdb.profileSizes"
-                :alt="castMember.name"
-                class="w-full h-full object-cover"
-                loading="lazy"
-              />
-              <div
-                v-else
-                class="w-full h-full flex items-center justify-center text-gray-400"
-              >
-                <svg
-                  class="w-12 h-12"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                  ></path>
-                </svg>
-              </div>
-            </div>
-            <p
-              class="font-bold text-sm text-gray-900 dark:text-white truncate group-hover:text-teal-500 transition-colors"
-            >
-              {{ castMember.name }}
-            </p>
-            <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
-              {{ castMember.character }}
-            </p>
-          </router-link>
+            :name="castMember.name"
+            :image-path="castMember.profile_path"
+            :subtitle="castMember.character"
+            variant="card"
+          />
         </div>
 
         <div
@@ -836,7 +833,12 @@ const seasons = computed(() => {
           class="mt-10 text-center"
         >
           <button
-            class="inline-flex items-center gap-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-8 py-3 rounded-full font-bold border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition shadow-sm"
+            :class="[
+              'inline-flex items-center gap-2 px-8 py-3 font-bold border transition shadow-sm',
+              isCyberpunk
+                ? 'bg-transparent border-cyber-cyan text-cyber-cyan font-display uppercase tracking-wider hover:bg-cyber-cyan hover:text-cyber-black rounded-none'
+                : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-full border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700',
+            ]"
             @click="showAllCast = !showAllCast"
           >
             {{ showAllCast ? "Show Less" : "Show All Cast" }}
@@ -861,9 +863,22 @@ const seasons = computed(() => {
       <!-- Videos Section (4 Columns) -->
       <section v-if="media.videos?.results?.length">
         <div
-          class="flex items-center justify-between mb-8 border-b border-gray-200 dark:border-gray-800 pb-4"
+          :class="[
+            'flex items-center justify-between mb-8 border-b pb-4',
+            isCyberpunk
+              ? 'border-cyber-chrome'
+              : 'border-gray-200 dark:border-gray-800',
+          ]"
         >
-          <h3 class="text-3xl font-bold text-gray-900 dark:text-white">
+          <h3
+            :class="[
+              'text-3xl font-bold',
+              isCyberpunk
+                ? 'text-white font-display uppercase tracking-wider flex items-center gap-3'
+                : 'text-gray-900 dark:text-white',
+            ]"
+          >
+            <span v-if="isCyberpunk" class="text-cyber-cyan">&gt;</span>
             Videos
           </h3>
         </div>
@@ -874,7 +889,12 @@ const seasons = computed(() => {
             :key="video.id"
             :href="`https://www.youtube.com/watch?v=${video.key}`"
             target="_blank"
-            class="group relative block aspect-video rounded-2xl overflow-hidden shadow-lg border border-gray-200 dark:border-gray-800 transition hover:shadow-2xl hover:-translate-y-1"
+            :class="[
+              'group relative block aspect-video overflow-hidden shadow-lg border transition hover:shadow-2xl hover:-translate-y-1',
+              isCyberpunk
+                ? 'rounded-none border-cyber-chrome hover:border-cyber-cyan hover:shadow-[0_0_15px_rgba(85,234,212,0.2)]'
+                : 'rounded-2xl border-gray-200 dark:border-gray-800',
+            ]"
           >
             <img
               :src="`https://img.youtube.com/vi/${video.key}/mqdefault.jpg`"
@@ -912,7 +932,12 @@ const seasons = computed(() => {
           class="mt-10 text-center"
         >
           <button
-            class="inline-flex items-center gap-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-8 py-3 rounded-full font-bold border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition shadow-sm"
+            :class="[
+              'inline-flex items-center gap-2 px-8 py-3 font-bold border transition shadow-sm',
+              isCyberpunk
+                ? 'bg-transparent border-cyber-cyan text-cyber-cyan font-display uppercase tracking-wider hover:bg-cyber-cyan hover:text-cyber-black rounded-none'
+                : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-full border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700',
+            ]"
             @click="showAllVideos = !showAllVideos"
           >
             {{ showAllVideos ? "Show Less" : "Show All Videos" }}
@@ -937,8 +962,14 @@ const seasons = computed(() => {
       <!-- Production Companies -->
       <section v-if="media.production_companies?.length">
         <h3
-          class="text-2xl font-bold text-gray-900 dark:text-white mb-8 border-b border-gray-200 dark:border-gray-800 pb-4"
+          :class="[
+            'text-2xl font-bold mb-8 border-b pb-4',
+            isCyberpunk
+              ? 'text-white font-display uppercase tracking-wider border-cyber-chrome flex items-center gap-2'
+              : 'text-gray-900 dark:text-white border-gray-200 dark:border-gray-800',
+          ]"
         >
+          <span v-if="isCyberpunk" class="text-cyber-cyan">&gt;</span>
           Production
         </h3>
         <div class="flex flex-wrap items-center gap-12">
@@ -949,16 +980,27 @@ const seasons = computed(() => {
           >
             <div
               v-if="company.logo_path"
-              class="h-12 md:h-16 bg-white p-3 rounded-xl shadow-sm border border-gray-100 group-hover:shadow-md transition"
+              :class="[
+                'h-12 md:h-16 p-3 shadow-sm border transition',
+                isCyberpunk
+                  ? 'bg-white/90 rounded-none border-cyber-chrome group-hover:border-cyber-cyan group-hover:shadow-[0_0_10px_rgba(85,234,212,0.15)]'
+                  : 'bg-white rounded-xl border-gray-100 group-hover:shadow-md',
+              ]"
             >
               <img
                 :src="tmdb.getImageUrl(company.logo_path, 'original')"
                 class="h-full object-contain mix-blend-multiply"
               />
             </div>
-            <span class="font-bold text-gray-700 dark:text-gray-300 text-lg">{{
-              company.name
-            }}</span>
+            <span
+              :class="[
+                'font-bold text-lg',
+                isCyberpunk
+                  ? 'text-cyber-gray font-display'
+                  : 'text-gray-700 dark:text-gray-300',
+              ]"
+              >{{ company.name }}</span
+            >
           </div>
         </div>
       </section>
@@ -967,6 +1009,35 @@ const seasons = computed(() => {
 </template>
 
 <style scoped>
+/* Cyberpunk scan lines */
+.cyber-scanlines {
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(85, 234, 212, 0.03) 2px,
+    rgba(85, 234, 212, 0.03) 4px
+  );
+}
+
+/* Cyberpunk poster styling */
+.cyber-poster {
+  position: relative;
+}
+
+.cyber-poster::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(85, 234, 212, 0.1) 0%,
+    transparent 50%,
+    rgba(243, 230, 0, 0.05) 100%
+  );
+  pointer-events: none;
+}
+
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;

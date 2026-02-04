@@ -3,8 +3,11 @@ import { computed } from "vue";
 import { useConvexQuery } from "../composables/useConvex";
 import { api } from "../../convex/_generated/api";
 import { authStore } from "../store/auth";
-import { tmdb } from "../services/tmdb";
 import Skeleton from "../components/Skeleton.vue";
+import MediaCard from "../components/MediaCard.vue";
+import { useTheme } from "../composables/useTheme";
+
+const { isCyberpunk } = useTheme();
 
 const { data: watched, loading } = useConvexQuery(
   api.lists.getWatched,
@@ -15,14 +18,31 @@ const { data: watched, loading } = useConvexQuery(
 <template>
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <div
-      class="flex items-center justify-between mb-8 border-b border-gray-200 dark:border-gray-800 pb-4"
+      :class="[
+        'flex items-center justify-between mb-8 pb-4 border-b',
+        isCyberpunk ? 'border-cyber-chrome' : 'border-gray-200 dark:border-gray-800',
+      ]"
     >
-      <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
-        Watched History
+      <h1
+        :class="[
+          'text-3xl font-bold flex items-center gap-3',
+          isCyberpunk
+            ? 'text-white font-display uppercase tracking-wider'
+            : 'text-gray-900 dark:text-white',
+        ]"
+      >
+        <span v-if="isCyberpunk" class="text-cyber-cyan">&gt;</span>
+        <span v-if="isCyberpunk">WATCH_HISTORY</span>
+        <span v-else>Watched History</span>
       </h1>
       <span
         v-if="watched"
-        class="bg-teal-500 text-white px-3 py-1 rounded-full text-sm font-bold"
+        :class="[
+          'px-3 py-1 text-sm font-bold',
+          isCyberpunk
+            ? 'bg-cyber-cyan/20 text-cyber-cyan border border-cyber-cyan/30 font-data'
+            : 'bg-teal-500 text-white rounded-full',
+        ]"
       >
         {{ watched.length }} items
       </span>
@@ -40,10 +60,15 @@ const { data: watched, loading } = useConvexQuery(
 
     <div v-else-if="!watched || watched.length === 0" class="text-center py-20">
       <div
-        class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-800 mb-6"
+        :class="[
+          'inline-flex items-center justify-center w-20 h-20 mb-6',
+          isCyberpunk
+            ? 'border border-cyber-chrome bg-cyber-night'
+            : 'rounded-full bg-gray-100 dark:bg-gray-800',
+        ]"
       >
         <svg
-          class="w-10 h-10 text-gray-400"
+          :class="['w-10 h-10', isCyberpunk ? 'text-cyber-muted' : 'text-gray-400']"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -56,11 +81,24 @@ const { data: watched, loading } = useConvexQuery(
           ></path>
         </svg>
       </div>
-      <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-        You haven't marked anything as watched
+      <h2
+        :class="[
+          'text-2xl font-bold mb-2',
+          isCyberpunk
+            ? 'text-white font-display uppercase tracking-wider'
+            : 'text-gray-900 dark:text-white',
+        ]"
+      >
+        <span v-if="isCyberpunk" class="text-cyber-yellow">[NO_RECORDS]</span>
+        <span v-else>You haven't marked anything as watched</span>
       </h2>
-      <p class="text-gray-500 dark:text-gray-400">
-        Keep track of the movies and shows you've seen.
+      <p
+        :class="[
+          isCyberpunk ? 'text-cyber-muted font-display' : 'text-gray-500 dark:text-gray-400',
+        ]"
+      >
+        <span v-if="isCyberpunk">No viewing history logged</span>
+        <span v-else>Keep track of the movies and shows you've seen.</span>
       </p>
     </div>
 
@@ -68,43 +106,16 @@ const { data: watched, loading } = useConvexQuery(
       v-else
       class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6"
     >
-      <router-link
+      <MediaCard
         v-for="item in watched"
+        :id="item.tmdbId"
         :key="item._id"
+        :title="item.title"
+        :poster-path="item.posterPath ?? null"
         :to="`/details/${item.mediaType}/${item.tmdbId}`"
-        class="group relative flex flex-col bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-200 overflow-hidden"
-      >
-        <div class="aspect-[2/3] overflow-hidden bg-gray-200 dark:bg-gray-700">
-          <img
-            v-if="item.posterPath"
-            :src="tmdb.getImageUrl(item.posterPath)"
-            :srcset="tmdb.getPosterSrcset(item.posterPath)"
-            :sizes="tmdb.posterSizes"
-            :alt="item.title"
-            class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
-            loading="lazy"
-          />
-          <div
-            v-else
-            class="w-full h-full flex items-center justify-center text-gray-400 font-bold"
-          >
-            No Image
-          </div>
-        </div>
-        <div class="p-4 flex-1">
-          <h3
-            class="font-bold text-gray-900 dark:text-white truncate text-sm mb-1"
-          >
-            {{ item.title }}
-          </h3>
-          <div class="flex justify-between items-center">
-            <p class="text-xs text-gray-500 dark:text-gray-400 capitalize">
-              {{ item.mediaType }}
-            </p>
-            <span class="text-[10px] text-teal-500 font-bold">WATCHED</span>
-          </div>
-        </div>
-      </router-link>
+        :media-type="item.mediaType"
+        status-badge="watched"
+      />
     </div>
   </div>
 </template>

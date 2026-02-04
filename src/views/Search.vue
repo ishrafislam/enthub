@@ -11,6 +11,10 @@ import type {
   SearchType,
 } from "../types/tmdb";
 import Skeleton from "../components/Skeleton.vue";
+import MediaCard from "../components/MediaCard.vue";
+import { useTheme } from "../composables/useTheme";
+
+const { isCyberpunk } = useTheme();
 import SearchBar from "../components/SearchBar.vue";
 
 const route = useRoute();
@@ -239,10 +243,19 @@ const getOverview = (item: MediaItem | CollectionSearchItem) => {
     <!-- Results Header -->
     <div
       v-if="searchQuery"
-      class="flex items-center gap-2 text-gray-600 dark:text-gray-400 text-sm"
+      :class="[
+        'flex items-center gap-2 text-sm',
+        isCyberpunk
+          ? 'text-cyber-muted font-cyber-mono'
+          : 'text-gray-600 dark:text-gray-400',
+      ]"
     >
       <span>Showing {{ currentSearchLabel }} results for</span>
-      <span class="font-semibold text-gray-900 dark:text-white"
+      <span
+        :class="[
+          'font-semibold',
+          isCyberpunk ? 'text-cyber-cyan' : 'text-gray-900 dark:text-white',
+        ]"
         >"{{ searchQuery }}"</span
       >
     </div>
@@ -250,7 +263,12 @@ const getOverview = (item: MediaItem | CollectionSearchItem) => {
     <!-- Error State -->
     <div
       v-if="error"
-      class="bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 p-4 rounded-lg text-sm flex items-center gap-2"
+      :class="[
+        'p-4 text-sm flex items-center gap-2',
+        isCyberpunk
+          ? 'bg-cyber-red/20 text-cyber-red border border-cyber-red/30 font-cyber-mono'
+          : 'bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-lg',
+      ]"
     >
       <svg
         class="w-5 h-5 flex-shrink-0"
@@ -274,7 +292,13 @@ const getOverview = (item: MediaItem | CollectionSearchItem) => {
       class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6"
     >
       <div v-for="n in 10" :key="n" class="space-y-3">
-        <Skeleton class-name="aspect-[2/3] w-full rounded-2xl" />
+        <Skeleton
+          :class-name="
+            isCyberpunk
+              ? 'aspect-[2/3] w-full rounded-none'
+              : 'aspect-[2/3] w-full rounded-2xl'
+          "
+        />
         <Skeleton class-name="h-4 w-3/4" />
         <div class="flex justify-between">
           <Skeleton class-name="h-3 w-1/4" />
@@ -289,10 +313,18 @@ const getOverview = (item: MediaItem | CollectionSearchItem) => {
       class="text-center py-20"
     >
       <div
-        class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 mb-4"
+        :class="[
+          'inline-flex items-center justify-center w-16 h-16 mb-4',
+          isCyberpunk
+            ? 'border border-cyber-chrome bg-cyber-night'
+            : 'rounded-full bg-gray-100 dark:bg-gray-800',
+        ]"
       >
         <svg
-          class="w-8 h-8 text-gray-400"
+          :class="[
+            'w-8 h-8',
+            isCyberpunk ? 'text-cyber-muted' : 'text-gray-400',
+          ]"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -305,21 +337,42 @@ const getOverview = (item: MediaItem | CollectionSearchItem) => {
           ></path>
         </svg>
       </div>
-      <p class="text-xl text-gray-500 dark:text-gray-400">
-        No {{ currentSearchLabel.toLowerCase() }} found for "{{ searchQuery }}"
+
+      <p
+        :class="[
+          'text-xl',
+          isCyberpunk
+            ? 'text-cyber-muted font-display uppercase tracking-wider'
+            : 'text-gray-500 dark:text-gray-400',
+        ]"
+      >
+        <span v-if="isCyberpunk" class="text-cyber-red">[NO_MATCH]</span>
+        <template v-if="isCyberpunk">
+          No data found for "{{ searchQuery }}"
+        </template>
+        <template v-else>
+          No {{ currentSearchLabel.toLowerCase() }} found for "{{
+            searchQuery
+          }}"
+        </template>
       </p>
     </div>
 
     <!-- Initial State (no search) -->
-    <div
-      v-else-if="!searchQuery && !loading"
-      class="text-center py-20"
-    >
+    <div v-else-if="!searchQuery && !loading" class="text-center py-20">
       <div
-        class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 mb-4"
+        :class="[
+          'inline-flex items-center justify-center w-16 h-16 mb-4',
+          isCyberpunk
+            ? 'border border-cyber-chrome bg-cyber-night'
+            : 'rounded-full bg-gray-100 dark:bg-gray-800',
+        ]"
       >
         <svg
-          class="w-8 h-8 text-gray-400"
+          :class="[
+            'w-8 h-8',
+            isCyberpunk ? 'text-cyber-muted' : 'text-gray-400',
+          ]"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -332,8 +385,21 @@ const getOverview = (item: MediaItem | CollectionSearchItem) => {
           ></path>
         </svg>
       </div>
-      <p class="text-xl text-gray-500 dark:text-gray-400">
-        Enter a search term to find movies, TV shows, people, or collections
+      <p
+        :class="[
+          'text-xl',
+          isCyberpunk
+            ? 'text-cyber-muted font-display'
+            : 'text-gray-500 dark:text-gray-400',
+        ]"
+      >
+        <template v-if="isCyberpunk"
+          >Enter query to search database...</template
+        >
+        <template v-else
+          >Enter a search term to find movies, TV shows, people, or
+          collections</template
+        >
       </p>
     </div>
 
@@ -342,88 +408,30 @@ const getOverview = (item: MediaItem | CollectionSearchItem) => {
       <div
         class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6"
       >
-        <router-link
+        <MediaCard
           v-for="item in results"
+          :id="item.id"
           :key="'id' in item ? item.id : Math.random()"
+          :title="getTitle(item)"
+          :poster-path="getPoster(item)"
           :to="getLink(item)"
-          class="group relative flex flex-col bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 overflow-hidden ring-1 ring-black/5 dark:ring-white/10"
-        >
-          <div class="aspect-[2/3] overflow-hidden relative">
-            <img
-              v-if="getPoster(item)"
-              :src="tmdb.getImageUrl(getPoster(item))"
-              :srcset="tmdb.getPosterSrcset(getPoster(item))"
-              :sizes="tmdb.posterSizes"
-              :alt="getTitle(item)"
-              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-              loading="lazy"
-            />
-            <div
-              v-else
-              class="w-full h-full flex items-center justify-center bg-gray-200 dark:bg-gray-700 text-gray-400"
-            >
-              No Image
-            </div>
-            <!-- Hover overlay with overview -->
-            <div
-              v-if="getOverview(item)"
-              class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-            >
-              <div class="absolute bottom-4 left-4 right-4 text-white">
-                <p class="font-bold text-sm line-clamp-2">
-                  {{ getOverview(item) }}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div class="p-4 flex-1 flex flex-col justify-between">
-            <div>
-              <h3
-                class="font-bold text-gray-900 dark:text-white truncate text-base mb-1"
-                :title="getTitle(item)"
-              >
-                {{ getTitle(item) }}
-              </h3>
-              <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">
-                {{ getSubtitle(item) }}
-              </p>
-            </div>
-
-            <div
-              v-if="hasRating(item)"
-              class="mt-3 flex items-center justify-between"
-            >
-              <div
-                class="flex items-center bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-md"
-              >
-                <span class="text-amber-500 text-sm mr-1">★</span>
-                <span class="text-xs font-bold text-gray-700 dark:text-gray-200">
-                  {{ getRating(item)?.toFixed(1) }}
-                </span>
-              </div>
-              <span
-                class="text-xs uppercase tracking-wider text-gray-400 border border-gray-200 dark:border-gray-700 px-1.5 py-0.5 rounded"
-              >
-                {{ getMediaType(item) }}
-              </span>
-            </div>
-            <div v-else class="mt-3 flex items-center justify-end">
-              <span
-                class="text-xs uppercase tracking-wider text-gray-400 border border-gray-200 dark:border-gray-700 px-1.5 py-0.5 rounded"
-              >
-                {{ getMediaType(item) }}
-              </span>
-            </div>
-          </div>
-        </router-link>
+          :media-type="getMediaType(item)"
+          :subtitle="getSubtitle(item)"
+          :rating="hasRating(item) ? getRating(item) : null"
+          :overview="getOverview(item)"
+        />
       </div>
 
       <!-- View More Button -->
       <div v-if="page < totalPages" class="mt-8 flex justify-center">
         <button
           :disabled="loadingMore"
-          class="px-6 py-3 bg-teal-500 hover:bg-teal-600 disabled:bg-teal-400 text-white font-semibold rounded-full transition-colors duration-200 flex items-center gap-2"
+          :class="[
+            'px-6 py-3 font-semibold transition-colors duration-200 flex items-center gap-2',
+            isCyberpunk
+              ? 'bg-transparent border border-cyber-cyan text-cyber-cyan font-display uppercase tracking-wider hover:bg-cyber-cyan hover:text-cyber-black disabled:opacity-50'
+              : 'bg-teal-500 hover:bg-teal-600 disabled:bg-teal-400 text-white rounded-full',
+          ]"
           @click="loadMore"
         >
           <svg

@@ -7,6 +7,10 @@ import { useConvexQuery } from "../composables/useConvex";
 import { api } from "../../convex/_generated/api";
 import { authStore } from "../store/auth";
 import Skeleton from "../components/Skeleton.vue";
+import MediaCard from "../components/MediaCard.vue";
+import { useTheme } from "../composables/useTheme";
+
+const { isCyberpunk } = useTheme();
 
 const route = useRoute();
 const person = ref<PersonDetails | null>(null);
@@ -215,7 +219,11 @@ watch(() => route.params.id, fetchPerson);
   <div v-else-if="person" class="pb-20 overflow-x-hidden">
     <!-- Hero Section -->
     <div
-      class="bg-gradient-to-b from-gray-100 to-gray-50 dark:from-gray-900 dark:to-gray-950"
+      :class="[
+        isCyberpunk
+          ? 'bg-gradient-to-b from-cyber-black to-cyber-night'
+          : 'bg-gradient-to-b from-gray-100 to-gray-50 dark:from-gray-900 dark:to-gray-950',
+      ]"
     >
       <div
         class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 flex flex-col md:flex-row gap-8"
@@ -223,8 +231,28 @@ watch(() => route.params.id, fetchPerson);
         <!-- Profile Image -->
         <div class="flex-shrink-0 mx-auto md:mx-0">
           <div
-            class="w-48 md:w-64 aspect-[2/3] rounded-2xl overflow-hidden shadow-2xl ring-1 ring-black/10 dark:ring-white/10 bg-gray-200 dark:bg-gray-800"
+            :class="[
+              'w-48 md:w-64 aspect-[2/3] overflow-hidden shadow-2xl',
+              isCyberpunk
+                ? 'rounded-none border border-cyber-cyan/30 relative'
+                : 'rounded-2xl ring-1 ring-black/10 dark:ring-white/10 bg-gray-200 dark:bg-gray-800',
+            ]"
           >
+            <!-- Cyberpunk corner accents -->
+            <template v-if="isCyberpunk">
+              <div
+                class="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-cyber-cyan z-10"
+              ></div>
+              <div
+                class="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-cyber-cyan z-10"
+              ></div>
+              <div
+                class="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-cyber-cyan z-10"
+              ></div>
+              <div
+                class="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-cyber-cyan z-10"
+              ></div>
+            </template>
             <img
               v-if="person.profile_path"
               :src="tmdb.getImageUrl(person.profile_path, 'w500')"
@@ -256,8 +284,22 @@ watch(() => route.params.id, fetchPerson);
 
         <!-- Info -->
         <div class="flex-1 text-center md:text-left">
+          <!-- Cyberpunk data prefix -->
+          <div
+            v-if="isCyberpunk"
+            class="flex items-center justify-center md:justify-start gap-2 mb-3 text-cyber-cyan/60 font-cyber-mono text-xs tracking-widest"
+          >
+            <span class="w-6 h-px bg-cyber-cyan/40"></span>
+            <span>PROFILE.DATA</span>
+          </div>
+
           <h1
-            class="text-3xl md:text-4xl lg:text-5xl font-extrabold text-gray-900 dark:text-white mb-3"
+            :class="[
+              'text-3xl md:text-4xl lg:text-5xl font-extrabold mb-3',
+              isCyberpunk
+                ? 'text-white font-display uppercase tracking-wide'
+                : 'text-gray-900 dark:text-white',
+            ]"
           >
             {{ person.name }}
           </h1>
@@ -267,7 +309,12 @@ watch(() => route.params.id, fetchPerson);
           >
             <span
               v-if="person.known_for_department"
-              class="inline-flex items-center gap-1.5 bg-teal-500/20 text-teal-600 dark:text-teal-400 px-3 py-1 rounded-full text-sm font-semibold"
+              :class="[
+                'inline-flex items-center gap-1.5 px-3 py-1 text-sm font-semibold',
+                isCyberpunk
+                  ? 'bg-cyber-cyan/20 text-cyber-cyan border border-cyber-cyan/30 font-cyber-mono'
+                  : 'bg-teal-500/20 text-teal-600 dark:text-teal-400 rounded-full',
+              ]"
             >
               <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                 <path
@@ -291,18 +338,33 @@ watch(() => route.params.id, fetchPerson);
           >
             <div
               v-if="person.birthday"
-              class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm"
+              :class="[
+                'p-4 shadow-sm',
+                isCyberpunk
+                  ? 'bg-cyber-night border border-cyber-chrome rounded-none'
+                  : 'bg-white dark:bg-gray-800 rounded-xl',
+              ]"
             >
               <p
-                class="text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider font-semibold mb-1"
+                :class="[
+                  'text-xs uppercase tracking-wider font-semibold mb-1',
+                  isCyberpunk
+                    ? 'text-cyber-muted font-cyber-mono'
+                    : 'text-gray-500 dark:text-gray-400',
+                ]"
               >
                 {{ person.deathday ? "Born" : "Birthday" }}
               </p>
-              <p class="text-gray-900 dark:text-white font-medium">
+              <p
+                :class="[
+                  'font-medium',
+                  isCyberpunk ? 'text-white font-display' : 'text-gray-900 dark:text-white',
+                ]"
+              >
                 {{ formatDate(person.birthday) }}
                 <span
                   v-if="!person.deathday && calculateAge(person.birthday, null)"
-                  class="text-gray-500 dark:text-gray-400"
+                  :class="isCyberpunk ? 'text-cyber-cyan font-data' : 'text-gray-500 dark:text-gray-400'"
                 >
                   ({{ calculateAge(person.birthday, null) }} years old)
                 </span>
@@ -311,18 +373,33 @@ watch(() => route.params.id, fetchPerson);
 
             <div
               v-if="person.deathday"
-              class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm"
+              :class="[
+                'p-4 shadow-sm',
+                isCyberpunk
+                  ? 'bg-cyber-night border border-cyber-chrome rounded-none'
+                  : 'bg-white dark:bg-gray-800 rounded-xl',
+              ]"
             >
               <p
-                class="text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider font-semibold mb-1"
+                :class="[
+                  'text-xs uppercase tracking-wider font-semibold mb-1',
+                  isCyberpunk
+                    ? 'text-cyber-muted font-cyber-mono'
+                    : 'text-gray-500 dark:text-gray-400',
+                ]"
               >
                 Died
               </p>
-              <p class="text-gray-900 dark:text-white font-medium">
+              <p
+                :class="[
+                  'font-medium',
+                  isCyberpunk ? 'text-white font-display' : 'text-gray-900 dark:text-white',
+                ]"
+              >
                 {{ formatDate(person.deathday) }}
                 <span
                   v-if="calculateAge(person.birthday, person.deathday)"
-                  class="text-gray-500 dark:text-gray-400"
+                  :class="isCyberpunk ? 'text-cyber-red' : 'text-gray-500 dark:text-gray-400'"
                 >
                   ({{ calculateAge(person.birthday, person.deathday) }} years
                   old)
@@ -332,14 +409,29 @@ watch(() => route.params.id, fetchPerson);
 
             <div
               v-if="person.place_of_birth"
-              class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm"
+              :class="[
+                'p-4 shadow-sm',
+                isCyberpunk
+                  ? 'bg-cyber-night border border-cyber-chrome rounded-none'
+                  : 'bg-white dark:bg-gray-800 rounded-xl',
+              ]"
             >
               <p
-                class="text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider font-semibold mb-1"
+                :class="[
+                  'text-xs uppercase tracking-wider font-semibold mb-1',
+                  isCyberpunk
+                    ? 'text-cyber-muted font-cyber-mono'
+                    : 'text-gray-500 dark:text-gray-400',
+                ]"
               >
                 Birthplace
               </p>
-              <p class="text-gray-900 dark:text-white font-medium">
+              <p
+                :class="[
+                  'font-medium',
+                  isCyberpunk ? 'text-white font-display' : 'text-gray-900 dark:text-white',
+                ]"
+              >
                 {{ person.place_of_birth }}
               </p>
             </div>
@@ -347,13 +439,22 @@ watch(() => route.params.id, fetchPerson);
 
           <!-- Biography -->
           <div v-if="person.biography">
-            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">
+            <h3
+              :class="[
+                'text-lg font-bold mb-2',
+                isCyberpunk
+                  ? 'text-cyber-cyan font-display uppercase tracking-wider flex items-center gap-2'
+                  : 'text-gray-900 dark:text-white',
+              ]"
+            >
+              <span v-if="isCyberpunk" class="text-cyber-yellow">//</span>
               Biography
             </h3>
             <div class="relative">
               <p
                 :class="[
-                  'text-gray-600 dark:text-gray-300 leading-relaxed',
+                  'leading-relaxed',
+                  isCyberpunk ? 'text-cyber-gray font-display' : 'text-gray-600 dark:text-gray-300',
                   !showFullBio && person.biography.length > 500
                     ? 'line-clamp-4'
                     : '',
@@ -363,7 +464,12 @@ watch(() => route.params.id, fetchPerson);
               </p>
               <button
                 v-if="person.biography.length > 500"
-                class="mt-2 text-teal-500 hover:text-teal-600 font-medium text-sm"
+                :class="[
+                  'mt-2 font-medium text-sm',
+                  isCyberpunk
+                    ? 'text-cyber-cyan hover:text-cyber-yellow font-display uppercase tracking-wide'
+                    : 'text-teal-500 hover:text-teal-600',
+                ]"
                 @click="showFullBio = !showFullBio"
               >
                 {{ showFullBio ? "Show Less" : "Read More" }}
@@ -423,100 +529,34 @@ watch(() => route.params.id, fetchPerson);
       class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12"
     >
       <h2
-        class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-6"
+        :class="[
+          'text-2xl md:text-3xl font-bold mb-6',
+          isCyberpunk
+            ? 'text-white font-display uppercase tracking-wider flex items-center gap-3'
+            : 'text-gray-900 dark:text-white',
+        ]"
       >
+        <span v-if="isCyberpunk" class="text-cyber-cyan">&gt;</span>
         Known For
       </h2>
 
       <div
         class="flex gap-4 overflow-x-auto pb-4 -mx-4 px-4 snap-x snap-mandatory scrollbar-hide"
       >
-        <router-link
+        <div
           v-for="credit in knownFor"
           :key="`${credit.media_type}-${credit.id}`"
-          :to="`/details/${credit.media_type}/${credit.id}`"
-          class="flex-shrink-0 w-32 snap-start group"
+          class="flex-shrink-0 w-32 snap-start"
         >
-          <div
-            class="aspect-[2/3] rounded-xl overflow-hidden mb-2 bg-gray-200 dark:bg-gray-800 shadow-md ring-1 ring-black/5 dark:ring-white/10 transition-all duration-300 group-hover:ring-teal-500 group-hover:-translate-y-1 group-hover:shadow-xl relative"
-          >
-            <img
-              v-if="credit.poster_path"
-              :src="tmdb.getImageUrl(credit.poster_path)"
-              :srcset="tmdb.getPosterSrcset(credit.poster_path)"
-              sizes="128px"
-              :alt="credit.title || credit.name"
-              class="w-full h-full object-cover"
-              loading="lazy"
-            />
-            <div
-              v-else
-              class="w-full h-full flex items-center justify-center text-gray-400"
-            >
-              <svg
-                class="w-10 h-10"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"
-                />
-              </svg>
-            </div>
-
-            <!-- Status Badge -->
-            <div
-              v-if="isWatched(credit.id) || isInWatchlist(credit.id)"
-              class="absolute top-2 right-2"
-            >
-              <div
-                v-if="isWatched(credit.id)"
-                class="bg-teal-500 text-white p-1 rounded-full shadow-lg"
-                title="Watched"
-              >
-                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                  <path
-                    fill-rule="evenodd"
-                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                    clip-rule="evenodd"
-                  />
-                </svg>
-              </div>
-              <div
-                v-else-if="isInWatchlist(credit.id)"
-                class="bg-amber-500 text-white p-1 rounded-full shadow-lg"
-                title="In Watchlist"
-              >
-                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                  <path
-                    fill-rule="evenodd"
-                    d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
-                    clip-rule="evenodd"
-                  />
-                </svg>
-              </div>
-            </div>
-
-            <!-- Media type badge -->
-            <div class="absolute bottom-2 left-2">
-              <span
-                class="bg-black/70 text-white text-xs px-2 py-0.5 rounded font-medium"
-              >
-                {{ credit.media_type === "movie" ? "Movie" : "TV" }}
-              </span>
-            </div>
-          </div>
-          <p
-            class="text-sm font-semibold text-gray-900 dark:text-white truncate"
-          >
-            {{ credit.title || credit.name }}
-          </p>
-        </router-link>
+          <MediaCard
+            :id="credit.id"
+            :title="credit.title || credit.name || ''"
+            :poster-path="credit.poster_path"
+            :to="`/details/${credit.media_type}/${credit.id}`"
+            :media-type="credit.media_type === 'movie' ? 'Movie' : 'TV'"
+            :status-badge="isWatched(credit.id) ? 'watched' : isInWatchlist(credit.id) ? 'watchlist' : null"
+          />
+        </div>
       </div>
     </section>
 
@@ -526,8 +566,14 @@ watch(() => route.params.id, fetchPerson);
         class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6"
       >
         <h2
-          class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white"
+          :class="[
+            'text-2xl md:text-3xl font-bold',
+            isCyberpunk
+              ? 'text-white font-display uppercase tracking-wider flex items-center gap-3'
+              : 'text-gray-900 dark:text-white',
+          ]"
         >
+          <span v-if="isCyberpunk" class="text-cyber-cyan">&gt;</span>
           Filmography
         </h2>
 
@@ -584,142 +630,20 @@ watch(() => route.params.id, fetchPerson);
         <div
           class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6"
         >
-          <router-link
+          <MediaCard
             v-for="credit in actingCredits"
+            :id="credit.id"
             :key="`cast-${credit.media_type}-${credit.id}-${credit.character}`"
+            :title="credit.title || credit.name || ''"
+            :poster-path="credit.poster_path"
             :to="`/details/${credit.media_type}/${credit.id}`"
-            class="group relative flex flex-col bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden ring-1 ring-black/5 dark:ring-white/10 hover:ring-teal-500"
-          >
-            <!-- Poster -->
-            <div
-              class="aspect-[2/3] overflow-hidden relative bg-gray-200 dark:bg-gray-700"
-            >
-              <img
-                v-if="credit.poster_path"
-                :src="tmdb.getImageUrl(credit.poster_path)"
-                :srcset="tmdb.getPosterSrcset(credit.poster_path)"
-                :sizes="tmdb.posterSizes"
-                :alt="credit.title || credit.name"
-                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                loading="lazy"
-              />
-              <div
-                v-else
-                class="w-full h-full flex items-center justify-center text-gray-400"
-              >
-                <svg
-                  class="w-12 h-12"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"
-                  />
-                </svg>
-              </div>
-
-              <!-- Status Badge -->
-              <div
-                v-if="isWatched(credit.id) || isInWatchlist(credit.id)"
-                class="absolute top-2 right-2"
-              >
-                <div
-                  v-if="isWatched(credit.id)"
-                  class="bg-teal-500 text-white p-1.5 rounded-full shadow-lg"
-                  title="Watched"
-                >
-                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      fill-rule="evenodd"
-                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                      clip-rule="evenodd"
-                    />
-                  </svg>
-                </div>
-                <div
-                  v-else-if="isInWatchlist(credit.id)"
-                  class="bg-amber-500 text-white p-1.5 rounded-full shadow-lg"
-                  title="In Watchlist"
-                >
-                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                    <path
-                      fill-rule="evenodd"
-                      d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
-                      clip-rule="evenodd"
-                    />
-                  </svg>
-                </div>
-              </div>
-
-              <!-- Media type badge -->
-              <div class="absolute top-2 left-2">
-                <span
-                  class="bg-black/70 text-white text-xs px-2 py-0.5 rounded font-medium"
-                >
-                  {{ credit.media_type === "movie" ? "Movie" : "TV" }}
-                </span>
-              </div>
-
-              <!-- Hover overlay with character info -->
-              <div
-                class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-3"
-              >
-                <p
-                  v-if="credit.character"
-                  class="text-white text-sm line-clamp-2"
-                >
-                  as {{ credit.character }}
-                </p>
-                <p
-                  v-if="credit.episode_count"
-                  class="text-gray-300 text-xs mt-1"
-                >
-                  {{ credit.episode_count }} episode{{
-                    credit.episode_count > 1 ? "s" : ""
-                  }}
-                </p>
-              </div>
-            </div>
-
-            <!-- Info -->
-            <div class="p-3 flex-1 flex flex-col">
-              <h4
-                class="font-bold text-gray-900 dark:text-white text-sm truncate group-hover:text-teal-500 transition-colors"
-              >
-                {{ credit.title || credit.name }}
-              </h4>
-              <p
-                v-if="credit.character"
-                class="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5 group-hover:hidden"
-              >
-                {{ credit.character }}
-              </p>
-              <div class="mt-auto pt-2 flex items-center justify-between">
-                <div
-                  v-if="credit.vote_average"
-                  class="flex items-center bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded"
-                >
-                  <span class="text-amber-500 text-xs mr-1">★</span>
-                  <span class="text-xs font-bold text-gray-900 dark:text-white">
-                    {{ credit.vote_average.toFixed(1) }}
-                  </span>
-                </div>
-                <span
-                  class="text-xs text-gray-500 dark:text-gray-400 font-medium"
-                >
-                  {{
-                    getYear(credit.release_date || credit.first_air_date) ||
-                    "TBA"
-                  }}
-                </span>
-              </div>
-            </div>
-          </router-link>
+            :media-type="credit.media_type === 'movie' ? 'Movie' : 'TV'"
+            :year="getYear(credit.release_date || credit.first_air_date) || 'TBA'"
+            :rating="credit.vote_average || null"
+            :overview="credit.character ? `as ${credit.character}` : null"
+            :subtitle="credit.character"
+            :status-badge="isWatched(credit.id) ? 'watched' : isInWatchlist(credit.id) ? 'watchlist' : null"
+          />
         </div>
 
         <!-- Empty state -->
@@ -745,140 +669,20 @@ watch(() => route.params.id, fetchPerson);
           <div
             class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6"
           >
-            <router-link
+            <MediaCard
               v-for="credit in credits"
+              :id="credit.id"
               :key="`crew-${credit.media_type}-${credit.id}-${credit.job}`"
+              :title="credit.title || credit.name || ''"
+              :poster-path="credit.poster_path"
               :to="`/details/${credit.media_type}/${credit.id}`"
-              class="group relative flex flex-col bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden ring-1 ring-black/5 dark:ring-white/10 hover:ring-teal-500"
-            >
-              <!-- Poster -->
-              <div
-                class="aspect-[2/3] overflow-hidden relative bg-gray-200 dark:bg-gray-700"
-              >
-                <img
-                  v-if="credit.poster_path"
-                  :src="tmdb.getImageUrl(credit.poster_path)"
-                  :srcset="tmdb.getPosterSrcset(credit.poster_path)"
-                  :sizes="tmdb.posterSizes"
-                  :alt="credit.title || credit.name"
-                  class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  loading="lazy"
-                />
-                <div
-                  v-else
-                  class="w-full h-full flex items-center justify-center text-gray-400"
-                >
-                  <svg
-                    class="w-12 h-12"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"
-                    />
-                  </svg>
-                </div>
-
-                <!-- Status Badge -->
-                <div
-                  v-if="isWatched(credit.id) || isInWatchlist(credit.id)"
-                  class="absolute top-2 right-2"
-                >
-                  <div
-                    v-if="isWatched(credit.id)"
-                    class="bg-teal-500 text-white p-1.5 rounded-full shadow-lg"
-                    title="Watched"
-                  >
-                    <svg
-                      class="w-4 h-4"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fill-rule="evenodd"
-                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                        clip-rule="evenodd"
-                      />
-                    </svg>
-                  </div>
-                  <div
-                    v-else-if="isInWatchlist(credit.id)"
-                    class="bg-amber-500 text-white p-1.5 rounded-full shadow-lg"
-                    title="In Watchlist"
-                  >
-                    <svg
-                      class="w-4 h-4"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                      <path
-                        fill-rule="evenodd"
-                        d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
-                        clip-rule="evenodd"
-                      />
-                    </svg>
-                  </div>
-                </div>
-
-                <!-- Media type badge -->
-                <div class="absolute top-2 left-2">
-                  <span
-                    class="bg-black/70 text-white text-xs px-2 py-0.5 rounded font-medium"
-                  >
-                    {{ credit.media_type === "movie" ? "Movie" : "TV" }}
-                  </span>
-                </div>
-
-                <!-- Hover overlay with job info -->
-                <div
-                  class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-3"
-                >
-                  <p class="text-white text-sm font-medium">
-                    {{ credit.job }}
-                  </p>
-                </div>
-              </div>
-
-              <!-- Info -->
-              <div class="p-3 flex-1 flex flex-col">
-                <h4
-                  class="font-bold text-gray-900 dark:text-white text-sm truncate group-hover:text-teal-500 transition-colors"
-                >
-                  {{ credit.title || credit.name }}
-                </h4>
-                <p
-                  class="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5"
-                >
-                  {{ credit.job }}
-                </p>
-                <div class="mt-auto pt-2 flex items-center justify-between">
-                  <div
-                    v-if="credit.vote_average"
-                    class="flex items-center bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded"
-                  >
-                    <span class="text-amber-500 text-xs mr-1">★</span>
-                    <span
-                      class="text-xs font-bold text-gray-900 dark:text-white"
-                    >
-                      {{ credit.vote_average.toFixed(1) }}
-                    </span>
-                  </div>
-                  <span
-                    class="text-xs text-gray-500 dark:text-gray-400 font-medium"
-                  >
-                    {{
-                      getYear(credit.release_date || credit.first_air_date) ||
-                      "TBA"
-                    }}
-                  </span>
-                </div>
-              </div>
-            </router-link>
+              :media-type="credit.media_type === 'movie' ? 'Movie' : 'TV'"
+              :year="getYear(credit.release_date || credit.first_air_date) || 'TBA'"
+              :rating="credit.vote_average || null"
+              :overview="credit.job"
+              :subtitle="credit.job"
+              :status-badge="isWatched(credit.id) ? 'watched' : isInWatchlist(credit.id) ? 'watchlist' : null"
+            />
           </div>
         </div>
 

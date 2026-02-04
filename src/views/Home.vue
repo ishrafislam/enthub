@@ -4,10 +4,15 @@ import { tmdb } from "../services/tmdb";
 import type { MovieItem, TVItem, PersonItem, SearchType } from "../types/tmdb";
 import { useRouter } from "vue-router";
 import Skeleton from "../components/Skeleton.vue";
+import MediaCard from "../components/MediaCard.vue";
+import PersonCard from "../components/PersonCard.vue";
+import { useTheme } from "../composables/useTheme";
 import SearchBar from "../components/SearchBar.vue";
 
 const router = useRouter();
 const searchQuery = ref("");
+const { isCyberpunk } = useTheme();
+// A nice fallback image for the hero if TMDB fails or just to look cool
 const searchType = ref<SearchType>("multi");
 
 // Hero backdrop
@@ -135,10 +140,18 @@ const handleSearch = () => {
   <div class="pb-12">
     <!-- Hero / Search Section (Full Width) -->
     <div
-      class="relative h-[400px] md:h-[600px] flex items-center justify-center overflow-hidden mb-8 md:mb-12"
+      :class="[
+        'relative h-[400px] md:h-[600px] flex items-center justify-center overflow-hidden mb-8 md:mb-12',
+        isCyberpunk ? 'cyber-hero' : '',
+      ]"
     >
       <!-- Dynamic Background -->
-      <div class="absolute inset-0 bg-gray-300 dark:bg-gray-900">
+      <div
+        :class="[
+          'absolute inset-0',
+          isCyberpunk ? 'bg-cyber-black' : 'bg-gray-300 dark:bg-gray-900',
+        ]"
+      >
         <img
           :src="heroBackdrop"
           style="opacity: 0"
@@ -146,29 +159,73 @@ const handleSearch = () => {
           alt=""
           @load="($event.target as HTMLImageElement).style.opacity = '1'"
         />
+        <!-- Gradient overlay -->
         <div
-          class="absolute inset-0 bg-gradient-to-t from-gray-50 via-gray-50/60 to-transparent dark:from-black dark:via-black/70"
+          :class="[
+            'absolute inset-0',
+            isCyberpunk
+              ? 'bg-gradient-to-t from-cyber-black via-cyber-black/80 to-cyber-black/40'
+              : 'bg-gradient-to-t from-gray-50 via-gray-50/60 to-transparent dark:from-black dark:via-black/70',
+          ]"
+        ></div>
+        <!-- Cyberpunk scan lines overlay -->
+        <div
+          v-if="isCyberpunk"
+          class="absolute inset-0 cyber-scanlines pointer-events-none"
+        ></div>
+        <!-- Cyberpunk vignette -->
+        <div
+          v-if="isCyberpunk"
+          class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_40%,rgba(0,0,0,0.6)_100%)] pointer-events-none"
         ></div>
       </div>
 
       <div class="relative z-10 text-center px-4 max-w-4xl mx-auto w-full">
-        <h1
-          class="text-3xl md:text-7xl font-extrabold text-gray-900 dark:text-white mb-4 md:mb-6 tracking-tight drop-shadow-sm"
+        <!-- Cyberpunk decorative element -->
+        <div
+          v-if="isCyberpunk"
+          class="flex items-center justify-center gap-2 mb-4 text-cyber-cyan/60 font-cyber-mono text-xs tracking-widest"
         >
-          Explore the
-          <span
-            class="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-blue-600 dark:from-teal-400 dark:to-blue-500"
-            >Universe</span
-          >
-          of Cinema.
+          <span class="w-8 h-px bg-cyber-cyan/40"></span>
+          <span>SYS.INIT</span>
+          <span class="w-8 h-px bg-cyber-cyan/40"></span>
+        </div>
+
+        <h1
+          :class="[
+            'text-3xl md:text-7xl font-extrabold mb-4 md:mb-6 tracking-tight',
+            isCyberpunk
+              ? 'text-white font-display uppercase'
+              : 'text-gray-900 dark:text-white drop-shadow-sm',
+          ]"
+        >
+          <template v-if="isCyberpunk">
+            Explore the
+            <span class="text-cyber-cyan cyber-text-glow-cyan">Universe</span>
+            of Cinema<span class="text-cyber-yellow">.</span>
+          </template>
+          <template v-else>
+            Explore the
+            <span
+              class="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-blue-600 dark:from-teal-400 dark:to-blue-500"
+              >Universe</span
+            >
+            of Cinema.
+          </template>
         </h1>
         <p
-          class="text-gray-700 dark:text-gray-200 text-base md:text-2xl mb-8 md:mb-10 font-medium drop-shadow-sm"
+          :class="[
+            'text-base md:text-2xl mb-8 md:mb-10 font-medium',
+            isCyberpunk
+              ? 'text-cyber-gray font-display tracking-wide'
+              : 'text-gray-700 dark:text-gray-200 drop-shadow-sm',
+          ]"
         >
           Discover millions of movies, TV shows, and people. Track what you
           watch.
         </p>
 
+        <!-- Search Form -->
         <SearchBar
           v-model="searchQuery"
           v-model:search-type="searchType"
@@ -184,20 +241,40 @@ const handleSearch = () => {
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
       <!-- Trending Movies Section -->
       <section>
+        <!-- Section Header -->
         <div class="flex items-center justify-between mb-8">
           <h2
+            v-if="isCyberpunk"
+            class="text-3xl font-bold text-white font-display uppercase tracking-wider flex items-center gap-3"
+          >
+            <span class="text-cyber-cyan">&gt;</span>
+            <span>Trending Today</span>
+            <span
+              class="text-sm font-cyber-mono text-cyber-yellow ml-2 font-normal"
+              >[LIVE]</span
+            >
+          </h2>
+          <h2
+            v-else
             class="text-3xl font-bold text-gray-900 dark:text-white border-l-4 border-teal-500 pl-4"
           >
             Trending Movies
           </h2>
         </div>
 
+        <!-- Loading Skeletons -->
         <div
           v-if="moviesLoading"
           class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6"
         >
           <div v-for="n in 10" :key="n" class="space-y-3">
-            <Skeleton class-name="aspect-[2/3] w-full rounded-2xl" />
+            <Skeleton
+              :class-name="
+                isCyberpunk
+                  ? 'aspect-[2/3] w-full rounded-none'
+                  : 'aspect-[2/3] w-full rounded-2xl'
+              "
+            />
             <Skeleton class-name="h-4 w-3/4" />
             <div class="flex justify-between">
               <Skeleton class-name="h-3 w-1/4" />
@@ -206,71 +283,23 @@ const handleSearch = () => {
           </div>
         </div>
 
+        <!-- Media Cards Grid -->
         <div v-else>
           <div
             class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6"
           >
-            <router-link
+            <MediaCard
               v-for="item in trendingMovies"
+              :id="item.id"
               :key="item.id"
+              :title="item.title"
+              :poster-path="item.poster_path"
               :to="`/details/movie/${item.id}`"
-              class="group relative flex flex-col bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 overflow-hidden ring-1 ring-black/5 dark:ring-white/10"
-            >
-              <div class="aspect-[2/3] overflow-hidden relative">
-                <img
-                  :src="tmdb.getImageUrl(item.poster_path)"
-                  :srcset="tmdb.getPosterSrcset(item.poster_path)"
-                  :sizes="tmdb.posterSizes"
-                  :alt="item.title"
-                  class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  loading="lazy"
-                />
-                <div
-                  class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                >
-                  <div class="absolute bottom-4 left-4 right-4 text-white">
-                    <p class="font-bold text-sm line-clamp-2">
-                      {{ item.overview }}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div class="p-4 flex-1 flex flex-col justify-between">
-                <div>
-                  <h3
-                    class="font-bold text-gray-900 dark:text-white truncate text-base mb-1"
-                    :title="item.title"
-                  >
-                    {{ item.title }}
-                  </h3>
-                  <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">
-                    {{
-                      item.release_date
-                        ? new Date(item.release_date).getFullYear()
-                        : "Unknown Year"
-                    }}
-                  </p>
-                </div>
-
-                <div class="mt-3 flex items-center justify-between">
-                  <div
-                    class="flex items-center bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-md"
-                  >
-                    <span class="text-amber-500 text-sm mr-1">★</span>
-                    <span
-                      class="text-xs font-bold text-gray-700 dark:text-gray-200"
-                      >{{ item.vote_average?.toFixed(1) }}</span
-                    >
-                  </div>
-                  <span
-                    class="text-xs uppercase tracking-wider text-gray-400 border border-gray-200 dark:border-gray-700 px-1.5 py-0.5 rounded"
-                  >
-                    movie
-                  </span>
-                </div>
-              </div>
-            </router-link>
+              media-type="movie"
+              :year="item.release_date ? new Date(item.release_date).getFullYear() : 'Unknown Year'"
+              :rating="item.vote_average"
+              :overview="item.overview"
+            />
           </div>
 
           <!-- View More Button -->
@@ -280,7 +309,12 @@ const handleSearch = () => {
           >
             <button
               :disabled="moviesLoadingMore"
-              class="px-6 py-3 bg-teal-500 hover:bg-teal-600 disabled:bg-teal-400 text-white font-semibold rounded-full transition-colors duration-200 flex items-center gap-2"
+              :class="[
+                'px-6 py-3 font-semibold transition-colors duration-200 flex items-center gap-2',
+                isCyberpunk
+                  ? 'bg-transparent border border-cyber-cyan text-cyber-cyan font-display uppercase tracking-wider hover:bg-cyber-cyan hover:text-cyber-black disabled:opacity-50'
+                  : 'bg-teal-500 hover:bg-teal-600 disabled:bg-teal-400 text-white rounded-full',
+              ]"
               @click="loadMoreMovies"
             >
               <svg
@@ -314,6 +348,14 @@ const handleSearch = () => {
       <section>
         <div class="flex items-center justify-between mb-8">
           <h2
+            v-if="isCyberpunk"
+            class="text-3xl font-bold text-white font-display uppercase tracking-wider flex items-center gap-3"
+          >
+            <span class="text-cyber-cyan">&gt;</span>
+            <span>Trending TV Shows</span>
+          </h2>
+          <h2
+            v-else
             class="text-3xl font-bold text-gray-900 dark:text-white border-l-4 border-teal-500 pl-4"
           >
             Trending TV Shows
@@ -325,7 +367,13 @@ const handleSearch = () => {
           class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6"
         >
           <div v-for="n in 10" :key="n" class="space-y-3">
-            <Skeleton class-name="aspect-[2/3] w-full rounded-2xl" />
+            <Skeleton
+              :class-name="
+                isCyberpunk
+                  ? 'aspect-[2/3] w-full rounded-none'
+                  : 'aspect-[2/3] w-full rounded-2xl'
+              "
+            />
             <Skeleton class-name="h-4 w-3/4" />
             <div class="flex justify-between">
               <Skeleton class-name="h-3 w-1/4" />
@@ -338,74 +386,30 @@ const handleSearch = () => {
           <div
             class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6"
           >
-            <router-link
+            <MediaCard
               v-for="item in trendingTV"
+              :id="item.id"
               :key="item.id"
+              :title="item.name"
+              :poster-path="item.poster_path"
               :to="`/details/tv/${item.id}`"
-              class="group relative flex flex-col bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 overflow-hidden ring-1 ring-black/5 dark:ring-white/10"
-            >
-              <div class="aspect-[2/3] overflow-hidden relative">
-                <img
-                  :src="tmdb.getImageUrl(item.poster_path)"
-                  :srcset="tmdb.getPosterSrcset(item.poster_path)"
-                  :sizes="tmdb.posterSizes"
-                  :alt="item.name"
-                  class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  loading="lazy"
-                />
-                <div
-                  class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                >
-                  <div class="absolute bottom-4 left-4 right-4 text-white">
-                    <p class="font-bold text-sm line-clamp-2">
-                      {{ item.overview }}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div class="p-4 flex-1 flex flex-col justify-between">
-                <div>
-                  <h3
-                    class="font-bold text-gray-900 dark:text-white truncate text-base mb-1"
-                    :title="item.name"
-                  >
-                    {{ item.name }}
-                  </h3>
-                  <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">
-                    {{
-                      item.first_air_date
-                        ? new Date(item.first_air_date).getFullYear()
-                        : "Unknown Year"
-                    }}
-                  </p>
-                </div>
-
-                <div class="mt-3 flex items-center justify-between">
-                  <div
-                    class="flex items-center bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-md"
-                  >
-                    <span class="text-amber-500 text-sm mr-1">★</span>
-                    <span
-                      class="text-xs font-bold text-gray-700 dark:text-gray-200"
-                      >{{ item.vote_average?.toFixed(1) }}</span
-                    >
-                  </div>
-                  <span
-                    class="text-xs uppercase tracking-wider text-gray-400 border border-gray-200 dark:border-gray-700 px-1.5 py-0.5 rounded"
-                  >
-                    tv
-                  </span>
-                </div>
-              </div>
-            </router-link>
+              media-type="tv"
+              :year="item.first_air_date ? new Date(item.first_air_date).getFullYear() : 'Unknown Year'"
+              :rating="item.vote_average"
+              :overview="item.overview"
+            />
           </div>
 
           <!-- View More Button -->
           <div v-if="tvPage < tvTotalPages" class="mt-8 flex justify-center">
             <button
               :disabled="tvLoadingMore"
-              class="px-6 py-3 bg-teal-500 hover:bg-teal-600 disabled:bg-teal-400 text-white font-semibold rounded-full transition-colors duration-200 flex items-center gap-2"
+              :class="[
+                'px-6 py-3 font-semibold transition-colors duration-200 flex items-center gap-2',
+                isCyberpunk
+                  ? 'bg-transparent border border-cyber-cyan text-cyber-cyan font-display uppercase tracking-wider hover:bg-cyber-cyan hover:text-cyber-black disabled:opacity-50'
+                  : 'bg-teal-500 hover:bg-teal-600 disabled:bg-teal-400 text-white rounded-full',
+              ]"
               @click="loadMoreTV"
             >
               <svg
@@ -439,6 +443,14 @@ const handleSearch = () => {
       <section>
         <div class="flex items-center justify-between mb-8">
           <h2
+            v-if="isCyberpunk"
+            class="text-3xl font-bold text-white font-display uppercase tracking-wider flex items-center gap-3"
+          >
+            <span class="text-cyber-cyan">&gt;</span>
+            <span>Trending People</span>
+          </h2>
+          <h2
+            v-else
             class="text-3xl font-bold text-gray-900 dark:text-white border-l-4 border-teal-500 pl-4"
           >
             Trending People
@@ -450,7 +462,13 @@ const handleSearch = () => {
           class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6"
         >
           <div v-for="n in 10" :key="n" class="space-y-3">
-            <Skeleton class-name="aspect-[2/3] w-full rounded-2xl" />
+            <Skeleton
+              :class-name="
+                isCyberpunk
+                  ? 'aspect-[2/3] w-full rounded-none'
+                  : 'aspect-[2/3] w-full rounded-2xl'
+              "
+            />
             <Skeleton class-name="h-4 w-3/4" />
           </div>
         </div>
@@ -459,40 +477,15 @@ const handleSearch = () => {
           <div
             class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6"
           >
-            <router-link
+            <PersonCard
               v-for="person in trendingPeople"
+              :id="person.id"
               :key="person.id"
-              :to="`/person/${person.id}`"
-              class="group relative flex flex-col bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 overflow-hidden ring-1 ring-black/5 dark:ring-white/10"
-            >
-              <div class="aspect-[2/3] overflow-hidden relative">
-                <img
-                  :src="tmdb.getImageUrl(person.profile_path)"
-                  :srcset="tmdb.getPosterSrcset(person.profile_path)"
-                  :sizes="tmdb.posterSizes"
-                  :alt="person.name"
-                  class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  loading="lazy"
-                />
-              </div>
-
-              <div class="p-4 flex-1 flex flex-col justify-between">
-                <div>
-                  <h3
-                    class="font-bold text-gray-900 dark:text-white truncate text-base mb-1"
-                    :title="person.name"
-                  >
-                    {{ person.name }}
-                  </h3>
-                  <p
-                    v-if="person.known_for_department"
-                    class="text-xs text-gray-500 dark:text-gray-400 font-medium"
-                  >
-                    {{ person.known_for_department }}
-                  </p>
-                </div>
-              </div>
-            </router-link>
+              :name="person.name"
+              :image-path="person.profile_path"
+              :subtitle="person.known_for_department"
+              variant="card"
+            />
           </div>
 
           <!-- View More Button -->
@@ -502,7 +495,12 @@ const handleSearch = () => {
           >
             <button
               :disabled="peopleLoadingMore"
-              class="px-6 py-3 bg-teal-500 hover:bg-teal-600 disabled:bg-teal-400 text-white font-semibold rounded-full transition-colors duration-200 flex items-center gap-2"
+              :class="[
+                'px-6 py-3 font-semibold transition-colors duration-200 flex items-center gap-2',
+                isCyberpunk
+                  ? 'bg-transparent border border-cyber-cyan text-cyber-cyan font-display uppercase tracking-wider hover:bg-cyber-cyan hover:text-cyber-black disabled:opacity-50'
+                  : 'bg-teal-500 hover:bg-teal-600 disabled:bg-teal-400 text-white rounded-full',
+              ]"
               @click="loadMorePeople"
             >
               <svg
@@ -534,3 +532,40 @@ const handleSearch = () => {
     </div>
   </div>
 </template>
+
+<style scoped>
+/* Cyberpunk scan lines for hero and cards */
+.cyber-scanlines {
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(85, 234, 212, 0.03) 2px,
+    rgba(85, 234, 212, 0.03) 4px
+  );
+}
+
+/* Cyberpunk card hover glow effect */
+.cyber-card {
+  position: relative;
+}
+
+.cyber-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(85, 234, 212, 0.05) 0%,
+    transparent 50%,
+    rgba(243, 230, 0, 0.02) 100%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.cyber-card:hover::before {
+  opacity: 1;
+}
+</style>

@@ -4,6 +4,10 @@ import { useRoute, useRouter } from "vue-router";
 import { tmdb } from "../services/tmdb";
 import type { TVSeasonDetails, MediaDetails } from "../types/tmdb";
 import Skeleton from "../components/Skeleton.vue";
+import PersonCard from "../components/PersonCard.vue";
+import { useTheme } from "../composables/useTheme";
+
+const { isCyberpunk } = useTheme();
 
 const route = useRoute();
 const router = useRouter();
@@ -82,12 +86,22 @@ watch(
 <template>
   <!-- Loading State -->
   <div v-if="loading" class="animate-in fade-in duration-500">
-    <div class="bg-gray-100 dark:bg-gray-900/50">
+    <div
+      :class="
+        isCyberpunk
+          ? 'bg-cyber-black'
+          : 'bg-gray-100 dark:bg-gray-900/50'
+      "
+    >
       <div
         class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex flex-col md:flex-row gap-8"
       >
         <Skeleton
-          class-name="w-48 h-72 rounded-2xl flex-shrink-0 mx-auto md:mx-0"
+          :class-name="
+            isCyberpunk
+              ? 'w-48 h-72 rounded-none flex-shrink-0 mx-auto md:mx-0'
+              : 'w-48 h-72 rounded-2xl flex-shrink-0 mx-auto md:mx-0'
+          "
         />
         <div class="flex-1 space-y-4">
           <Skeleton class-name="h-6 w-1/3" />
@@ -101,7 +115,11 @@ watch(
       <Skeleton
         v-for="i in 5"
         :key="i"
-        class-name="h-28 w-full rounded-2xl"
+        :class-name="
+          isCyberpunk
+            ? 'h-28 w-full rounded-none'
+            : 'h-28 w-full rounded-2xl'
+        "
       />
     </div>
   </div>
@@ -110,7 +128,11 @@ watch(
   <div v-else-if="season" class="pb-20 overflow-x-hidden">
     <!-- Hero Section -->
     <div
-      class="bg-gradient-to-b from-gray-100 to-gray-50 dark:from-gray-900 dark:to-gray-950"
+      :class="
+        isCyberpunk
+          ? 'bg-cyber-black border-b border-cyber-chrome'
+          : 'bg-gradient-to-b from-gray-100 to-gray-50 dark:from-gray-900 dark:to-gray-950'
+      "
     >
       <div
         class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 flex flex-col md:flex-row gap-8"
@@ -118,7 +140,12 @@ watch(
         <!-- Season Poster -->
         <div class="flex-shrink-0 mx-auto md:mx-0">
           <div
-            class="w-40 md:w-48 aspect-[2/3] rounded-2xl overflow-hidden shadow-2xl ring-1 ring-black/10 dark:ring-white/10 bg-gray-200 dark:bg-gray-800"
+            :class="[
+              'w-40 md:w-48 aspect-[2/3] overflow-hidden shadow-2xl',
+              isCyberpunk
+                ? 'rounded-none border border-cyber-cyan/30'
+                : 'rounded-2xl ring-1 ring-black/10 dark:ring-white/10 bg-gray-200 dark:bg-gray-800',
+            ]"
           >
             <img
               v-if="season.poster_path"
@@ -130,7 +157,12 @@ watch(
             />
             <div
               v-else
-              class="w-full h-full flex items-center justify-center text-gray-400"
+              :class="[
+                'w-full h-full flex items-center justify-center',
+                isCyberpunk
+                  ? 'bg-cyber-night text-cyber-muted'
+                  : 'bg-gray-200 dark:bg-gray-800 text-gray-400',
+              ]"
             >
               <svg
                 class="w-16 h-16"
@@ -154,7 +186,12 @@ watch(
           <!-- Breadcrumb back to series -->
           <router-link
             :to="`/details/tv/${seriesId}`"
-            class="inline-flex items-center gap-1.5 text-teal-500 hover:text-teal-600 text-sm font-semibold mb-3 transition-colors"
+            :class="[
+              'inline-flex items-center gap-1.5 text-sm font-semibold mb-3 transition-colors',
+              isCyberpunk
+                ? 'text-cyber-cyan hover:text-cyber-yellow font-cyber-mono uppercase tracking-wider'
+                : 'text-teal-500 hover:text-teal-600',
+            ]"
           >
             <svg
               class="w-4 h-4"
@@ -172,28 +209,63 @@ watch(
             {{ seriesTitle }}
           </router-link>
 
+          <!-- Cyberpunk data prefix -->
+          <div
+            v-if="isCyberpunk"
+            class="flex items-center justify-center md:justify-start gap-2 mb-3 text-cyber-cyan/60 font-cyber-mono text-xs tracking-widest"
+          >
+            <span class="w-6 h-px bg-cyber-cyan/40"></span>
+            <span>DATA.SEASON</span>
+          </div>
+
           <h1
-            class="text-3xl md:text-4xl lg:text-5xl font-extrabold text-gray-900 dark:text-white mb-3"
+            :class="[
+              'text-3xl md:text-4xl lg:text-5xl font-extrabold mb-3',
+              isCyberpunk
+                ? 'text-white font-display uppercase tracking-wide'
+                : 'text-gray-900 dark:text-white',
+            ]"
           >
             {{ season.name }}
           </h1>
 
           <div
-            class="flex flex-wrap items-center justify-center md:justify-start gap-3 text-sm text-gray-500 dark:text-gray-400 mb-6"
+            :class="[
+              'flex flex-wrap items-center justify-center md:justify-start gap-3 text-sm mb-6',
+              isCyberpunk
+                ? 'text-cyber-gray font-cyber-mono'
+                : 'text-gray-500 dark:text-gray-400',
+            ]"
           >
             <span v-if="season.air_date">
               {{ formatDate(season.air_date) }}
             </span>
-            <span v-if="season.air_date && season.episodes.length">·</span>
+            <span
+              v-if="season.air_date && season.episodes.length"
+              :class="isCyberpunk ? 'text-cyber-cyan' : ''"
+              >·</span
+            >
             <span>
               {{ season.episodes.length }}
               episode{{ season.episodes.length !== 1 ? "s" : "" }}
             </span>
             <template v-if="season.vote_average">
-              <span>·</span>
+              <span :class="isCyberpunk ? 'text-cyber-cyan' : ''">·</span>
               <span class="flex items-center gap-1">
-                <span class="text-amber-500">&#9733;</span>
-                <span class="font-bold text-gray-900 dark:text-white">
+                <span
+                  :class="
+                    isCyberpunk ? 'text-cyber-yellow' : 'text-amber-500'
+                  "
+                  >&#9733;</span
+                >
+                <span
+                  :class="[
+                    'font-bold',
+                    isCyberpunk
+                      ? 'text-cyber-yellow font-data'
+                      : 'text-gray-900 dark:text-white',
+                  ]"
+                >
                   {{ season.vote_average.toFixed(1) }}
                 </span>
               </span>
@@ -204,7 +276,12 @@ watch(
           <div v-if="allSeasons.length > 1" class="mb-6">
             <select
               :value="seasonNumber"
-              class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-2.5 text-sm font-medium text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500 min-w-[200px]"
+              :class="[
+                'border px-4 py-2.5 text-sm font-medium focus:outline-none min-w-[200px]',
+                isCyberpunk
+                  ? 'bg-cyber-night border-cyber-chrome text-white font-display rounded-none focus:border-cyber-cyan focus:shadow-[0_0_10px_rgba(85,234,212,0.2)]'
+                  : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-teal-500',
+              ]"
               @change="onSeasonChange"
             >
               <option
@@ -219,7 +296,12 @@ watch(
 
           <p
             v-if="season.overview"
-            class="text-gray-600 dark:text-gray-300 leading-relaxed max-w-3xl"
+            :class="[
+              'leading-relaxed max-w-3xl',
+              isCyberpunk
+                ? 'text-cyber-gray font-display'
+                : 'text-gray-600 dark:text-gray-300',
+            ]"
           >
             {{ season.overview }}
           </p>
@@ -230,8 +312,14 @@ watch(
     <!-- Episodes List -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12">
       <h2
-        class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-8 border-b border-gray-200 dark:border-gray-800 pb-4"
+        :class="[
+          'text-2xl md:text-3xl font-bold mb-8 pb-4 border-b',
+          isCyberpunk
+            ? 'text-white font-display uppercase tracking-wider border-cyber-chrome flex items-center gap-3'
+            : 'text-gray-900 dark:text-white border-gray-200 dark:border-gray-800',
+        ]"
       >
+        <span v-if="isCyberpunk" class="text-cyber-cyan">&gt;</span>
         Episodes
       </h2>
 
@@ -239,20 +327,38 @@ watch(
         <div
           v-for="episode in season.episodes"
           :key="episode.id"
-          class="bg-white dark:bg-gray-800/50 rounded-2xl border border-gray-200 dark:border-gray-700/50 overflow-hidden transition-all duration-300"
-          :class="{
-            'ring-2 ring-teal-500/50':
-              expandedEpisode === episode.episode_number,
-          }"
+          :class="[
+            'overflow-hidden transition-all duration-300',
+            isCyberpunk
+              ? 'bg-cyber-night border border-cyber-chrome rounded-none'
+              : 'bg-white dark:bg-gray-800/50 rounded-2xl border border-gray-200 dark:border-gray-700/50',
+            isCyberpunk
+              ? expandedEpisode === episode.episode_number
+                ? 'border-cyber-cyan shadow-[0_0_15px_rgba(85,234,212,0.15)]'
+                : ''
+              : expandedEpisode === episode.episode_number
+                ? 'ring-2 ring-teal-500/50'
+                : '',
+          ]"
         >
           <!-- Episode Header (always visible, clickable) -->
           <button
-            class="w-full flex items-center gap-4 p-4 text-left hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            :class="[
+              'w-full flex items-center gap-4 p-4 text-left transition-colors',
+              isCyberpunk
+                ? 'hover:bg-cyber-chrome/50'
+                : 'hover:bg-gray-50 dark:hover:bg-gray-800',
+            ]"
             @click="toggleEpisode(episode.episode_number)"
           >
             <!-- Episode Still (thumbnail) -->
             <div
-              class="hidden sm:block w-40 h-24 flex-shrink-0 rounded-lg overflow-hidden bg-gray-200 dark:bg-gray-700"
+              :class="[
+                'hidden sm:block w-40 h-24 flex-shrink-0 overflow-hidden',
+                isCyberpunk
+                  ? 'rounded-none bg-cyber-chrome border border-cyber-chrome'
+                  : 'rounded-lg bg-gray-200 dark:bg-gray-700',
+              ]"
             >
               <img
                 v-if="episode.still_path"
@@ -263,7 +369,10 @@ watch(
               />
               <div
                 v-else
-                class="w-full h-full flex items-center justify-center text-gray-400"
+                :class="[
+                  'w-full h-full flex items-center justify-center',
+                  isCyberpunk ? 'text-cyber-muted' : 'text-gray-400',
+                ]"
               >
                 <svg
                   class="w-8 h-8"
@@ -285,20 +394,35 @@ watch(
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2 mb-1">
                 <span
-                  class="text-xs font-bold text-teal-500 uppercase flex-shrink-0"
+                  :class="[
+                    'text-xs font-bold uppercase flex-shrink-0',
+                    isCyberpunk
+                      ? 'text-cyber-cyan font-cyber-mono'
+                      : 'text-teal-500',
+                  ]"
                 >
                   E{{
                     String(episode.episode_number).padStart(2, "0")
                   }}
                 </span>
                 <h3
-                  class="font-bold text-gray-900 dark:text-white truncate"
+                  :class="[
+                    'font-bold truncate',
+                    isCyberpunk
+                      ? 'text-white font-display'
+                      : 'text-gray-900 dark:text-white',
+                  ]"
                 >
                   {{ episode.name }}
                 </h3>
               </div>
               <div
-                class="flex flex-wrap items-center gap-3 text-xs text-gray-500 dark:text-gray-400"
+                :class="[
+                  'flex flex-wrap items-center gap-3 text-xs',
+                  isCyberpunk
+                    ? 'text-cyber-muted font-cyber-mono'
+                    : 'text-gray-500 dark:text-gray-400',
+                ]"
               >
                 <span v-if="episode.air_date">{{
                   formatDate(episode.air_date)
@@ -310,7 +434,12 @@ watch(
                   v-if="episode.vote_average"
                   class="flex items-center gap-1"
                 >
-                  <span class="text-amber-500">&#9733;</span>
+                  <span
+                    :class="
+                      isCyberpunk ? 'text-cyber-yellow' : 'text-amber-500'
+                    "
+                    >&#9733;</span
+                  >
                   {{ episode.vote_average.toFixed(1) }}
                 </span>
               </div>
@@ -318,11 +447,14 @@ watch(
 
             <!-- Expand/Collapse Arrow -->
             <svg
-              :class="{
-                'rotate-180':
-                  expandedEpisode === episode.episode_number,
-              }"
-              class="w-5 h-5 text-gray-400 transition-transform duration-200 flex-shrink-0"
+              :class="[
+                'w-5 h-5 transition-transform duration-200 flex-shrink-0',
+                isCyberpunk ? 'text-cyber-cyan/60' : 'text-gray-400',
+                {
+                  'rotate-180':
+                    expandedEpisode === episode.episode_number,
+                },
+              ]"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -339,80 +471,63 @@ watch(
           <!-- Episode Expanded Content -->
           <div
             v-if="expandedEpisode === episode.episode_number"
-            class="px-4 pb-6 pt-4 border-t border-gray-100 dark:border-gray-700/50"
+            :class="[
+              'px-4 pb-6 pt-4 border-t',
+              isCyberpunk
+                ? 'border-cyber-chrome'
+                : 'border-gray-100 dark:border-gray-700/50',
+            ]"
           >
             <!-- Overview -->
             <p
               v-if="episode.overview"
-              class="text-gray-600 dark:text-gray-300 leading-relaxed mb-4"
+              :class="[
+                'leading-relaxed mb-4',
+                isCyberpunk
+                  ? 'text-cyber-gray font-display'
+                  : 'text-gray-600 dark:text-gray-300',
+              ]"
             >
               {{ episode.overview }}
             </p>
             <p
               v-else
-              class="text-gray-400 dark:text-gray-500 italic mb-4"
+              :class="[
+                'italic mb-4',
+                isCyberpunk
+                  ? 'text-cyber-muted font-display not-italic'
+                  : 'text-gray-400 dark:text-gray-500',
+              ]"
             >
-              No overview available.
+              <template v-if="isCyberpunk">[NO_DATA]</template>
+              <template v-else>No overview available.</template>
             </p>
 
             <!-- Guest Stars -->
             <div v-if="episode.guest_stars?.length" class="mt-4">
               <h4
-                class="text-sm font-bold text-gray-900 dark:text-white mb-3 uppercase tracking-wider"
+                :class="[
+                  'text-sm font-bold mb-3 uppercase tracking-wider',
+                  isCyberpunk
+                    ? 'text-cyber-cyan font-cyber-mono'
+                    : 'text-gray-900 dark:text-white',
+                ]"
               >
                 Guest Stars
               </h4>
               <div
                 class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide"
               >
-                <router-link
+                <PersonCard
                   v-for="star in episode.guest_stars.slice(0, 10)"
+                  :id="star.id"
                   :key="star.id"
-                  :to="`/person/${star.id}`"
-                  class="flex-shrink-0 text-center group w-20"
-                >
-                  <div
-                    class="w-16 h-16 mx-auto mb-1.5 rounded-full overflow-hidden border-2 border-transparent group-hover:border-teal-500 transition bg-gray-200 dark:bg-gray-700"
-                  >
-                    <img
-                      v-if="star.profile_path"
-                      :src="
-                        tmdb.getImageUrl(star.profile_path, 'w185')
-                      "
-                      :alt="star.name"
-                      class="w-full h-full object-cover"
-                      loading="lazy"
-                    />
-                    <div
-                      v-else
-                      class="w-full h-full flex items-center justify-center text-gray-400"
-                    >
-                      <svg
-                        class="w-6 h-6"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                        />
-                      </svg>
-                    </div>
-                  </div>
-                  <p
-                    class="text-xs font-semibold text-gray-900 dark:text-white truncate group-hover:text-teal-500 transition-colors"
-                  >
-                    {{ star.name }}
-                  </p>
-                  <p
-                    class="text-xs text-gray-500 dark:text-gray-400 truncate"
-                  >
-                    {{ star.character }}
-                  </p>
-                </router-link>
+                  :name="star.name"
+                  :image-path="star.profile_path"
+                  :subtitle="star.character"
+                  variant="circular"
+                  class="flex-shrink-0 w-20"
+                />
               </div>
             </div>
           </div>
@@ -422,9 +537,17 @@ watch(
       <!-- Empty state for episodes -->
       <div
         v-if="season.episodes.length === 0"
-        class="text-center py-16 text-gray-500 dark:text-gray-400"
+        :class="[
+          'text-center py-16',
+          isCyberpunk
+            ? 'text-cyber-muted font-display'
+            : 'text-gray-500 dark:text-gray-400',
+        ]"
       >
-        <p class="text-lg">No episodes found for this season.</p>
+        <p class="text-lg">
+          <template v-if="isCyberpunk">[NO_EPISODES_FOUND]</template>
+          <template v-else>No episodes found for this season.</template>
+        </p>
       </div>
     </div>
   </div>
@@ -432,7 +555,12 @@ watch(
   <!-- Error State -->
   <div
     v-else
-    class="min-h-[50vh] flex flex-col items-center justify-center text-gray-500 dark:text-gray-400"
+    :class="[
+      'min-h-[50vh] flex flex-col items-center justify-center',
+      isCyberpunk
+        ? 'text-cyber-muted'
+        : 'text-gray-500 dark:text-gray-400',
+    ]"
   >
     <svg
       class="w-16 h-16 mb-4"
@@ -447,10 +575,23 @@ watch(
         d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
       />
     </svg>
-    <p class="text-lg">Season not found</p>
+    <p
+      :class="[
+        'text-lg',
+        isCyberpunk ? 'font-display uppercase' : '',
+      ]"
+    >
+      <template v-if="isCyberpunk">[SEASON_NOT_FOUND]</template>
+      <template v-else>Season not found</template>
+    </p>
     <router-link
       to="/"
-      class="mt-4 text-teal-500 hover:text-teal-600 font-medium"
+      :class="[
+        'mt-4 font-medium',
+        isCyberpunk
+          ? 'text-cyber-cyan hover:text-cyber-yellow font-display uppercase tracking-wider'
+          : 'text-teal-500 hover:text-teal-600',
+      ]"
     >
       Go back home
     </router-link>

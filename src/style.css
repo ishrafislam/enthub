@@ -1,6 +1,37 @@
 @import "tailwindcss";
 
 @variant dark (&:where(.dark, .dark *));
+@variant cyberpunk (&:where(.cyberpunk, .cyberpunk *));
+
+@theme {
+  /* Cyberpunk color palette */
+  --color-cyber-black: #000000;
+  --color-cyber-night: #0a0a0f;
+  --color-cyber-chrome: #1a1a2e;
+  --color-cyber-cyan: #55ead4;
+  --color-cyber-yellow: #f3e600;
+  --color-cyber-red: #c5003c;
+  --color-cyber-red-dark: #880425;
+  --color-cyber-gray: #a0a0a0;
+  --color-cyber-muted: #606060;
+
+  /* Cyberpunk font families */
+  --font-display: "Rajdhani", sans-serif;
+  --font-data: "Orbitron", sans-serif;
+  --font-cyber-mono: "Share Tech Mono", monospace;
+
+  /* Cyberpunk box shadows (neon glows) */
+  --shadow-neon-cyan: 0 0 5px #55ead4, 0 0 10px #55ead4, 0 0 20px #55ead466;
+  --shadow-neon-yellow: 0 0 5px #f3e600, 0 0 10px #f3e600, 0 0 20px #f3e60066;
+  --shadow-neon-red: 0 0 5px #c5003c, 0 0 10px #c5003c, 0 0 20px #c5003c66;
+
+  /* Cyberpunk animations */
+  --animate-glitch: glitch 0.3s infinite;
+  --animate-scan: scan 8s linear infinite;
+  --animate-neon-pulse: neon-pulse 2s ease-in-out infinite;
+  --animate-border-flow: border-flow 3s linear infinite;
+  --animate-flicker: flicker 4s infinite;
+}
 
 @layer base {
   a, button, [role="button"] {
