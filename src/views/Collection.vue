@@ -265,8 +265,8 @@ watch(() => route.params.id, fetchCollection);
       >
         <MediaCard
           v-for="movie in sortedMovies"
-          :key="movie.id"
           :id="movie.id"
+          :key="movie.id"
           :title="movie.title"
           :poster-path="movie.poster_path"
           :to="`/details/movie/${movie.id}`"

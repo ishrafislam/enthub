@@ -632,8 +632,8 @@ watch(() => route.params.id, fetchPerson);
         >
           <MediaCard
             v-for="credit in actingCredits"
-            :key="`cast-${credit.media_type}-${credit.id}-${credit.character}`"
             :id="credit.id"
+            :key="`cast-${credit.media_type}-${credit.id}-${credit.character}`"
             :title="credit.title || credit.name || ''"
             :poster-path="credit.poster_path"
             :to="`/details/${credit.media_type}/${credit.id}`"
@@ -671,8 +671,8 @@ watch(() => route.params.id, fetchPerson);
           >
             <MediaCard
               v-for="credit in credits"
-              :key="`crew-${credit.media_type}-${credit.id}-${credit.job}`"
               :id="credit.id"
+              :key="`crew-${credit.media_type}-${credit.id}-${credit.job}`"
               :title="credit.title || credit.name || ''"
               :poster-path="credit.poster_path"
               :to="`/details/${credit.media_type}/${credit.id}`"

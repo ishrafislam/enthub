@@ -410,8 +410,8 @@ const getOverview = (item: MediaItem | CollectionSearchItem) => {
       >
         <MediaCard
           v-for="item in results"
-          :key="'id' in item ? item.id : Math.random()"
           :id="item.id"
+          :key="'id' in item ? item.id : Math.random()"
           :title="getTitle(item)"
           :poster-path="getPoster(item)"
           :to="getLink(item)"

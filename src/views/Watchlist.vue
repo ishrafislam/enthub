@@ -123,8 +123,8 @@ const { data: watchlist, loading } = useConvexQuery(
     >
       <MediaCard
         v-for="item in watchlist"
-        :key="item._id"
         :id="item.tmdbId"
+        :key="item._id"
         :title="item.title"
         :poster-path="item.posterPath ?? null"
         :to="`/details/${item.mediaType}/${item.tmdbId}`"

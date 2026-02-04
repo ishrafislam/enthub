@@ -15,6 +15,8 @@ const props = withDefaults(
     variant?: "card" | "circular";
   }>(),
   {
+    subtitle: undefined,
+    to: undefined,
     variant: "card",
   },
 );

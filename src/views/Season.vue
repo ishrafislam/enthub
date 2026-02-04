@@ -520,8 +520,8 @@ watch(
               >
                 <PersonCard
                   v-for="star in episode.guest_stars.slice(0, 10)"
-                  :key="star.id"
                   :id="star.id"
+                  :key="star.id"
                   :name="star.name"
                   :image-path="star.profile_path"
                   :subtitle="star.character"

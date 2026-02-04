@@ -290,8 +290,8 @@ const handleSearch = () => {
           >
             <MediaCard
               v-for="item in trendingMovies"
-              :key="item.id"
               :id="item.id"
+              :key="item.id"
               :title="item.title"
               :poster-path="item.poster_path"
               :to="`/details/movie/${item.id}`"
@@ -388,8 +388,8 @@ const handleSearch = () => {
           >
             <MediaCard
               v-for="item in trendingTV"
-              :key="item.id"
               :id="item.id"
+              :key="item.id"
               :title="item.name"
               :poster-path="item.poster_path"
               :to="`/details/tv/${item.id}`"
@@ -479,8 +479,8 @@ const handleSearch = () => {
           >
             <PersonCard
               v-for="person in trendingPeople"
-              :key="person.id"
               :id="person.id"
+              :key="person.id"
               :name="person.name"
               :image-path="person.profile_path"
               :subtitle="person.known_for_department"

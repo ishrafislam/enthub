@@ -726,8 +726,8 @@ const seasons = computed(() => {
             >
               <MediaCard
                 v-for="season in seasons"
-                :key="season.id"
                 :id="season.id"
+                :key="season.id"
                 :title="season.name"
                 :poster-path="season.poster_path"
                 :to="`/tv/${$route.params.id}/season/${season.season_number}`"
@@ -757,8 +757,8 @@ const seasons = computed(() => {
               <!-- Directors -->
               <PersonCard
                 v-for="director in directors"
-                :key="director.id"
                 :id="director.id"
+                :key="director.id"
                 :name="director.name"
                 :image-path="director.profile_path"
                 subtitle="Director"
@@ -768,8 +768,8 @@ const seasons = computed(() => {
               <!-- Writers -->
               <PersonCard
                 v-for="writer in writers.slice(0, 5)"
-                :key="writer.id"
                 :id="writer.id"
+                :key="writer.id"
                 :name="writer.name"
                 :image-path="writer.profile_path"
                 subtitle="Writer"
@@ -779,8 +779,8 @@ const seasons = computed(() => {
               <!-- Producers -->
               <PersonCard
                 v-for="producer in producers.slice(0, 5)"
-                :key="producer.id"
                 :id="producer.id"
+                :key="producer.id"
                 :name="producer.name"
                 :image-path="producer.profile_path"
                 :subtitle="producer.job"
@@ -819,8 +819,8 @@ const seasons = computed(() => {
         >
           <PersonCard
             v-for="castMember in displayedCast"
-            :key="castMember.id"
             :id="castMember.id"
+            :key="castMember.id"
             :name="castMember.name"
             :image-path="castMember.profile_path"
             :subtitle="castMember.character"

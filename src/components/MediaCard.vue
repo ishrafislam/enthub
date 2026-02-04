@@ -18,8 +18,8 @@ defineProps<{
 }>();
 
 defineSlots<{
-  badge?(props: {}): any;
-  footer?(props: {}): any;
+  badge?(props: Record<string, never>): any;
+  footer?(props: Record<string, never>): any;
 }>();
 </script>
 
