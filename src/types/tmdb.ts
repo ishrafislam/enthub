@@ -15,6 +15,7 @@ interface BaseMediaItem {
   vote_average: number;
   genre_ids: number[];
   media_type: "movie" | "tv" | "person";
+  adult?: boolean;
 }
 
 export interface MovieItem extends BaseMediaItem {
@@ -61,6 +62,7 @@ export interface MediaDetails {
   vote_average: number;
   genre_ids: number[];
   media_type?: "movie" | "tv";
+  adult?: boolean;
   title?: string;
   name?: string;
   release_date?: string;
@@ -163,6 +165,7 @@ export interface TMDBCollectionPart {
   vote_count: number;
   genre_ids: number[];
   popularity: number;
+  adult?: boolean;
 }
 
 export interface TMDBCollection {
@@ -211,6 +214,7 @@ export interface PersonCastCredit {
   vote_count: number;
   popularity: number;
   episode_count?: number;
+  adult?: boolean;
 }
 
 export interface PersonCrewCredit {
@@ -227,6 +231,7 @@ export interface PersonCrewCredit {
   vote_average: number;
   vote_count: number;
   popularity: number;
+  adult?: boolean;
 }
 
 // Collection search result item

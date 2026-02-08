@@ -13,6 +13,7 @@ import type {
 import Skeleton from "../components/Skeleton.vue";
 import MediaCard from "../components/MediaCard.vue";
 import { useTheme } from "../composables/useTheme";
+import { filterAdultContent } from "../utils/adultFilter";
 
 const { isCyberpunk } = useTheme();
 import SearchBar from "../components/SearchBar.vue";
@@ -67,7 +68,7 @@ const search = async (newSearch = true) => {
       case "movie":
         data = await tmdb.searchMovies(q, page.value);
         // Add media_type to movie results for consistent handling
-        data.results = data.results.map((item) => ({
+        data.results = filterAdultContent(data.results).map((item) => ({
           ...item,
           media_type: "movie" as const,
         }));
@@ -75,7 +76,7 @@ const search = async (newSearch = true) => {
       case "tv":
         data = await tmdb.searchTV(q, page.value);
         // Add media_type to TV results for consistent handling
-        data.results = data.results.map((item) => ({
+        data.results = filterAdultContent(data.results).map((item) => ({
           ...item,
           media_type: "tv" as const,
         }));
@@ -93,6 +94,13 @@ const search = async (newSearch = true) => {
         break;
       default:
         data = await tmdb.search(q, "multi", page.value);
+        // Filter adult content from multi-search (movies only, TV doesn't have adult field typically)
+        data.results = data.results.filter((item) => {
+          if ("media_type" in item && item.media_type === "movie") {
+            return !(item as MovieItem & { adult?: boolean }).adult;
+          }
+          return true;
+        });
     }
 
     if (newSearch) {

@@ -9,6 +9,7 @@ import { authStore } from "../store/auth";
 import Skeleton from "../components/Skeleton.vue";
 import MediaCard from "../components/MediaCard.vue";
 import { useTheme } from "../composables/useTheme";
+import { filterAdultContent } from "../utils/adultFilter";
 
 const { isCyberpunk } = useTheme();
 
@@ -90,10 +91,10 @@ const isValidMediaType = (type: string) => type === "movie" || type === "tv";
 const knownFor = computed(() => {
   if (!person.value?.combined_credits) return [];
 
-  const allCredits = [
+  const allCredits = filterAdultContent([
     ...person.value.combined_credits.cast,
     ...person.value.combined_credits.crew,
-  ].filter((credit) => isValidMediaType(credit.media_type));
+  ]).filter((credit) => isValidMediaType(credit.media_type));
 
   // Deduplicate by id and media_type
   const seen = new Set<string>();
@@ -111,8 +112,10 @@ const knownFor = computed(() => {
 const actingCredits = computed(() => {
   if (!person.value?.combined_credits?.cast) return [];
 
-  const credits = person.value.combined_credits.cast.filter((credit) =>
-    isValidMediaType(credit.media_type),
+  const credits = filterAdultContent(
+    person.value.combined_credits.cast.filter((credit) =>
+      isValidMediaType(credit.media_type),
+    ),
   );
 
   if (sortBy.value === "date") {
@@ -133,8 +136,10 @@ const actingCredits = computed(() => {
 const crewCredits = computed(() => {
   if (!person.value?.combined_credits?.crew) return [];
 
-  const credits = person.value.combined_credits.crew.filter((credit) =>
-    isValidMediaType(credit.media_type),
+  const credits = filterAdultContent(
+    person.value.combined_credits.crew.filter((credit) =>
+      isValidMediaType(credit.media_type),
+    ),
   );
 
   if (sortBy.value === "date") {
@@ -604,7 +609,7 @@ watch(() => route.params.id, fetchPerson);
           <span
             class="ml-2 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-2 py-0.5 rounded-full text-xs"
           >
-            {{ person.combined_credits?.cast?.length || 0 }}
+            {{ actingCredits.length }}
           </span>
         </button>
         <button
@@ -620,7 +625,7 @@ watch(() => route.params.id, fetchPerson);
           <span
             class="ml-2 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-2 py-0.5 rounded-full text-xs"
           >
-            {{ person.combined_credits?.crew?.length || 0 }}
+            {{ crewCredits.length }}
           </span>
         </button>
       </div>
