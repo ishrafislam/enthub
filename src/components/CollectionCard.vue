@@ -61,9 +61,7 @@ defineProps<{
         <p
           :class="[
             'text-sm font-semibold uppercase tracking-wider mb-1',
-            isCyberpunk
-              ? 'text-cyber-cyan font-cyber-mono'
-              : 'text-teal-400',
+            isCyberpunk ? 'text-cyber-cyan font-cyber-mono' : 'text-teal-400',
           ]"
         >
           Part of

@@ -88,9 +88,7 @@ watch(
   <div v-if="loading" class="animate-in fade-in duration-500">
     <div
       :class="
-        isCyberpunk
-          ? 'bg-cyber-black'
-          : 'bg-gray-100 dark:bg-gray-900/50'
+        isCyberpunk ? 'bg-cyber-black' : 'bg-gray-100 dark:bg-gray-900/50'
       "
     >
       <div
@@ -116,9 +114,7 @@ watch(
         v-for="i in 5"
         :key="i"
         :class-name="
-          isCyberpunk
-            ? 'h-28 w-full rounded-none'
-            : 'h-28 w-full rounded-2xl'
+          isCyberpunk ? 'h-28 w-full rounded-none' : 'h-28 w-full rounded-2xl'
         "
       />
     </div>
@@ -253,9 +249,7 @@ watch(
               <span :class="isCyberpunk ? 'text-cyber-cyan' : ''">·</span>
               <span class="flex items-center gap-1">
                 <span
-                  :class="
-                    isCyberpunk ? 'text-cyber-yellow' : 'text-amber-500'
-                  "
+                  :class="isCyberpunk ? 'text-cyber-yellow' : 'text-amber-500'"
                   >&#9733;</span
                 >
                 <span
@@ -401,9 +395,7 @@ watch(
                       : 'text-teal-500',
                   ]"
                 >
-                  E{{
-                    String(episode.episode_number).padStart(2, "0")
-                  }}
+                  E{{ String(episode.episode_number).padStart(2, "0") }}
                 </span>
                 <h3
                   :class="[
@@ -451,8 +443,7 @@ watch(
                 'w-5 h-5 transition-transform duration-200 flex-shrink-0',
                 isCyberpunk ? 'text-cyber-cyan/60' : 'text-gray-400',
                 {
-                  'rotate-180':
-                    expandedEpisode === episode.episode_number,
+                  'rotate-180': expandedEpisode === episode.episode_number,
                 },
               ]"
               fill="none"
@@ -515,9 +506,7 @@ watch(
               >
                 Guest Stars
               </h4>
-              <div
-                class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide"
-              >
+              <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
                 <PersonCard
                   v-for="star in episode.guest_stars.slice(0, 10)"
                   :id="star.id"
@@ -557,9 +546,7 @@ watch(
     v-else
     :class="[
       'min-h-[50vh] flex flex-col items-center justify-center',
-      isCyberpunk
-        ? 'text-cyber-muted'
-        : 'text-gray-500 dark:text-gray-400',
+      isCyberpunk ? 'text-cyber-muted' : 'text-gray-500 dark:text-gray-400',
     ]"
   >
     <svg
@@ -575,12 +562,7 @@ watch(
         d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
       />
     </svg>
-    <p
-      :class="[
-        'text-lg',
-        isCyberpunk ? 'font-display uppercase' : '',
-      ]"
-    >
+    <p :class="['text-lg', isCyberpunk ? 'font-display uppercase' : '']">
       <template v-if="isCyberpunk">[SEASON_NOT_FOUND]</template>
       <template v-else>Season not found</template>
     </p>

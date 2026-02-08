@@ -55,7 +55,12 @@ const link = computed(() => props.to ?? `/person/${props.id}`);
           isCyberpunk ? 'text-cyber-muted' : 'text-gray-400',
         ]"
       >
-        <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg
+          class="w-12 h-12"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
           <path
             stroke-linecap="round"
             stroke-linejoin="round"
@@ -79,9 +84,7 @@ const link = computed(() => props.to ?? `/person/${props.id}`);
       v-if="subtitle"
       :class="[
         'text-xs truncate',
-        isCyberpunk
-          ? 'text-cyber-muted'
-          : 'text-gray-500 dark:text-gray-400',
+        isCyberpunk ? 'text-cyber-muted' : 'text-gray-500 dark:text-gray-400',
       ]"
     >
       {{ subtitle }}
@@ -89,11 +92,7 @@ const link = computed(() => props.to ?? `/person/${props.id}`);
   </router-link>
 
   <!-- Circular variant -->
-  <router-link
-    v-else
-    :to="link"
-    class="text-center group cursor-pointer"
-  >
+  <router-link v-else :to="link" class="text-center group cursor-pointer">
     <div
       :class="[
         'w-24 h-24 mx-auto mb-3 overflow-hidden border-2 transition duration-300 shadow-md',
@@ -118,7 +117,12 @@ const link = computed(() => props.to ?? `/person/${props.id}`);
           isCyberpunk ? 'text-cyber-muted' : 'text-gray-400',
         ]"
       >
-        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg
+          class="w-10 h-10"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
           <path
             stroke-linecap="round"
             stroke-linejoin="round"
@@ -142,9 +146,7 @@ const link = computed(() => props.to ?? `/person/${props.id}`);
       v-if="subtitle"
       :class="[
         'text-xs font-semibold uppercase',
-        isCyberpunk
-          ? 'text-cyber-muted font-cyber-mono'
-          : 'text-gray-500',
+        isCyberpunk ? 'text-cyber-muted font-cyber-mono' : 'text-gray-500',
       ]"
     >
       {{ subtitle }}

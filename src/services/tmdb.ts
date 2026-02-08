@@ -204,14 +204,14 @@ export const tmdb = {
   /**
    * Default sizes attribute for episode still images
    */
-  stillSizes:
-    "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw",
+  stillSizes: "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw",
 
   /**
    * Default sizes attribute for poster images in a responsive grid
    * Matches common grid breakpoints: 2 cols (mobile), 3 cols (sm), 4 cols (md), 5 cols (lg)
    */
-  posterSizes: "(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw",
+  posterSizes:
+    "(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw",
 
   /**
    * Default sizes attribute for backdrop images (full-width heroes)
