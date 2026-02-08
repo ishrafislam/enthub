@@ -9,9 +9,10 @@ export function isAdultContent<T extends { adult?: boolean }>(
 
 /**
  * Filters out adult content from an array of items
+ * Also filters out null/undefined values for safety
  */
 export function filterAdultContent<T extends { adult?: boolean }>(
   items: T[],
 ): T[] {
-  return items.filter((item) => !isAdultContent(item));
+  return items.filter((item) => item != null && !isAdultContent(item));
 }
