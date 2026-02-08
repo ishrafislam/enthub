@@ -20,7 +20,9 @@ const { data: watched, loading } = useConvexQuery(
     <div
       :class="[
         'flex items-center justify-between mb-8 pb-4 border-b',
-        isCyberpunk ? 'border-cyber-chrome' : 'border-gray-200 dark:border-gray-800',
+        isCyberpunk
+          ? 'border-cyber-chrome'
+          : 'border-gray-200 dark:border-gray-800',
       ]"
     >
       <h1
@@ -68,7 +70,10 @@ const { data: watched, loading } = useConvexQuery(
         ]"
       >
         <svg
-          :class="['w-10 h-10', isCyberpunk ? 'text-cyber-muted' : 'text-gray-400']"
+          :class="[
+            'w-10 h-10',
+            isCyberpunk ? 'text-cyber-muted' : 'text-gray-400',
+          ]"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -94,7 +99,9 @@ const { data: watched, loading } = useConvexQuery(
       </h2>
       <p
         :class="[
-          isCyberpunk ? 'text-cyber-muted font-display' : 'text-gray-500 dark:text-gray-400',
+          isCyberpunk
+            ? 'text-cyber-muted font-display'
+            : 'text-gray-500 dark:text-gray-400',
         ]"
       >
         <span v-if="isCyberpunk">No viewing history logged</span>

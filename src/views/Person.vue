@@ -363,13 +363,19 @@ watch(() => route.params.id, fetchPerson);
               <p
                 :class="[
                   'font-medium',
-                  isCyberpunk ? 'text-white font-display' : 'text-gray-900 dark:text-white',
+                  isCyberpunk
+                    ? 'text-white font-display'
+                    : 'text-gray-900 dark:text-white',
                 ]"
               >
                 {{ formatDate(person.birthday) }}
                 <span
                   v-if="!person.deathday && calculateAge(person.birthday, null)"
-                  :class="isCyberpunk ? 'text-cyber-cyan font-data' : 'text-gray-500 dark:text-gray-400'"
+                  :class="
+                    isCyberpunk
+                      ? 'text-cyber-cyan font-data'
+                      : 'text-gray-500 dark:text-gray-400'
+                  "
                 >
                   ({{ calculateAge(person.birthday, null) }} years old)
                 </span>
@@ -398,13 +404,19 @@ watch(() => route.params.id, fetchPerson);
               <p
                 :class="[
                   'font-medium',
-                  isCyberpunk ? 'text-white font-display' : 'text-gray-900 dark:text-white',
+                  isCyberpunk
+                    ? 'text-white font-display'
+                    : 'text-gray-900 dark:text-white',
                 ]"
               >
                 {{ formatDate(person.deathday) }}
                 <span
                   v-if="calculateAge(person.birthday, person.deathday)"
-                  :class="isCyberpunk ? 'text-cyber-red' : 'text-gray-500 dark:text-gray-400'"
+                  :class="
+                    isCyberpunk
+                      ? 'text-cyber-red'
+                      : 'text-gray-500 dark:text-gray-400'
+                  "
                 >
                   ({{ calculateAge(person.birthday, person.deathday) }} years
                   old)
@@ -434,7 +446,9 @@ watch(() => route.params.id, fetchPerson);
               <p
                 :class="[
                   'font-medium',
-                  isCyberpunk ? 'text-white font-display' : 'text-gray-900 dark:text-white',
+                  isCyberpunk
+                    ? 'text-white font-display'
+                    : 'text-gray-900 dark:text-white',
                 ]"
               >
                 {{ person.place_of_birth }}
@@ -459,7 +473,9 @@ watch(() => route.params.id, fetchPerson);
               <p
                 :class="[
                   'leading-relaxed',
-                  isCyberpunk ? 'text-cyber-gray font-display' : 'text-gray-600 dark:text-gray-300',
+                  isCyberpunk
+                    ? 'text-cyber-gray font-display'
+                    : 'text-gray-600 dark:text-gray-300',
                   !showFullBio && person.biography.length > 500
                     ? 'line-clamp-4'
                     : '',
@@ -559,7 +575,13 @@ watch(() => route.params.id, fetchPerson);
             :poster-path="credit.poster_path"
             :to="`/details/${credit.media_type}/${credit.id}`"
             :media-type="credit.media_type === 'movie' ? 'Movie' : 'TV'"
-            :status-badge="isWatched(credit.id) ? 'watched' : isInWatchlist(credit.id) ? 'watchlist' : null"
+            :status-badge="
+              isWatched(credit.id)
+                ? 'watched'
+                : isInWatchlist(credit.id)
+                  ? 'watchlist'
+                  : null
+            "
           />
         </div>
       </div>
@@ -643,11 +665,19 @@ watch(() => route.params.id, fetchPerson);
             :poster-path="credit.poster_path"
             :to="`/details/${credit.media_type}/${credit.id}`"
             :media-type="credit.media_type === 'movie' ? 'Movie' : 'TV'"
-            :year="getYear(credit.release_date || credit.first_air_date) || 'TBA'"
+            :year="
+              getYear(credit.release_date || credit.first_air_date) || 'TBA'
+            "
             :rating="credit.vote_average || null"
             :overview="credit.character ? `as ${credit.character}` : null"
             :subtitle="credit.character"
-            :status-badge="isWatched(credit.id) ? 'watched' : isInWatchlist(credit.id) ? 'watchlist' : null"
+            :status-badge="
+              isWatched(credit.id)
+                ? 'watched'
+                : isInWatchlist(credit.id)
+                  ? 'watchlist'
+                  : null
+            "
           />
         </div>
 
@@ -682,11 +712,19 @@ watch(() => route.params.id, fetchPerson);
               :poster-path="credit.poster_path"
               :to="`/details/${credit.media_type}/${credit.id}`"
               :media-type="credit.media_type === 'movie' ? 'Movie' : 'TV'"
-              :year="getYear(credit.release_date || credit.first_air_date) || 'TBA'"
+              :year="
+                getYear(credit.release_date || credit.first_air_date) || 'TBA'
+              "
               :rating="credit.vote_average || null"
               :overview="credit.job"
               :subtitle="credit.job"
-              :status-badge="isWatched(credit.id) ? 'watched' : isInWatchlist(credit.id) ? 'watchlist' : null"
+              :status-badge="
+                isWatched(credit.id)
+                  ? 'watched'
+                  : isInWatchlist(credit.id)
+                    ? 'watchlist'
+                    : null
+              "
             />
           </div>
         </div>

@@ -49,7 +49,9 @@ const loadTrendingMovies = async (page = 1) => {
     if (page === 1) {
       trendingMovies.value = filteredResults;
       // Set hero backdrop from first movie with backdrop
-      const firstWithBackdrop = filteredResults.find((item) => item.backdrop_path);
+      const firstWithBackdrop = filteredResults.find(
+        (item) => item.backdrop_path,
+      );
       if (firstWithBackdrop?.backdrop_path) {
         heroBackdrop.value = tmdb.getImageUrl(
           firstWithBackdrop.backdrop_path,
@@ -299,7 +301,11 @@ const handleSearch = () => {
               :poster-path="item.poster_path"
               :to="`/details/movie/${item.id}`"
               media-type="movie"
-              :year="item.release_date ? new Date(item.release_date).getFullYear() : 'Unknown Year'"
+              :year="
+                item.release_date
+                  ? new Date(item.release_date).getFullYear()
+                  : 'Unknown Year'
+              "
               :rating="item.vote_average"
               :overview="item.overview"
             />
@@ -397,7 +403,11 @@ const handleSearch = () => {
               :poster-path="item.poster_path"
               :to="`/details/tv/${item.id}`"
               media-type="tv"
-              :year="item.first_air_date ? new Date(item.first_air_date).getFullYear() : 'Unknown Year'"
+              :year="
+                item.first_air_date
+                  ? new Date(item.first_air_date).getFullYear()
+                  : 'Unknown Year'
+              "
               :rating="item.vote_average"
               :overview="item.overview"
             />

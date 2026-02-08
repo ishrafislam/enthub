@@ -60,8 +60,10 @@ const sortedMovies = computed(() => {
 // Check if all movies in the collection are adult content
 const isAllAdultContent = computed(() => {
   if (!collection.value?.parts) return false;
-  return collection.value.parts.length > 0 &&
-    collection.value.parts.every((part) => isAdultContent(part));
+  return (
+    collection.value.parts.length > 0 &&
+    collection.value.parts.every((part) => isAdultContent(part))
+  );
 });
 
 const getYear = (date?: string) =>
@@ -127,7 +129,10 @@ watch(() => route.params.id, fetchCollection);
     </div>
   </div>
 
-  <div v-else-if="collection && !isAllAdultContent" class="pb-20 overflow-x-hidden">
+  <div
+    v-else-if="collection && !isAllAdultContent"
+    class="pb-20 overflow-x-hidden"
+  >
     <!-- Hero Section -->
     <div class="relative h-[400px] lg:h-[500px] w-full">
       <div class="absolute inset-0">
@@ -227,7 +232,9 @@ watch(() => route.params.id, fetchCollection);
             <h1
               :class="[
                 'text-3xl md:text-4xl lg:text-5xl font-extrabold mb-4 leading-tight',
-                isCyberpunk ? 'font-display uppercase tracking-wide' : 'drop-shadow-sm',
+                isCyberpunk
+                  ? 'font-display uppercase tracking-wide'
+                  : 'drop-shadow-sm',
               ]"
             >
               {{ collection.name }}
@@ -237,7 +244,9 @@ watch(() => route.params.id, fetchCollection);
               v-if="collection.overview"
               :class="[
                 'text-base md:text-lg leading-relaxed max-w-3xl line-clamp-3 md:line-clamp-none',
-                isCyberpunk ? 'text-cyber-gray font-display' : 'text-gray-600 dark:text-gray-300',
+                isCyberpunk
+                  ? 'text-cyber-gray font-display'
+                  : 'text-gray-600 dark:text-gray-300',
               ]"
             >
               {{ collection.overview }}
@@ -246,7 +255,9 @@ watch(() => route.params.id, fetchCollection);
             <div
               :class="[
                 'mt-4 flex items-center gap-4 text-sm',
-                isCyberpunk ? 'text-cyber-muted' : 'text-gray-500 dark:text-gray-400',
+                isCyberpunk
+                  ? 'text-cyber-muted'
+                  : 'text-gray-500 dark:text-gray-400',
               ]"
             >
               <span
@@ -289,7 +300,13 @@ watch(() => route.params.id, fetchCollection);
           :year="getYear(movie.release_date)"
           :rating="movie.vote_average"
           :overview="movie.overview || 'No overview available.'"
-          :status-badge="isWatched(movie.id) ? 'watched' : isInWatchlist(movie.id) ? 'watchlist' : null"
+          :status-badge="
+            isWatched(movie.id)
+              ? 'watched'
+              : isInWatchlist(movie.id)
+                ? 'watchlist'
+                : null
+          "
         />
       </div>
 

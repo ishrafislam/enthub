@@ -69,10 +69,7 @@ defineSlots<{
 
       <!-- Status Badge (default) -->
       <slot name="badge">
-        <div
-          v-if="statusBadge"
-          class="absolute top-2 right-2"
-        >
+        <div v-if="statusBadge" class="absolute top-2 right-2">
           <div
             v-if="statusBadge === 'watched'"
             :class="[
@@ -118,10 +115,18 @@ defineSlots<{
         v-if="isCyberpunk"
         class="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity"
       >
-        <div class="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-cyber-cyan"></div>
-        <div class="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-cyber-cyan"></div>
-        <div class="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-cyber-cyan"></div>
-        <div class="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-cyber-cyan"></div>
+        <div
+          class="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-cyber-cyan"
+        ></div>
+        <div
+          class="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-cyber-cyan"
+        ></div>
+        <div
+          class="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-cyber-cyan"
+        ></div>
+        <div
+          class="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-cyber-cyan"
+        ></div>
       </div>
     </div>
 
@@ -152,7 +157,10 @@ defineSlots<{
         </p>
       </div>
 
-      <div v-if="rating != null || mediaType" class="mt-3 flex items-center justify-between">
+      <div
+        v-if="rating != null || mediaType"
+        class="mt-3 flex items-center justify-between"
+      >
         <div
           v-if="rating != null"
           :class="[
@@ -167,7 +175,8 @@ defineSlots<{
               'text-sm mr-1',
               isCyberpunk ? 'text-cyber-yellow' : 'text-amber-500',
             ]"
-          >&#9733;</span>
+            >&#9733;</span
+          >
           <span
             :class="[
               'text-xs font-bold',
@@ -175,7 +184,8 @@ defineSlots<{
                 ? 'text-white font-data'
                 : 'text-gray-700 dark:text-gray-200',
             ]"
-          >{{ typeof rating === 'number' ? rating.toFixed(1) : rating }}</span>
+            >{{ typeof rating === "number" ? rating.toFixed(1) : rating }}</span
+          >
         </div>
         <span
           v-if="mediaType"

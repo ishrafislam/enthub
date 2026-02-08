@@ -247,6 +247,4 @@ export interface CollectionSearchItem {
 export type SearchType = "multi" | "movie" | "tv" | "person" | "collection";
 
 // Union type for all search results
-export type SearchResultItem =
-  | MediaItem
-  | CollectionSearchItem;
+export type SearchResultItem = MediaItem | CollectionSearchItem;

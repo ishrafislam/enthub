@@ -55,8 +55,7 @@ const { isCyberpunk } = useTheme();
               : 'text-gray-500 dark:text-gray-400',
           ]"
         >
-          <span
-            :class="isCyberpunk ? 'text-cyber-cyan' : 'text-teal-500'"
+          <span :class="isCyberpunk ? 'text-cyber-cyan' : 'text-teal-500'"
             >EntHub</span
           >
           &mdash; Powered by

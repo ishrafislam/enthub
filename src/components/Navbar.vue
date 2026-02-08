@@ -123,7 +123,9 @@ const handleLogout = () => {
             <div
               :class="[
                 'h-4 w-px',
-                isCyberpunk ? 'bg-cyber-chrome' : 'bg-gray-300 dark:bg-gray-700',
+                isCyberpunk
+                  ? 'bg-cyber-chrome'
+                  : 'bg-gray-300 dark:bg-gray-700',
               ]"
             ></div>
 

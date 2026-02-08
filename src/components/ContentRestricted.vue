@@ -59,10 +59,7 @@ defineProps<{
           : 'text-gray-600 dark:text-gray-400',
       ]"
     >
-      {{
-        message ||
-        "This content is restricted and cannot be displayed."
-      }}
+      {{ message || "This content is restricted and cannot be displayed." }}
     </p>
 
     <router-link
@@ -74,7 +71,12 @@ defineProps<{
           : 'bg-teal-500 hover:bg-teal-600 text-white rounded-full',
       ]"
     >
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg
+        class="w-5 h-5"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
         <path
           stroke-linecap="round"
           stroke-linejoin="round"
