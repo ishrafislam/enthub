@@ -8,6 +8,7 @@ import MediaCard from "../components/MediaCard.vue";
 import PersonCard from "../components/PersonCard.vue";
 import { useTheme } from "../composables/useTheme";
 import SearchBar from "../components/SearchBar.vue";
+import { filterAdultContent } from "../utils/adultFilter";
 
 const router = useRouter();
 const searchQuery = ref("");
@@ -44,10 +45,11 @@ const peopleLoadingMore = ref(false);
 const loadTrendingMovies = async (page = 1) => {
   try {
     const data = await tmdb.getTrendingMovies("week", page);
+    const filteredResults = filterAdultContent(data.results);
     if (page === 1) {
-      trendingMovies.value = data.results;
+      trendingMovies.value = filteredResults;
       // Set hero backdrop from first movie with backdrop
-      const firstWithBackdrop = data.results.find((item) => item.backdrop_path);
+      const firstWithBackdrop = filteredResults.find((item) => item.backdrop_path);
       if (firstWithBackdrop?.backdrop_path) {
         heroBackdrop.value = tmdb.getImageUrl(
           firstWithBackdrop.backdrop_path,
@@ -55,7 +57,7 @@ const loadTrendingMovies = async (page = 1) => {
         );
       }
     } else {
-      trendingMovies.value = [...trendingMovies.value, ...data.results];
+      trendingMovies.value = [...trendingMovies.value, ...filteredResults];
     }
     moviesPage.value = data.page;
     moviesTotalPages.value = data.total_pages;
@@ -67,10 +69,11 @@ const loadTrendingMovies = async (page = 1) => {
 const loadTrendingTV = async (page = 1) => {
   try {
     const data = await tmdb.getTrendingTV("week", page);
+    const filteredResults = filterAdultContent(data.results);
     if (page === 1) {
-      trendingTV.value = data.results;
+      trendingTV.value = filteredResults;
     } else {
-      trendingTV.value = [...trendingTV.value, ...data.results];
+      trendingTV.value = [...trendingTV.value, ...filteredResults];
     }
     tvPage.value = data.page;
     tvTotalPages.value = data.total_pages;

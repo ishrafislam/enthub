@@ -8,7 +8,9 @@ import { api } from "../../convex/_generated/api";
 import { authStore } from "../store/auth";
 import Skeleton from "../components/Skeleton.vue";
 import MediaCard from "../components/MediaCard.vue";
+import ContentRestricted from "../components/ContentRestricted.vue";
 import { useTheme } from "../composables/useTheme";
+import { filterAdultContent, isAdultContent } from "../utils/adultFilter";
 
 const { isCyberpunk } = useTheme();
 
@@ -43,16 +45,23 @@ const watchedIds = computed(() => {
 const isInWatchlist = (tmdbId: number) => watchlistIds.value.has(tmdbId);
 const isWatched = (tmdbId: number) => watchedIds.value.has(tmdbId);
 
-// Sort movies by release date (chronological order)
+// Sort movies by release date (chronological order) and filter adult content
 const sortedMovies = computed(() => {
   if (!collection.value?.parts) return [];
-  return [...collection.value.parts].sort((a, b) => {
+  return filterAdultContent([...collection.value.parts]).sort((a, b) => {
     if (!a.release_date) return 1;
     if (!b.release_date) return -1;
     return (
       new Date(a.release_date).getTime() - new Date(b.release_date).getTime()
     );
   });
+});
+
+// Check if all movies in the collection are adult content
+const isAllAdultContent = computed(() => {
+  if (!collection.value?.parts) return false;
+  return collection.value.parts.length > 0 &&
+    collection.value.parts.every((part) => isAdultContent(part));
 });
 
 const getYear = (date?: string) =>
@@ -78,7 +87,14 @@ watch(() => route.params.id, fetchCollection);
 </script>
 
 <template>
-  <div v-if="loading" class="animate-in fade-in duration-500">
+  <!-- Restricted Content (all movies are adult) -->
+  <ContentRestricted
+    v-if="!loading && collection && isAllAdultContent"
+    title="Collection Not Available"
+    message="All movies in this collection are restricted and cannot be displayed."
+  />
+
+  <div v-else-if="loading" class="animate-in fade-in duration-500">
     <!-- Hero Skeleton -->
     <div
       class="h-[400px] lg:h-[500px] bg-gray-100 dark:bg-gray-900/50 relative"
@@ -111,7 +127,7 @@ watch(() => route.params.id, fetchCollection);
     </div>
   </div>
 
-  <div v-else-if="collection" class="pb-20 overflow-x-hidden">
+  <div v-else-if="collection && !isAllAdultContent" class="pb-20 overflow-x-hidden">
     <!-- Hero Section -->
     <div class="relative h-[400px] lg:h-[500px] w-full">
       <div class="absolute inset-0">

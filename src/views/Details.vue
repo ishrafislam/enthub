@@ -10,7 +10,9 @@ import Skeleton from "../components/Skeleton.vue";
 import MediaCard from "../components/MediaCard.vue";
 import PersonCard from "../components/PersonCard.vue";
 import CollectionCard from "../components/CollectionCard.vue";
+import ContentRestricted from "../components/ContentRestricted.vue";
 import { useTheme } from "../composables/useTheme";
+import { isAdultContent } from "../utils/adultFilter";
 
 const { isCyberpunk } = useTheme();
 
@@ -20,6 +22,7 @@ const media = ref<MediaDetails | null>(null);
 const loading = ref(true);
 const showAllCast = ref(false);
 const showAllVideos = ref(false);
+const isRestricted = ref(false);
 
 // Convex Logic
 const userId = computed(() => authStore.userId);
@@ -80,9 +83,16 @@ const fetchData = async () => {
   const id = Number(route.params.id);
   loading.value = true;
   media.value = null;
+  isRestricted.value = false;
 
   try {
-    media.value = await tmdb.getDetails(type, id);
+    const data = await tmdb.getDetails(type, id);
+    if (isAdultContent(data)) {
+      isRestricted.value = true;
+      media.value = null;
+    } else {
+      media.value = data;
+    }
   } catch (err) {
     console.error(err);
   } finally {
@@ -166,7 +176,10 @@ const seasons = computed(() => {
 </script>
 
 <template>
-  <div v-if="loading" class="animate-in fade-in duration-500">
+  <!-- Restricted Content -->
+  <ContentRestricted v-if="isRestricted && !loading" />
+
+  <div v-else-if="loading" class="animate-in fade-in duration-500">
     <!-- Hero Skeleton -->
     <div
       class="h-[600px] lg:h-[850px] bg-gray-100 dark:bg-gray-900/50 relative"
