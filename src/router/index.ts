@@ -17,16 +17,19 @@ const router = createRouter({
       path: "/",
       name: "Home",
       component: Home,
+      meta: { title: "Home" },
     },
     {
       path: "/login",
       name: "Login",
       component: Login,
+      meta: { title: "Login" },
     },
     {
       path: "/search",
       name: "Search",
       component: Search,
+      meta: { title: "Search" },
     },
     {
       path: "/details/:type/:id",
@@ -52,13 +55,13 @@ const router = createRouter({
       path: "/watchlist",
       name: "Watchlist",
       component: Watchlist,
-      meta: { requiresAuth: true },
+      meta: { title: "Watchlist", requiresAuth: true },
     },
     {
       path: "/watched",
       name: "Watched",
       component: Watched,
-      meta: { requiresAuth: true },
+      meta: { title: "Watched", requiresAuth: true },
     },
   ],
   scrollBehavior(_to, _from, savedPosition) {
@@ -68,6 +71,13 @@ const router = createRouter({
       return { top: 0 };
     }
   },
+});
+
+const DEFAULT_TITLE = "EntHub";
+
+router.afterEach((to) => {
+  const title = to.meta.title as string | undefined;
+  document.title = title ? `${title} - ${DEFAULT_TITLE}` : DEFAULT_TITLE;
 });
 
 router.beforeEach((to, _from, next) => {

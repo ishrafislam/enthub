@@ -177,6 +177,9 @@ const fetchPerson = async () => {
 
   try {
     person.value = await tmdb.getPersonDetails(id);
+    if (person.value?.name) {
+      document.title = `${person.value.name} - EntHub`;
+    }
   } catch (err) {
     console.error("Failed to fetch person:", err);
   } finally {
