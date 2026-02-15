@@ -77,7 +77,7 @@ export const toggleWatchlist = mutation({
   },
 });
 
-export const markAsWatched = mutation({
+export const toggleWatched = mutation({
   args: {
     userId: v.id("users"),
     tmdbId: v.number(),
@@ -87,7 +87,21 @@ export const markAsWatched = mutation({
   },
   handler: async (ctx, args) => {
     try {
-      // 1. Remove from watchlist if present
+      // 1. Check if already in watched
+      const inWatched = await ctx.db
+        .query("watched")
+        .withIndex("by_user_media", (q) =>
+          q.eq("userId", args.userId).eq("tmdbId", args.tmdbId)
+        )
+        .first();
+
+      if (inWatched) {
+        // Already watched — remove it (toggle off)
+        await ctx.db.delete(inWatched._id);
+        return { added: false };
+      }
+
+      // 2. Remove from watchlist if present
       const inWatchlist = await ctx.db
         .query("watchlist")
         .withIndex("by_user_media", (q) =>
@@ -99,27 +113,19 @@ export const markAsWatched = mutation({
         await ctx.db.delete(inWatchlist._id);
       }
 
-      // 2. Add to watched if not already there
-      const inWatched = await ctx.db
-        .query("watched")
-        .withIndex("by_user_media", (q) =>
-          q.eq("userId", args.userId).eq("tmdbId", args.tmdbId)
-        )
-        .first();
-
-      if (!inWatched) {
-        await ctx.db.insert("watched", {
-          userId: args.userId,
-          tmdbId: args.tmdbId,
-          mediaType: args.mediaType,
-          title: args.title,
-          posterPath: args.posterPath,
-          watchedAt: Date.now(),
-        });
-      }
+      // 3. Add to watched
+      await ctx.db.insert("watched", {
+        userId: args.userId,
+        tmdbId: args.tmdbId,
+        mediaType: args.mediaType,
+        title: args.title,
+        posterPath: args.posterPath,
+        watchedAt: Date.now(),
+      });
+      return { added: true };
     } catch (error) {
-      console.error("Mutation markAsWatched failed:", error);
-      throw new Error("Failed to mark as watched");
+      console.error("Mutation toggleWatched failed:", error);
+      throw new Error("Failed to update watched list");
     }
   },
 });
