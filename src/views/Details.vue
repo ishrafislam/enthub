@@ -92,6 +92,8 @@ const fetchData = async () => {
       media.value = null;
     } else {
       media.value = data;
+      const name = data.title || data.name;
+      if (name) document.title = `${name} - EntHub`;
     }
   } catch (err) {
     console.error(err);
