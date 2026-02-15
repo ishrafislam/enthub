@@ -44,7 +44,7 @@ const { data: status } = useConvexQuery(
 const { mutate: toggleWatchlist } = useConvexMutation(
   api.lists.toggleWatchlist,
 );
-const { mutate: markAsWatched } = useConvexMutation(api.lists.markAsWatched);
+const { mutate: toggleWatched } = useConvexMutation(api.lists.toggleWatched);
 
 const handleToggleWatchlist = async () => {
   if (!authStore.isAuthenticated()) {
@@ -62,14 +62,14 @@ const handleToggleWatchlist = async () => {
   });
 };
 
-const handleMarkAsWatched = async () => {
+const handleToggleWatched = async () => {
   if (!authStore.isAuthenticated()) {
     router.push("/login");
     return;
   }
   if (!media.value) return;
 
-  await markAsWatched({
+  await toggleWatched({
     userId: userId.value as any,
     tmdbId: tmdbId.value,
     mediaType: mediaType.value,
@@ -446,67 +446,77 @@ const seasons = computed(() => {
               <!-- Action Buttons -->
               <div class="flex flex-wrap gap-2 md:gap-3 w-full sm:w-auto">
                 <!-- Watchlist Button -->
-                <button
-                  :class="[
-                    'flex-1 sm:flex-none justify-center px-6 md:px-8 py-3 md:py-4 font-bold transition flex items-center gap-2 md:gap-3 text-sm md:text-lg',
-                    isCyberpunk
-                      ? status?.inWatchlist
-                        ? 'bg-cyber-yellow text-cyber-black font-display uppercase tracking-wider hover:shadow-[0_0_20px_rgba(243,230,0,0.4)]'
-                        : 'bg-transparent border-2 border-cyber-cyan text-cyber-cyan font-display uppercase tracking-wider hover:bg-cyber-cyan hover:text-cyber-black hover:shadow-[0_0_20px_rgba(85,234,212,0.4)]'
-                      : status?.inWatchlist
-                        ? 'bg-amber-500 hover:bg-amber-600 text-white rounded-full shadow-lg hover:shadow-teal-500/30'
-                        : 'bg-teal-500 hover:bg-teal-600 text-white rounded-full shadow-lg hover:shadow-teal-500/30',
-                  ]"
-                  :style="
-                    isCyberpunk
-                      ? 'clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px))'
-                      : ''
-                  "
-                  @click="handleToggleWatchlist"
+                <div
+                  class="tooltip-wrapper relative"
+                  :data-tooltip="status?.inWatchlist ? 'Remove from Watchlist' : 'Add to Watchlist'"
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-5 w-5 md:h-6 md:w-6"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
+                  <button
+                    :class="[
+                      'flex-1 sm:flex-none justify-center px-6 md:px-8 py-3 md:py-4 font-bold transition flex items-center gap-2 md:gap-3 text-sm md:text-lg',
+                      isCyberpunk
+                        ? status?.inWatchlist
+                          ? 'bg-cyber-yellow text-cyber-black font-display uppercase tracking-wider hover:shadow-[0_0_20px_rgba(243,230,0,0.4)]'
+                          : 'bg-transparent border-2 border-cyber-cyan text-cyber-cyan font-display uppercase tracking-wider hover:bg-cyber-cyan hover:text-cyber-black hover:shadow-[0_0_20px_rgba(85,234,212,0.4)]'
+                        : status?.inWatchlist
+                          ? 'bg-amber-500 hover:bg-amber-600 text-white rounded-full shadow-lg hover:shadow-amber-500/30'
+                          : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-full shadow-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700',
+                    ]"
+                    :style="
+                      isCyberpunk
+                        ? 'clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px))'
+                        : ''
+                    "
+                    @click="handleToggleWatchlist"
                   >
-                    <path
-                      fill-rule="evenodd"
-                      d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
-                      clip-rule="evenodd"
-                    />
-                  </svg>
-                  {{ status?.inWatchlist ? "In Watchlist" : "Watchlist" }}
-                </button>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="h-5 w-5 md:h-6 md:w-6"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                        clip-rule="evenodd"
+                      />
+                    </svg>
+                    {{ status?.inWatchlist ? "In Watchlist" : "Watchlist" }}
+                  </button>
+                </div>
 
                 <!-- Watched Button -->
-                <button
-                  :class="[
-                    'p-3 md:p-4 transition shadow-md',
-                    isCyberpunk
-                      ? status?.inWatched
-                        ? 'bg-cyber-cyan text-cyber-black border border-cyber-cyan'
-                        : 'bg-cyber-night border border-cyber-chrome text-cyber-gray hover:border-cyber-cyan hover:text-cyber-cyan'
-                      : status?.inWatched
-                        ? 'bg-teal-500 text-white rounded-full'
-                        : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700',
-                  ]"
-                  title="Mark as Watched"
-                  @click="handleMarkAsWatched"
+                <div
+                  class="tooltip-wrapper relative"
+                  :data-tooltip="status?.inWatched ? 'Remove from Watched' : 'Mark as Watched'"
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-5 w-5 md:h-6 md:w-6"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
+                  <button
+                    :class="[
+                      'flex-1 sm:flex-none justify-center px-6 md:px-8 py-3 md:py-4 font-bold transition flex items-center gap-2 md:gap-3 text-sm md:text-lg shadow-md',
+                      isCyberpunk
+                        ? status?.inWatched
+                          ? 'bg-cyber-cyan text-cyber-black border border-cyber-cyan font-display uppercase tracking-wider hover:shadow-[0_0_20px_rgba(85,234,212,0.4)]'
+                          : 'bg-cyber-night border border-cyber-chrome text-cyber-gray font-display uppercase tracking-wider hover:border-cyber-cyan hover:text-cyber-cyan'
+                        : status?.inWatched
+                          ? 'bg-teal-500 hover:bg-teal-600 text-white rounded-full'
+                          : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700',
+                    ]"
+                    @click="handleToggleWatched"
                   >
-                    <path
-                      fill-rule="evenodd"
-                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                      clip-rule="evenodd"
-                    />
-                  </svg>
-                </button>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="h-5 w-5 md:h-6 md:w-6"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clip-rule="evenodd"
+                      />
+                    </svg>
+                    {{ status?.inWatched ? "Watched" : "Watched" }}
+                  </button>
+                </div>
 
                 <!-- Trailer Button -->
                 <a
@@ -1051,6 +1061,45 @@ const seasons = computed(() => {
     rgba(243, 230, 0, 0.05) 100%
   );
   pointer-events: none;
+}
+
+/* Tooltip styles */
+.tooltip-wrapper::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.85);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: 6px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 50;
+}
+
+.tooltip-wrapper::before {
+  content: "";
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: rgba(0, 0, 0, 0.85);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 50;
+}
+
+.tooltip-wrapper:hover::after,
+.tooltip-wrapper:hover::before {
+  opacity: 1;
 }
 
 .scrollbar-hide {
