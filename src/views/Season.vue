@@ -65,6 +65,10 @@ const fetchData = async () => {
     ]);
     season.value = seasonData;
     series.value = seriesData;
+    const showName = seriesData.name || seriesData.title;
+    if (showName && seasonData.name) {
+      document.title = `${showName}: ${seasonData.name} - EntHub`;
+    }
   } catch (err) {
     console.error("Failed to fetch season details:", err);
   } finally {

@@ -75,6 +75,9 @@ const fetchCollection = async () => {
 
   try {
     collection.value = await tmdb.getCollection(id);
+    if (collection.value?.name) {
+      document.title = `${collection.value.name} - EntHub`;
+    }
   } catch (err) {
     console.error("Failed to fetch collection:", err);
   } finally {
