@@ -208,7 +208,7 @@ describe("useListFilters", () => {
       (i) => i.addedAt ?? 0,
     );
     for (let i = 1; i < timestamps.length; i++) {
-      expect(timestamps[i - 1]).toBeGreaterThanOrEqual(timestamps[i]);
+      expect(timestamps[i - 1]).toBeGreaterThanOrEqual(timestamps[i]!);
     }
   });
 
@@ -222,7 +222,7 @@ describe("useListFilters", () => {
       (i) => i.addedAt ?? 0,
     );
     for (let i = 1; i < timestamps.length; i++) {
-      expect(timestamps[i - 1]).toBeLessThanOrEqual(timestamps[i]);
+      expect(timestamps[i - 1]).toBeLessThanOrEqual(timestamps[i]!);
     }
   });
 
@@ -236,7 +236,7 @@ describe("useListFilters", () => {
       (i) => i.watchedAt ?? 0,
     );
     for (let i = 1; i < timestamps.length; i++) {
-      expect(timestamps[i - 1]).toBeGreaterThanOrEqual(timestamps[i]);
+      expect(timestamps[i - 1]).toBeGreaterThanOrEqual(timestamps[i]!);
     }
   });
 
@@ -254,8 +254,8 @@ describe("useListFilters", () => {
 
     // All items without a date should appear after all items with a date
     if (withDate.length > 0 && withoutDate.length > 0) {
-      const lastWithDateIdx = sorted.indexOf(withDate[withDate.length - 1]);
-      const firstWithoutDateIdx = sorted.indexOf(withoutDate[0]);
+      const lastWithDateIdx = sorted.indexOf(withDate[withDate.length - 1]!);
+      const firstWithoutDateIdx = sorted.indexOf(withoutDate[0]!);
       expect(firstWithoutDateIdx).toBeGreaterThan(lastWithDateIdx);
     }
   });
@@ -273,9 +273,9 @@ describe("useListFilters", () => {
     // Items without releaseDate map to year 0, so they sort first in asc
     if (withDate.length > 0 && withoutDate.length > 0) {
       const lastWithoutDateIdx = sorted.indexOf(
-        withoutDate[withoutDate.length - 1],
+        withoutDate[withoutDate.length - 1]!,
       );
-      const firstWithDateIdx = sorted.indexOf(withDate[0]);
+      const firstWithDateIdx = sorted.indexOf(withDate[0]!);
       expect(firstWithDateIdx).toBeGreaterThan(lastWithoutDateIdx);
     }
   });
@@ -292,16 +292,16 @@ describe("useListFilters", () => {
 
     if (withRating.length > 0 && withoutRating.length > 0) {
       const lastWithRatingIdx = sorted.indexOf(
-        withRating[withRating.length - 1],
+        withRating[withRating.length - 1]!,
       );
-      const firstWithoutRatingIdx = sorted.indexOf(withoutRating[0]);
+      const firstWithoutRatingIdx = sorted.indexOf(withoutRating[0]!);
       expect(firstWithoutRatingIdx).toBeGreaterThan(lastWithRatingIdx);
     }
 
     // Verify descending order among rated items
     const ratings = withRating.map((i) => i.voteAverage ?? 0);
     for (let i = 1; i < ratings.length; i++) {
-      expect(ratings[i - 1]).toBeGreaterThanOrEqual(ratings[i]);
+      expect(ratings[i - 1]).toBeGreaterThanOrEqual(ratings[i]!);
     }
   });
 

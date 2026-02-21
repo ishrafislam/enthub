@@ -2,9 +2,11 @@ import { ref, computed } from "vue";
 import type { Ref } from "vue";
 
 type ListItem = {
+  _id?: string;
   tmdbId: number;
   mediaType: string;
   title: string;
+  posterPath?: string | null;
   addedAt?: number;
   watchedAt?: number;
   voteAverage?: number;
