@@ -60,6 +60,7 @@ export interface MediaDetails {
   backdrop_path: string | null;
   overview: string;
   vote_average: number;
+  popularity?: number;
   genre_ids: number[];
   media_type?: "movie" | "tv";
   adult?: boolean;
