@@ -59,6 +59,15 @@ const handleToggleWatchlist = async () => {
     mediaType: mediaType.value,
     title: media.value.title || media.value.name || "",
     posterPath: media.value.poster_path || undefined,
+    backdropPath: media.value.backdrop_path || undefined,
+    overview: media.value.overview || undefined,
+    voteAverage: media.value.vote_average || undefined,
+    popularity: media.value.popularity || undefined,
+    releaseDate: media.value.release_date || media.value.first_air_date || undefined,
+    genres: media.value.genres?.map((g) => g.name),
+    originalLanguage: media.value.original_language || undefined,
+    runtime: media.value.runtime || media.value.episode_run_time?.[0] || undefined,
+    status: media.value.status || undefined,
   });
 };
 
@@ -75,6 +84,15 @@ const handleToggleWatched = async () => {
     mediaType: mediaType.value,
     title: media.value.title || media.value.name || "",
     posterPath: media.value.poster_path || undefined,
+    backdropPath: media.value.backdrop_path || undefined,
+    overview: media.value.overview || undefined,
+    voteAverage: media.value.vote_average || undefined,
+    popularity: media.value.popularity || undefined,
+    releaseDate: media.value.release_date || media.value.first_air_date || undefined,
+    genres: media.value.genres?.map((g) => g.name),
+    originalLanguage: media.value.original_language || undefined,
+    runtime: media.value.runtime || media.value.episode_run_time?.[0] || undefined,
+    status: media.value.status || undefined,
   });
 };
 

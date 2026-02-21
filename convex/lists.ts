@@ -32,6 +32,15 @@ export const toggleWatchlist = mutation({
     mediaType: v.string(),
     title: v.string(),
     posterPath: v.optional(v.string()),
+    backdropPath: v.optional(v.string()),
+    overview: v.optional(v.string()),
+    voteAverage: v.optional(v.number()),
+    popularity: v.optional(v.number()),
+    releaseDate: v.optional(v.string()),
+    genres: v.optional(v.array(v.string())),
+    originalLanguage: v.optional(v.string()),
+    runtime: v.optional(v.number()),
+    status: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     // Convex mutations are transactional, so this complex logic is atomic.
@@ -67,6 +76,15 @@ export const toggleWatchlist = mutation({
           title: args.title,
           posterPath: args.posterPath,
           addedAt: Date.now(),
+          backdropPath: args.backdropPath,
+          overview: args.overview,
+          voteAverage: args.voteAverage,
+          popularity: args.popularity,
+          releaseDate: args.releaseDate,
+          genres: args.genres,
+          originalLanguage: args.originalLanguage,
+          runtime: args.runtime,
+          status: args.status,
         });
         return { added: true };
       }
@@ -84,6 +102,15 @@ export const toggleWatched = mutation({
     mediaType: v.string(),
     title: v.string(),
     posterPath: v.optional(v.string()),
+    backdropPath: v.optional(v.string()),
+    overview: v.optional(v.string()),
+    voteAverage: v.optional(v.number()),
+    popularity: v.optional(v.number()),
+    releaseDate: v.optional(v.string()),
+    genres: v.optional(v.array(v.string())),
+    originalLanguage: v.optional(v.string()),
+    runtime: v.optional(v.number()),
+    status: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     try {
@@ -121,6 +148,15 @@ export const toggleWatched = mutation({
         title: args.title,
         posterPath: args.posterPath,
         watchedAt: Date.now(),
+        backdropPath: args.backdropPath,
+        overview: args.overview,
+        voteAverage: args.voteAverage,
+        popularity: args.popularity,
+        releaseDate: args.releaseDate,
+        genres: args.genres,
+        originalLanguage: args.originalLanguage,
+        runtime: args.runtime,
+        status: args.status,
       });
       return { added: true };
     } catch (error) {
