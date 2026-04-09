@@ -1,8 +1,5 @@
 import { ref, onMounted, onUnmounted, watch, unref } from "vue";
-import { ConvexHttpClient, ConvexClient } from "convex/browser";
-
-const client = new ConvexClient(import.meta.env.VITE_CONVEX_URL);
-const httpClient = new ConvexHttpClient(import.meta.env.VITE_CONVEX_URL);
+import { httpClient, client } from "../services/convexClient";
 
 export function useConvexQuery(query: any, args: any) {
   if (!query) throw new Error("Query reference is required for useConvexQuery");
@@ -81,6 +78,11 @@ export function useConvexMutation(mutation: any) {
   const error = ref<any>(null);
 
   const mutate = async (args: any) => {
+    if (!args || typeof args !== "object") {
+      const err = new Error("Arguments for mutation must be a valid object");
+      error.value = err;
+      throw err;
+    }
     loading.value = true;
     error.value = null;
     try {
@@ -95,4 +97,33 @@ export function useConvexMutation(mutation: any) {
   };
 
   return { mutate, loading, error };
+}
+
+export function useConvexAction(actionRef: any) {
+  if (!actionRef)
+    throw new Error("Action reference is required for useConvexAction");
+
+  const loading = ref(false);
+  const error = ref<any>(null);
+
+  const execute = async (args: any) => {
+    if (!args || typeof args !== "object") {
+      const err = new Error("Arguments for action must be a valid object");
+      error.value = err;
+      throw err;
+    }
+    loading.value = true;
+    error.value = null;
+    try {
+      const result = await httpClient.action(actionRef, args);
+      return result;
+    } catch (err) {
+      error.value = err;
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  return { execute, loading, error };
 }

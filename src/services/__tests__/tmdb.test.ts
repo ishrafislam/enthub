@@ -1,21 +1,38 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { tmdb } from "../tmdb";
 
-// Mock fetch globally
-const mockFetch = vi.fn();
-vi.stubGlobal("fetch", mockFetch);
+// Mock the convexClient module
+const mockAction = vi.fn();
+vi.mock("../convexClient", () => ({
+  httpClient: {
+    action: (...args: any[]) => mockAction(...args),
+  },
+}));
 
-// Mock console.warn and console.error
-vi.spyOn(console, "warn").mockImplementation(() => {});
-vi.spyOn(console, "error").mockImplementation(() => {});
+// Mock the Convex generated API
+vi.mock("../../../convex/_generated/api", () => ({
+  api: {
+    tmdb: {
+      getTrending: "tmdb:getTrending",
+      getTrendingMovies: "tmdb:getTrendingMovies",
+      getTrendingTV: "tmdb:getTrendingTV",
+      getTrendingPeople: "tmdb:getTrendingPeople",
+      search: "tmdb:search",
+      searchMovies: "tmdb:searchMovies",
+      searchTV: "tmdb:searchTV",
+      searchPeople: "tmdb:searchPeople",
+      searchCollections: "tmdb:searchCollections",
+      getDetails: "tmdb:getDetails",
+      getCollection: "tmdb:getCollection",
+      getPersonDetails: "tmdb:getPersonDetails",
+      getSeasonDetails: "tmdb:getSeasonDetails",
+    },
+  },
+}));
 
 describe("tmdb service", () => {
   beforeEach(() => {
-    mockFetch.mockReset();
-  });
-
-  afterEach(() => {
-    vi.clearAllMocks();
+    vi.resetAllMocks();
   });
 
   describe("getImageUrl", () => {
@@ -51,46 +68,31 @@ describe("tmdb service", () => {
       total_results: 200,
     };
 
-    it("should fetch trending content with default timeWindow (week)", async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve(mockTrendingResponse),
-      });
+    it("should call Convex action with default timeWindow (week)", async () => {
+      mockAction.mockResolvedValueOnce(mockTrendingResponse);
 
       const result = await tmdb.getTrending();
 
-      expect(mockFetch).toHaveBeenCalledWith(
-        "https://api.themoviedb.org/3/trending/all/week",
-        expect.objectContaining({
-          headers: expect.objectContaining({
-            accept: "application/json",
-          }),
-        }),
-      );
+      expect(mockAction).toHaveBeenCalledWith("tmdb:getTrending", {
+        timeWindow: "week",
+      });
       expect(result).toEqual(mockTrendingResponse);
     });
 
-    it("should fetch trending content with day timeWindow", async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve(mockTrendingResponse),
-      });
+    it("should call Convex action with day timeWindow", async () => {
+      mockAction.mockResolvedValueOnce(mockTrendingResponse);
 
       await tmdb.getTrending("day");
 
-      expect(mockFetch).toHaveBeenCalledWith(
-        "https://api.themoviedb.org/3/trending/all/day",
-        expect.any(Object),
-      );
+      expect(mockAction).toHaveBeenCalledWith("tmdb:getTrending", {
+        timeWindow: "day",
+      });
     });
 
-    it("should throw error on API failure", async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 401,
-        statusText: "Unauthorized",
-        json: () => Promise.resolve({ status_message: "Invalid API key" }),
-      });
+    it("should throw error on action failure", async () => {
+      mockAction.mockRejectedValueOnce(
+        new Error("TMDB API Error: 401 Unauthorized - Invalid API key"),
+      );
 
       await expect(tmdb.getTrending()).rejects.toThrow(
         "TMDB API Error: 401 Unauthorized - Invalid API key",
@@ -98,7 +100,7 @@ describe("tmdb service", () => {
     });
 
     it("should handle network errors", async () => {
-      mockFetch.mockRejectedValueOnce(new Error("Network error"));
+      mockAction.mockRejectedValueOnce(new Error("Network error"));
 
       await expect(tmdb.getTrending()).rejects.toThrow("Network error");
     });
@@ -113,54 +115,40 @@ describe("tmdb service", () => {
     };
 
     it("should search with query and default page", async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve(mockSearchResponse),
-      });
+      mockAction.mockResolvedValueOnce(mockSearchResponse);
 
       const result = await tmdb.search("test movie");
 
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining("/search/multi"),
-        expect.any(Object),
-      );
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining("query=test+movie"),
-        expect.any(Object),
-      );
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining("page=1"),
-        expect.any(Object),
-      );
+      expect(mockAction).toHaveBeenCalledWith("tmdb:search", {
+        query: "test movie",
+        type: "multi",
+        page: 1,
+      });
       expect(result).toEqual(mockSearchResponse);
     });
 
     it("should search with specific page", async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve(mockSearchResponse),
-      });
+      mockAction.mockResolvedValueOnce(mockSearchResponse);
 
       await tmdb.search("test", "multi", 5);
 
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining("page=5"),
-        expect.any(Object),
-      );
+      expect(mockAction).toHaveBeenCalledWith("tmdb:search", {
+        query: "test",
+        type: "multi",
+        page: 5,
+      });
     });
 
     it("should search with different search types", async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve(mockSearchResponse),
-      });
+      mockAction.mockResolvedValueOnce(mockSearchResponse);
 
       await tmdb.search("test", "movie", 1);
 
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining("/search/movie"),
-        expect.any(Object),
-      );
+      expect(mockAction).toHaveBeenCalledWith("tmdb:search", {
+        query: "test",
+        type: "movie",
+        page: 1,
+      });
     });
 
     it("should handle empty results", async () => {
@@ -171,10 +159,7 @@ describe("tmdb service", () => {
         total_results: 0,
       };
 
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve(emptyResponse),
-      });
+      mockAction.mockResolvedValueOnce(emptyResponse);
 
       const result = await tmdb.search("xyznonexistent");
       expect(result.results).toHaveLength(0);
@@ -198,22 +183,15 @@ describe("tmdb service", () => {
       },
     };
 
-    it("should fetch movie details with credits and videos", async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve(mockMovieDetails),
-      });
+    it("should fetch movie details via Convex action", async () => {
+      mockAction.mockResolvedValueOnce(mockMovieDetails);
 
       const result = await tmdb.getDetails("movie", 550);
 
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining("/movie/550"),
-        expect.any(Object),
-      );
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining("append_to_response=credits%2Cvideos"),
-        expect.any(Object),
-      );
+      expect(mockAction).toHaveBeenCalledWith("tmdb:getDetails", {
+        type: "movie",
+        id: 550,
+      });
       expect(result).toEqual(mockMovieDetails);
     });
 
@@ -226,30 +204,21 @@ describe("tmdb service", () => {
         number_of_seasons: 8,
       };
 
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve(mockTVDetails),
-      });
+      mockAction.mockResolvedValueOnce(mockTVDetails);
 
       const result = await tmdb.getDetails("tv", 1399);
 
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining("/tv/1399"),
-        expect.any(Object),
-      );
+      expect(mockAction).toHaveBeenCalledWith("tmdb:getDetails", {
+        type: "tv",
+        id: 1399,
+      });
       expect(result.name).toBe("Game of Thrones");
     });
 
     it("should handle non-existent media", async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 404,
-        statusText: "Not Found",
-        json: () =>
-          Promise.resolve({
-            status_message: "The resource you requested could not be found.",
-          }),
-      });
+      mockAction.mockRejectedValueOnce(
+        new Error("TMDB API Error: 404 Not Found"),
+      );
 
       await expect(tmdb.getDetails("movie", 99999999)).rejects.toThrow(
         "TMDB API Error: 404",
@@ -270,18 +239,14 @@ describe("tmdb service", () => {
       ],
     };
 
-    it("should fetch collection details", async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve(mockCollection),
-      });
+    it("should fetch collection details via Convex action", async () => {
+      mockAction.mockResolvedValueOnce(mockCollection);
 
       const result = await tmdb.getCollection(10);
 
-      expect(mockFetch).toHaveBeenCalledWith(
-        "https://api.themoviedb.org/3/collection/10",
-        expect.any(Object),
-      );
+      expect(mockAction).toHaveBeenCalledWith("tmdb:getCollection", {
+        collectionId: 10,
+      });
       expect(result.name).toBe("Star Wars Collection");
       expect(result.parts).toHaveLength(2);
     });
@@ -301,52 +266,34 @@ describe("tmdb service", () => {
       },
     };
 
-    it("should fetch person details with combined credits", async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve(mockPerson),
-      });
+    it("should fetch person details via Convex action", async () => {
+      mockAction.mockResolvedValueOnce(mockPerson);
 
       const result = await tmdb.getPersonDetails(287);
 
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining("/person/287"),
-        expect.any(Object),
-      );
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining("append_to_response=combined_credits"),
-        expect.any(Object),
-      );
+      expect(mockAction).toHaveBeenCalledWith("tmdb:getPersonDetails", {
+        personId: 287,
+      });
       expect(result.name).toBe("Brad Pitt");
       expect(result.combined_credits?.cast).toHaveLength(1);
     });
   });
 
   describe("error handling", () => {
-    it("should handle API returning error without status_message", async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 500,
-        statusText: "Internal Server Error",
-        json: () => Promise.resolve({}),
-      });
+    it("should propagate Convex action errors", async () => {
+      mockAction.mockRejectedValueOnce(
+        new Error("TMDB API Error: 500 Internal Server Error - Unknown error"),
+      );
 
       await expect(tmdb.getTrending()).rejects.toThrow(
         "TMDB API Error: 500 Internal Server Error - Unknown error",
       );
     });
 
-    it("should handle API returning non-JSON error", async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 502,
-        statusText: "Bad Gateway",
-        json: () => Promise.reject(new Error("Invalid JSON")),
-      });
+    it("should handle action timeout errors", async () => {
+      mockAction.mockRejectedValueOnce(new Error("Action timed out"));
 
-      await expect(tmdb.getTrending()).rejects.toThrow(
-        "TMDB API Error: 502 Bad Gateway - Unknown error",
-      );
+      await expect(tmdb.getTrending()).rejects.toThrow("Action timed out");
     });
   });
 });
