@@ -11,6 +11,7 @@
 import type * as actions from "../actions.js";
 import type * as auth from "../auth.js";
 import type * as lists from "../lists.js";
+import type * as tmdb from "../tmdb.js";
 import type * as users from "../users.js";
 
 import type {
@@ -23,6 +24,7 @@ declare const fullApi: ApiFromModules<{
   actions: typeof actions;
   auth: typeof auth;
   lists: typeof lists;
+  tmdb: typeof tmdb;
   users: typeof users;
 }>;
 

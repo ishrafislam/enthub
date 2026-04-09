@@ -11,63 +11,8 @@ import type {
   SearchType,
   TVSeasonDetails,
 } from "../types/tmdb";
-
-const BASE_URL = "https://api.themoviedb.org/3";
-const TOKEN = import.meta.env.VITE_TMDB_READ_TOKEN;
-
-// Validation constants
-const MAX_SEARCH_QUERY_LENGTH = 100;
-const MIN_PAGE = 1;
-const MAX_PAGE = 500; // TMDB's maximum page limit
-
-if (!TOKEN) {
-  console.warn("Token is not defined. TMDB requests will fail.");
-}
-
-// Utility functions for validation
-function validatePage(page: number): number {
-  return Math.max(MIN_PAGE, Math.min(Math.floor(page), MAX_PAGE));
-}
-
-function sanitizeSearchParams(query: string, page: number) {
-  const sanitizedQuery = query.trim().slice(0, MAX_SEARCH_QUERY_LENGTH);
-  if (!sanitizedQuery) {
-    throw new Error("Search query cannot be empty.");
-  }
-  return { query: sanitizedQuery, page: validatePage(page).toString() };
-}
-
-const headers = {
-  accept: "application/json",
-  Authorization: `Bearer ${TOKEN}`,
-};
-
-async function fetchTMDB<T>(
-  endpoint: string,
-  params: Record<string, string> = {},
-): Promise<T> {
-  const url = new URL(`${BASE_URL}${endpoint}`);
-  Object.keys(params).forEach((key) => {
-    const val = params[key];
-    if (val !== undefined) url.searchParams.append(key, val);
-  });
-
-  try {
-    const response = await fetch(url.toString(), { headers });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(
-        `TMDB API Error: ${response.status} ${response.statusText} - ${errorData.status_message || "Unknown error"}`,
-      );
-    }
-
-    return response.json();
-  } catch (error) {
-    console.error(`fetchTMDB failed at ${endpoint}:`, error);
-    throw error;
-  }
-}
+import { httpClient } from "./convexClient";
+import { api } from "../../convex/_generated/api";
 
 // TMDB image size options
 // Poster sizes: w92, w154, w185, w342, w500, w780, original
@@ -89,68 +34,80 @@ const PLACEHOLDER_IMAGE = "/placeholder-poster.svg";
 
 export const tmdb = {
   getTrending: (timeWindow: "day" | "week" = "week") =>
-    fetchTMDB<TMDBResponse<MediaItem>>(`/trending/all/${timeWindow}`),
+    httpClient.action(api.tmdb.getTrending, { timeWindow }) as Promise<
+      TMDBResponse<MediaItem>
+    >,
 
   getTrendingMovies: (timeWindow: "day" | "week" = "week", page = 1) =>
-    fetchTMDB<TMDBResponse<MovieItem>>(`/trending/movie/${timeWindow}`, {
-      page: validatePage(page).toString(),
-    }),
+    httpClient.action(api.tmdb.getTrendingMovies, {
+      timeWindow,
+      page,
+    }) as Promise<TMDBResponse<MovieItem>>,
 
   getTrendingTV: (timeWindow: "day" | "week" = "week", page = 1) =>
-    fetchTMDB<TMDBResponse<TVItem>>(`/trending/tv/${timeWindow}`, {
-      page: validatePage(page).toString(),
-    }),
+    httpClient.action(api.tmdb.getTrendingTV, {
+      timeWindow,
+      page,
+    }) as Promise<TMDBResponse<TVItem>>,
 
   getTrendingPeople: (timeWindow: "day" | "week" = "week", page = 1) =>
-    fetchTMDB<TMDBResponse<PersonItem>>(`/trending/person/${timeWindow}`, {
-      page: validatePage(page).toString(),
-    }),
+    httpClient.action(api.tmdb.getTrendingPeople, {
+      timeWindow,
+      page,
+    }) as Promise<TMDBResponse<PersonItem>>,
 
   search: (query: string, type: SearchType = "multi", page = 1) =>
-    fetchTMDB<TMDBResponse<MediaItem>>(
-      `/search/${type}`,
-      sanitizeSearchParams(query, page),
-    ),
+    httpClient.action(api.tmdb.search, {
+      query,
+      type,
+      page,
+    }) as Promise<TMDBResponse<MediaItem>>,
 
   searchMovies: (query: string, page = 1) =>
-    fetchTMDB<TMDBResponse<MovieItem>>(
-      "/search/movie",
-      sanitizeSearchParams(query, page),
-    ),
+    httpClient.action(api.tmdb.searchMovies, {
+      query,
+      page,
+    }) as Promise<TMDBResponse<MovieItem>>,
 
   searchTV: (query: string, page = 1) =>
-    fetchTMDB<TMDBResponse<TVItem>>(
-      "/search/tv",
-      sanitizeSearchParams(query, page),
-    ),
+    httpClient.action(api.tmdb.searchTV, {
+      query,
+      page,
+    }) as Promise<TMDBResponse<TVItem>>,
 
   searchPeople: (query: string, page = 1) =>
-    fetchTMDB<TMDBResponse<PersonItem>>(
-      "/search/person",
-      sanitizeSearchParams(query, page),
-    ),
+    httpClient.action(api.tmdb.searchPeople, {
+      query,
+      page,
+    }) as Promise<TMDBResponse<PersonItem>>,
 
   searchCollections: (query: string, page = 1) =>
-    fetchTMDB<TMDBResponse<CollectionSearchItem>>(
-      "/search/collection",
-      sanitizeSearchParams(query, page),
-    ),
+    httpClient.action(api.tmdb.searchCollections, {
+      query,
+      page,
+    }) as Promise<TMDBResponse<CollectionSearchItem>>,
 
   getDetails: (type: "movie" | "tv", id: number) =>
-    fetchTMDB<MediaDetails>(`/${type}/${id}`, {
-      append_to_response: "credits,videos",
-    }),
+    httpClient.action(api.tmdb.getDetails, {
+      type,
+      id,
+    }) as Promise<MediaDetails>,
 
   getCollection: (collectionId: number) =>
-    fetchTMDB<TMDBCollection>(`/collection/${collectionId}`),
+    httpClient.action(api.tmdb.getCollection, {
+      collectionId,
+    }) as Promise<TMDBCollection>,
 
   getPersonDetails: (personId: number) =>
-    fetchTMDB<PersonDetails>(`/person/${personId}`, {
-      append_to_response: "combined_credits",
-    }),
+    httpClient.action(api.tmdb.getPersonDetails, {
+      personId,
+    }) as Promise<PersonDetails>,
 
   getSeasonDetails: (seriesId: number, seasonNumber: number) =>
-    fetchTMDB<TVSeasonDetails>(`/tv/${seriesId}/season/${seasonNumber}`),
+    httpClient.action(api.tmdb.getSeasonDetails, {
+      seriesId,
+      seasonNumber,
+    }) as Promise<TVSeasonDetails>,
 
   /**
    * Get a single image URL for a given path and size

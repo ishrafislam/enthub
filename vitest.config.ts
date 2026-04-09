@@ -5,7 +5,6 @@ export default defineConfig({
   plugins: [vue()],
   define: {
     'import.meta.env.VITE_CONVEX_URL': JSON.stringify('https://test.convex.cloud'),
-    'import.meta.env.VITE_TMDB_READ_TOKEN': JSON.stringify('test-token'),
   },
   test: {
     environment: 'happy-dom',

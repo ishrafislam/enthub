@@ -1,8 +1,8 @@
 import { ref, onMounted, onUnmounted, watch, unref } from "vue";
-import { ConvexHttpClient, ConvexClient } from "convex/browser";
+import { ConvexClient } from "convex/browser";
+import { httpClient } from "../services/convexClient";
 
 const client = new ConvexClient(import.meta.env.VITE_CONVEX_URL);
-const httpClient = new ConvexHttpClient(import.meta.env.VITE_CONVEX_URL);
 
 export function useConvexQuery(query: any, args: any) {
   if (!query) throw new Error("Query reference is required for useConvexQuery");
@@ -95,4 +95,28 @@ export function useConvexMutation(mutation: any) {
   };
 
   return { mutate, loading, error };
+}
+
+export function useConvexAction(actionRef: any) {
+  if (!actionRef)
+    throw new Error("Action reference is required for useConvexAction");
+
+  const loading = ref(false);
+  const error = ref<any>(null);
+
+  const execute = async (args: any) => {
+    loading.value = true;
+    error.value = null;
+    try {
+      const result = await httpClient.action(actionRef, args);
+      return result;
+    } catch (err) {
+      error.value = err;
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  return { execute, loading, error };
 }

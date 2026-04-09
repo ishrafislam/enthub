@@ -5,6 +5,7 @@ import { mount } from "@vue/test-utils";
 // Mock Convex clients before importing the module
 const mockOnUpdate = vi.fn();
 const mockMutation = vi.fn();
+const mockAction = vi.fn();
 
 class MockConvexClient {
   constructor() {}
@@ -14,6 +15,7 @@ class MockConvexClient {
 class MockConvexHttpClient {
   constructor() {}
   mutation = mockMutation;
+  action = mockAction;
 }
 
 vi.mock("convex/browser", () => ({
@@ -367,6 +369,121 @@ describe("useConvex composables", () => {
       await result.mutate(args);
 
       expect(mockMutation).toHaveBeenCalledWith(mockMutationRef, args);
+    });
+  });
+
+  describe("useConvexAction", () => {
+    it("should throw error if action ref is not provided", async () => {
+      const { useConvexAction } = await import("../useConvex");
+
+      expect(() => {
+        withSetup(() => useConvexAction(null));
+      }).toThrow("Action reference is required");
+    });
+
+    it("should throw error if action ref is undefined", async () => {
+      const { useConvexAction } = await import("../useConvex");
+
+      expect(() => {
+        withSetup(() => useConvexAction(undefined));
+      }).toThrow("Action reference is required");
+    });
+
+    it("should return execute function and state refs", async () => {
+      const { useConvexAction } = await import("../useConvex");
+
+      const mockActionRef = { name: "testAction" };
+      const { result } = withSetup(() => useConvexAction(mockActionRef));
+
+      expect(typeof result.execute).toBe("function");
+      expect(result.loading.value).toBe(false);
+      expect(result.error.value).toBeNull();
+    });
+
+    it("should set loading to true during action execution", async () => {
+      const { useConvexAction } = await import("../useConvex");
+
+      let resolvePromise: (value: any) => void;
+      mockAction.mockReturnValue(
+        new Promise((resolve) => {
+          resolvePromise = resolve;
+        }),
+      );
+
+      const mockActionRef = { name: "testAction" };
+      const { result } = withSetup(() => useConvexAction(mockActionRef));
+
+      const actionPromise = result.execute({ data: "test" });
+
+      expect(result.loading.value).toBe(true);
+
+      resolvePromise!({ success: true });
+      await actionPromise;
+
+      expect(result.loading.value).toBe(false);
+    });
+
+    it("should return action result on success", async () => {
+      const { useConvexAction } = await import("../useConvex");
+
+      const expectedResult = { results: [{ id: 1 }] };
+      mockAction.mockResolvedValue(expectedResult);
+
+      const mockActionRef = { name: "testAction" };
+      const { result } = withSetup(() => useConvexAction(mockActionRef));
+
+      const actionResult = await result.execute({ query: "test" });
+
+      expect(actionResult).toEqual(expectedResult);
+      expect(result.error.value).toBeNull();
+    });
+
+    it("should set error and throw on action failure", async () => {
+      const { useConvexAction } = await import("../useConvex");
+
+      const actionError = new Error("Action failed");
+      mockAction.mockRejectedValue(actionError);
+
+      const mockActionRef = { name: "testAction" };
+      const { result } = withSetup(() => useConvexAction(mockActionRef));
+
+      await expect(result.execute({ data: "test" })).rejects.toThrow(
+        "Action failed",
+      );
+
+      expect(result.error.value).toBe(actionError);
+      expect(result.loading.value).toBe(false);
+    });
+
+    it("should clear previous error before new execution", async () => {
+      const { useConvexAction } = await import("../useConvex");
+
+      const mockActionRef = { name: "testAction" };
+      const { result } = withSetup(() => useConvexAction(mockActionRef));
+
+      // First action fails
+      mockAction.mockRejectedValueOnce(new Error("First error"));
+      await expect(result.execute({ data: "test1" })).rejects.toThrow();
+      expect(result.error.value).toBeInstanceOf(Error);
+
+      // Second action succeeds
+      mockAction.mockResolvedValueOnce({ success: true });
+      await result.execute({ data: "test2" });
+      expect(result.error.value).toBeNull();
+    });
+
+    it("should pass args to action correctly", async () => {
+      const { useConvexAction } = await import("../useConvex");
+
+      mockAction.mockResolvedValue({ results: [] });
+
+      const mockActionRef = { name: "testAction" };
+      const { result } = withSetup(() => useConvexAction(mockActionRef));
+
+      const args = { timeWindow: "week", page: 1 };
+      await result.execute(args);
+
+      expect(mockAction).toHaveBeenCalledWith(mockActionRef, args);
     });
   });
 });
