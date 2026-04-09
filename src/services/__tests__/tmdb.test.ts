@@ -32,11 +32,7 @@ vi.mock("../../../convex/_generated/api", () => ({
 
 describe("tmdb service", () => {
   beforeEach(() => {
-    mockAction.mockReset();
-  });
-
-  afterEach(() => {
-    vi.clearAllMocks();
+    vi.resetAllMocks();
   });
 
   describe("getImageUrl", () => {

@@ -38,7 +38,7 @@ function withSetup<T>(composable: () => T): { result: T; unmount: () => void } {
 
 describe("useConvex composables", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    vi.resetAllMocks();
     vi.useFakeTimers();
   });
 
@@ -285,6 +285,32 @@ describe("useConvex composables", () => {
       expect(result.error.value).toBeNull();
     });
 
+    it("should throw if args is null", async () => {
+      const { useConvexMutation } = await import("../useConvex");
+
+      const mockMutationRef = { name: "testMutation" };
+      const { result } = withSetup(() => useConvexMutation(mockMutationRef));
+
+      await expect(result.mutate(null)).rejects.toThrow(
+        "Arguments for mutation must be a valid object",
+      );
+      expect(result.error.value).toBeInstanceOf(Error);
+      expect(mockMutation).not.toHaveBeenCalled();
+    });
+
+    it("should throw if args is undefined", async () => {
+      const { useConvexMutation } = await import("../useConvex");
+
+      const mockMutationRef = { name: "testMutation" };
+      const { result } = withSetup(() => useConvexMutation(mockMutationRef));
+
+      await expect(result.mutate(undefined)).rejects.toThrow(
+        "Arguments for mutation must be a valid object",
+      );
+      expect(result.error.value).toBeInstanceOf(Error);
+      expect(mockMutation).not.toHaveBeenCalled();
+    });
+
     it("should set loading to true during mutation", async () => {
       const { useConvexMutation } = await import("../useConvex");
 
@@ -304,6 +330,7 @@ describe("useConvex composables", () => {
 
       resolvePromise!({ success: true });
       await mutationPromise;
+      await nextTick();
 
       expect(result.loading.value).toBe(false);
     });
@@ -318,6 +345,7 @@ describe("useConvex composables", () => {
       const { result } = withSetup(() => useConvexMutation(mockMutationRef));
 
       const mutationResult = await result.mutate({ name: "New Item" });
+      await nextTick();
 
       expect(mutationResult).toEqual(expectedResult);
       expect(result.error.value).toBeNull();
@@ -335,6 +363,7 @@ describe("useConvex composables", () => {
       await expect(result.mutate({ data: "test" })).rejects.toThrow(
         "Mutation failed",
       );
+      await nextTick();
 
       expect(result.error.value).toBe(mutationError);
       expect(result.loading.value).toBe(false);
@@ -349,11 +378,13 @@ describe("useConvex composables", () => {
       // First mutation fails
       mockMutation.mockRejectedValueOnce(new Error("First error"));
       await expect(result.mutate({ data: "test1" })).rejects.toThrow();
+      await nextTick();
       expect(result.error.value).toBeInstanceOf(Error);
 
       // Second mutation succeeds
       mockMutation.mockResolvedValueOnce({ success: true });
       await result.mutate({ data: "test2" });
+      await nextTick();
       expect(result.error.value).toBeNull();
     });
 
@@ -400,6 +431,32 @@ describe("useConvex composables", () => {
       expect(result.error.value).toBeNull();
     });
 
+    it("should throw if args is null", async () => {
+      const { useConvexAction } = await import("../useConvex");
+
+      const mockActionRef = { name: "testAction" };
+      const { result } = withSetup(() => useConvexAction(mockActionRef));
+
+      await expect(result.execute(null)).rejects.toThrow(
+        "Arguments for action must be a valid object",
+      );
+      expect(result.error.value).toBeInstanceOf(Error);
+      expect(mockAction).not.toHaveBeenCalled();
+    });
+
+    it("should throw if args is undefined", async () => {
+      const { useConvexAction } = await import("../useConvex");
+
+      const mockActionRef = { name: "testAction" };
+      const { result } = withSetup(() => useConvexAction(mockActionRef));
+
+      await expect(result.execute(undefined)).rejects.toThrow(
+        "Arguments for action must be a valid object",
+      );
+      expect(result.error.value).toBeInstanceOf(Error);
+      expect(mockAction).not.toHaveBeenCalled();
+    });
+
     it("should set loading to true during action execution", async () => {
       const { useConvexAction } = await import("../useConvex");
 
@@ -419,6 +476,7 @@ describe("useConvex composables", () => {
 
       resolvePromise!({ success: true });
       await actionPromise;
+      await nextTick();
 
       expect(result.loading.value).toBe(false);
     });
@@ -433,6 +491,7 @@ describe("useConvex composables", () => {
       const { result } = withSetup(() => useConvexAction(mockActionRef));
 
       const actionResult = await result.execute({ query: "test" });
+      await nextTick();
 
       expect(actionResult).toEqual(expectedResult);
       expect(result.error.value).toBeNull();
@@ -450,6 +509,7 @@ describe("useConvex composables", () => {
       await expect(result.execute({ data: "test" })).rejects.toThrow(
         "Action failed",
       );
+      await nextTick();
 
       expect(result.error.value).toBe(actionError);
       expect(result.loading.value).toBe(false);
@@ -464,11 +524,13 @@ describe("useConvex composables", () => {
       // First action fails
       mockAction.mockRejectedValueOnce(new Error("First error"));
       await expect(result.execute({ data: "test1" })).rejects.toThrow();
+      await nextTick();
       expect(result.error.value).toBeInstanceOf(Error);
 
       // Second action succeeds
       mockAction.mockResolvedValueOnce({ success: true });
       await result.execute({ data: "test2" });
+      await nextTick();
       expect(result.error.value).toBeNull();
     });
 
