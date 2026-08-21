@@ -22,10 +22,10 @@ The browser never talks to the API directly: it calls `/api/...`, and the Vite d
 server proxies to `https://api.sportsrc.org/v2/...` while attaching the
 `X-API-KEY` header (see `vite.config.ts`). The key stays out of the client bundle.
 
-**Production needs an equivalent server-side proxy** — a Vercel/Netlify function or a
-Cloudflare Worker that forwards `/api/*` to the same target with the key header.
-`bun run build` alone produces a static bundle with no proxy, so the deployed site
-will get "Missing API Key" until that function exists.
+In production, `server.js` does the same job: it serves the built SPA from `dist/`
+and proxies `/api` upstream with the key header, so the client contract is identical
+in both environments. Deploy it as a web service, not a static site — a static bundle
+has no proxy and would get "Missing API Key".
 
 The free plan allows 1,000 requests/day (resets midnight UTC). To stay well inside it,
 the app fetches one `type=matches` response per date and filters Live/Upcoming/Finished
@@ -64,3 +64,28 @@ and routes when built.
   state it breaks the player's scripts and anti-bot checks. Streams carry provider ads.
 - Premium endpoints (lineups, stats, incidents, h2h, standings, odds, highlights) are not
   used on the free plan.
+
+## Deploying to Render
+
+The repo ships a `render.yaml` blueprint: one **web service** running `server.js`,
+which serves `dist/` and proxies `/api`.
+
+1. Render dashboard → **New → Blueprint** → connect this repo. Render reads `render.yaml`.
+2. When prompted, paste `SPORTSRC_API_KEY` (declared `sync: false`, so it is never committed).
+3. Deploy. Build runs `npm install && npm run build`, start runs `node server.js`.
+
+Render uses the Node runtime and `package-lock.json`; bun is for local development only.
+Both lockfiles are committed and kept in sync when dependencies change.
+
+Verify after deploy:
+
+```bash
+curl https://<your-service>.onrender.com/api/?type=sports   # JSON, not "Missing API Key"
+curl -o /dev/null -w '%{http_code}\n' https://<your-service>.onrender.com/sports/match/x  # 200 via SPA fallback
+```
+
+Free-tier caveats: the service spins down after ~15 minutes idle (first request then
+takes ~50s), and the 1,000 requests/day quota is shared across all visitors — each open
+Live tab polls 120 times/hour. Raise the poll interval in `SportsHomeView.vue` if that bites.
+If the stream iframe shows `ACCESS DENIED` in production but works locally, that is the
+stream provider gating Render's egress IP, not this app.
