@@ -19,7 +19,7 @@ export function formatKickoffDateTime(timestamp: number): string {
   return dateTimeFormatter.format(new Date(timestamp))
 }
 
-/** YYYY-MM-DD in the user's local timezone, as the API's date filter expects. */
+/** YYYY-MM-DD in the visitor's local timezone (not the API's UTC date). */
 export function toDateInputValue(date: Date): string {
   const offset = date.getTimezoneOffset() * 60_000
   return new Date(date.getTime() - offset).toISOString().slice(0, 10)

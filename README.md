@@ -28,8 +28,10 @@ in both environments. Deploy it as a web service, not a static site — a static
 has no proxy and would get "Missing API Key".
 
 The free plan allows 1,000 requests/day (resets midnight UTC). To stay well inside it,
-the app fetches one `type=matches` response per date and filters Live/Upcoming/Finished
-client-side, caches responses per date in memory, and only polls (every 30s) while the
+the app fetches each UTC date overlapping the visitor's selected local day (usually
+two requests), merges and filters matches by local kickoff date, then filters
+Live/Upcoming/Finished client-side. It caches raw responses per UTC date in memory,
+shares pending requests, and only polls (every 30s) while the
 Live tab is open and the browser tab is visible.
 
 ## Routes
@@ -86,6 +88,10 @@ curl -o /dev/null -w '%{http_code}\n' https://<your-service>.onrender.com/sports
 
 Free-tier caveats: the service spins down after ~15 minutes idle (first request then
 takes ~50s), and the 1,000 requests/day quota is shared across all visitors — each open
-Live tab polls 120 times/hour. Raise the poll interval in `SportsHomeView.vue` if that bites.
+Live tab polls 120 times/hour, usually making up to 240 requests/hour per visitor
+(plus initial loads, date changes, and visibility refreshes). Raise the poll interval
+in `SportsHomeView.vue` if that bites. Dates and kickoff times follow the visitor's
+timezone; the default date rolls over at local midnight on the next timer tick or
+when the page becomes visible. Explicitly selected dates stay fixed.
 If the stream iframe shows `ACCESS DENIED` in production but works locally, that is the
 stream provider gating Render's egress IP, not this app.

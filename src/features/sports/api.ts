@@ -1,4 +1,4 @@
-import { request } from '@/lib/apiClient'
+import { request } from '../../lib/apiClient'
 import type { LeagueGroup, MatchDetail } from './types'
 
 export const FOOTBALL = 'football'

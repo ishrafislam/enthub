@@ -8,7 +8,7 @@ import ErrorState from '@/components/ui/ErrorState.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
 import { useMatches } from '../composables/useMatches'
 import { bucketOf } from '../status'
-import { todayDateValue } from '@/lib/format'
+import { useSelectedDate } from '../composables/useSelectedDate'
 import type { LeagueGroup, StatusFilter } from '../types'
 
 const route = useRoute()
@@ -16,7 +16,7 @@ const router = useRouter()
 
 const VALID_STATUSES: StatusFilter[] = ['live', 'upcoming', 'finished']
 
-const date = computed(() => (route.query.date as string) || todayDateValue())
+const { date, updateToday } = useSelectedDate(computed(() => route.query.date as string | undefined))
 const status = computed<StatusFilter>(() => {
   const value = route.query.status as StatusFilter
   return VALID_STATUSES.includes(value) ? value : autoStatus.value
@@ -62,12 +62,20 @@ function updateQuery(patch: Record<string, string>) {
 // Live scores go stale fast; refresh while the Live tab is open and visible.
 let timer: number | undefined
 function tick() {
+  if (updateToday()) return // The date watcher loads the new day.
   if (status.value === 'live' && document.visibilityState === 'visible') refresh()
+}
+function onVisibilityChange() {
+  if (document.visibilityState === 'visible') tick()
 }
 onMounted(() => {
   timer = window.setInterval(tick, 30_000)
+  document.addEventListener('visibilitychange', onVisibilityChange)
 })
-onBeforeUnmount(() => window.clearInterval(timer))
+onBeforeUnmount(() => {
+  window.clearInterval(timer)
+  document.removeEventListener('visibilitychange', onVisibilityChange)
+})
 </script>
 
 <template>
